@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Pages">
+      <UniqueIdentifier>{82bf9ef5-c439-46f9-991d-7bfcd435484f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pages\Concrete">
+      <UniqueIdentifier>{c01d5432-65dd-450f-a227-e862460fbb05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pages\Gauges">
+      <UniqueIdentifier>{89f9829f-037b-4ab3-a19e-384aef542ed2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LEDs">
+      <UniqueIdentifier>{66bb0c6c-26f3-4900-a229-718fdc98300d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SimClient">
+      <UniqueIdentifier>{30196b8b-b732-42c6-9517-7af94b4ef49f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MfdLoop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pages\SimPage.cpp">
+      <Filter>Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Pages\FSPageList.cpp">
+      <Filter>Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Pages\Scroller.cpp">
+      <Filter>Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Pages\Concrete\ReadoutScrollList.cpp">
+      <Filter>Pages\Concrete</Filter>
+    </ClCompile>
+    <ClCompile Include="Pages\Concrete\WaitSpinner.cpp">
+      <Filter>Pages\Concrete</Filter>
+    </ClCompile>
+    <ClCompile Include="Pages\Gauges\StackableGauge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SimClient\FSClient.cpp">
+      <Filter>SimClient</Filter>
+    </ClCompile>
+    <ClCompile Include="SimClient\IReceiver.cpp">
+      <Filter>SimClient</Filter>
+    </ClCompile>
+    <ClCompile Include="SimClient\ReceiveBuffer.cpp">
+      <Filter>SimClient</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceLookup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SimClient\ConfigHelper.cpp">
+      <Filter>SimClient</Filter>
+    </ClCompile>
+    <ClCompile Include="SimVarDef.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SimClient\SimConnectError.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LEDs\StateDetectors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LEDs\IStateDetector.cpp">
+      <Filter>LEDs</Filter>
+    </ClCompile>
+    <ClCompile Include="LEDs\LedController.cpp">
+      <Filter>LEDs</Filter>
+    </ClCompile>
+    <ClCompile Include="LEDs\BlinkPattern.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SimClient\DedupSimvarRegister.cpp">
+      <Filter>SimClient</Filter>
+    </ClCompile>
+    <ClCompile Include="LEDs\LedControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Configurator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MfdLoop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pages\SimPage.h">
+      <Filter>Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Pages\FSPageList.h">
+      <Filter>Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Pages\Scroller.h">
+      <Filter>Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Pages\Concrete\ReadoutScrollList.h">
+      <Filter>Pages\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="Pages\Concrete\WaitSpinner.h">
+      <Filter>Pages\Concrete</Filter>
+    </ClInclude>
+    <ClInclude Include="Pages\Gauges\StackableGauge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimVarDef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimClient\ReceiveBuffer.h">
+      <Filter>SimClient</Filter>
+    </ClInclude>
+    <ClInclude Include="SimClient\FSClient.h">
+      <Filter>SimClient</Filter>
+    </ClInclude>
+    <ClInclude Include="SimClient\IReceiver.h">
+      <Filter>SimClient</Filter>
+    </ClInclude>
+    <ClInclude Include="SimClient\FSClientTypes.h">
+      <Filter>SimClient</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceLookup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FSMfdTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimClient\ConfigHelper.h">
+      <Filter>SimClient</Filter>
+    </ClInclude>
+    <ClInclude Include="SimClient\SimConnectError.h">
+      <Filter>SimClient</Filter>
+    </ClInclude>
+    <ClInclude Include="Configurator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LEDs\LedController.h">
+      <Filter>LEDs</Filter>
+    </ClInclude>
+    <ClInclude Include="LEDs\StateDetectors.h">
+      <Filter>LEDs</Filter>
+    </ClInclude>
+    <ClInclude Include="LEDs\BlinkPattern.h">
+      <Filter>LEDs</Filter>
+    </ClInclude>
+    <ClInclude Include="LEDs\DetectorHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LEDs\IStateDetector.h">
+      <Filter>LEDs</Filter>
+    </ClInclude>
+    <ClInclude Include="SimClient\DedupSimvarRegister.h">
+      <Filter>SimClient</Filter>
+    </ClInclude>
+    <ClInclude Include="LEDs\LedControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

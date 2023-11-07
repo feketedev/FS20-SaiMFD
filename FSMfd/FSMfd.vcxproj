@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{1451fc97-2f86-4ac8-8db2-60a7284e8f7e}</ProjectGuid>
+    <RootNamespace>FSMfd</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\FSMfd-Project.props" />
+    <Import Project="..\..\..\dependencies\MSFS-SDK\SimConnect SDK\VS\SimConnectClient.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\FSMfd-Project.props" />
+    <Import Project="..\..\..\dependencies\MSFS-SDK\SimConnect SDK\VS\SimConnectClient.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\dependencies\MSFS-SDK\SimConnect SDK\VS\SimConnectClient.props" />
+    <Import Project="..\FSMfd-Project.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\FSMfd-Project.props" />
+    <Import Project="..\..\..\dependencies\MSFS-SDK\SimConnect SDK\VS\SimConnectClient.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Configurator.cpp" />
+    <ClCompile Include="DeviceLookup.cpp" />
+    <ClCompile Include="LEDs\BlinkPattern.cpp" />
+    <ClCompile Include="LEDs\IStateDetector.cpp" />
+    <ClCompile Include="LEDs\LedControl.cpp" />
+    <ClCompile Include="LEDs\LedController.cpp" />
+    <ClCompile Include="SimClient\DedupSimvarRegister.cpp" />
+    <ClCompile Include="LEDs\StateDetectors.cpp" />
+    <ClCompile Include="SimClient\ConfigHelper.cpp" />
+    <ClCompile Include="SimClient\ReceiveBuffer.cpp" />
+    <ClCompile Include="SimClient\FSClient.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MfdLoop.cpp" />
+    <ClCompile Include="Pages\SimPage.cpp" />
+    <ClCompile Include="Pages\Concrete\ReadoutScrollList.cpp" />
+    <ClCompile Include="Pages\Concrete\WaitSpinner.cpp" />
+    <ClCompile Include="Pages\FSPageList.cpp" />
+    <ClCompile Include="Pages\Gauges\StackableGauge.cpp" />
+    <ClCompile Include="Pages\Scroller.cpp" />
+    <ClCompile Include="SimClient\IReceiver.cpp" />
+    <ClCompile Include="SimClient\SimConnectError.cpp" />
+    <ClCompile Include="SimVarDef.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Configurator.h" />
+    <ClInclude Include="LEDs\BlinkPattern.h" />
+    <ClInclude Include="LEDs\IStateDetector.h" />
+    <ClInclude Include="LEDs\LedControl.h" />
+    <ClInclude Include="LEDs\LedController.h" />
+    <ClInclude Include="SimClient\DedupSimvarRegister.h" />
+    <ClInclude Include="LEDs\DetectorHelpers.h" />
+    <ClInclude Include="LEDs\StateDetectors.h" />
+    <ClInclude Include="SimClient\ConfigHelper.h" />
+    <ClInclude Include="DeviceLookup.h" />
+    <ClInclude Include="FSMfdTypes.h" />
+    <ClInclude Include="SimClient\FSClientTypes.h" />
+    <ClInclude Include="SimClient\ReceiveBuffer.h" />
+    <ClInclude Include="SimClient\FSClient.h" />
+    <ClInclude Include="MfdLoop.h" />
+    <ClInclude Include="Pages\SimPage.h" />
+    <ClInclude Include="Pages\Concrete\ReadoutScrollList.h" />
+    <ClInclude Include="Pages\Concrete\WaitSpinner.h" />
+    <ClInclude Include="Pages\FSPageList.h" />
+    <ClInclude Include="Pages\Gauges\StackableGauge.h" />
+    <ClInclude Include="Pages\Scroller.h" />
+    <ClInclude Include="SimClient\IReceiver.h" />
+    <ClInclude Include="SimClient\SimConnectError.h" />
+    <ClInclude Include="SimVarDef.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DirectOutputHelper\DirectOutputHelper.vcxproj">
+      <Project>{892a4f20-58b5-4a90-aff7-a0d22ca6c33c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Utils\Utils.vcxproj">
+      <Project>{f9b33c3a-eeec-4253-af38-f832f2734a06}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
