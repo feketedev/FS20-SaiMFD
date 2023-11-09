@@ -1,5 +1,11 @@
 #pragma once
 
+	/*  Part of FS20-SaiMFD			   *
+	 *  Copyright 2023 Norbert Fekete  *
+     *                                 *
+	 *  Released under GPLv3.		   */
+
+
 #include "DirectOutputHelper/DOHelperTypes.h"
 #include "SimClient/FSClientTypes.h"
 #include "SimClient/IReceiver.h"

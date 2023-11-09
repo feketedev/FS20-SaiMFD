@@ -1,3 +1,9 @@
+
+	/*  FS20-SaiMFD					  Copyright 2023 Norbert Fekete  *
+	 *  Released under GPLv3.										 *
+	 *  Consult LICENSE.txt or https://www.gnu.org/licenses/gpl-3.0  */
+
+
 #include "DeviceLookup.h"
 #include "MfdLoop.h"
 
@@ -75,7 +81,12 @@ int main()
 {
 	using namespace std::chrono_literals;
 
-	std::cout << "FS2020 <--> Saitek X52 MFD" << std::endl;
+	std::cout << "  *-------------------------------------------------------------------*\n"
+				 "  | FS2020 <--> Saitek X52 MFD   Copyright 2023 Norbert Fekete        |\n"
+				 "  | Utilizing DirectOutput SDK   Copyright 2008 Saitek                |\n"
+				 "  | Released under GPLv3. See:   https://www.gnu.org/licenses/gpl-3.0 |\n"
+				 "  *-------------------------------------------------------------------*\n"
+			  << std::endl;
 
 	SetConsoleCtrlHandler(&FSMfd::ConsoleInterrupt, TRUE);
 	Debug::PrintAssertsToStderr();

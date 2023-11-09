@@ -1,5 +1,11 @@
 #pragma once
 
+	/*  Part of FS20-SaiMFD			   *
+	 *  Copyright 2023 Norbert Fekete  *
+     *                                 *
+	 *  Released under GPLv3.		   */
+
+
 #include "IReceiver.h"
 #include "FSClientTypes.h"
 #include "Utils/Reassignable.h"	// TODO tulzas :)

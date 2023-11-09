@@ -1,5 +1,11 @@
 #pragma once
 
+	/*  Part of FS20-SaiMFD			   *
+	 *  Copyright 2023 Norbert Fekete  *
+     *                                 *
+	 *  Released under GPLv3.		   */
+
+
 #include "SimClient/ReceiveBuffer.h"
 #include "SimClient/FSClientTypes.h"
 #include "Pages/FSPageList.h"

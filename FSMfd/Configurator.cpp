@@ -1,5 +1,13 @@
 #include "Configurator.h"
 
+	/*  Currently no configuration via files implemented.   *
+	 *  This file is intended to allow configuration in a   *
+	 *  hardcoded, but flexible and readable manner.		*
+	 *													    *
+	 *  Part of FS20-SaiMFD	 Copyright 2023 Norbert Fekete  *
+	 *  Released under GPLv3.							    */
+
+
 #include "SimClient/FSClient.h"
 #include "LEDs/LedController.h"
 #include "LEDs/StateDetectors.h"

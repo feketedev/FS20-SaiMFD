@@ -1,5 +1,11 @@
 #pragma once
 
+	/*  Part of FS20-SaiMFD			   *
+	 *  Copyright 2023 Norbert Fekete  *
+     *                                 *
+	 *  Released under GPLv3.		   */
+
+
 #include <atomic>
 #include <limits>
 

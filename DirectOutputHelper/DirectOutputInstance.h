@@ -1,5 +1,14 @@
 #pragma once
 
+	/*  Part of FS20-SaiMFD			  Copyright 2023 Norbert Fekete  *	
+	 *  Released under GPLv3.										 *
+	 *  Consult LICENSE.txt or https://www.gnu.org/licenses/gpl-3.0  *
+	 *	 															 *
+	 *  This module is a usability-wrapper around Saitek's			 *
+	 *  DirectOutput library, which is Copyright 2008 Saitek.		 *
+	 *  See Saitek/DirectOutput.h for details.						 */
+
+
 #include "DOHelperTypes.h"
 #include "Utils/LiteSharedLock.h"
 #include <future>

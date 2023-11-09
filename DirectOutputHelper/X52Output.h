@@ -1,5 +1,13 @@
 #pragma once
 
+	/*  Part of FS20-SaiMFD	    Copyright 2023 Norbert Fekete  *	
+	 *  Released under GPLv3.								   *
+	 *	 													   *
+	 *  This is a usability-wrapper around Saitek's			   *
+	 *  DirectOutput library, which is Copyright 2008 Saitek.  *
+	 *  See Saitek/DirectOutput.h for details.				   */
+
+
 #include "InputMessage.h"
 #include "ScrollwheelDebounce.h"
 #include <memory>
