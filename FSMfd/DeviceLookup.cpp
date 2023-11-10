@@ -6,7 +6,6 @@
 #include "DirectOutputHelper/DirectOutputInstance.h"
 #include "Utils/Debug.h"
 #include <iostream>
-#include <optional>
 
 
 
@@ -20,9 +19,7 @@ namespace FSMfd {
 		std::cout << "Found devices:";
 
 		std::vector<SaiDevice> devices = output.EnumerateDevices();
-		if (devices.empty())
-			std::cout << "      NONE" << std::endl;
-		std::cout << std::endl;
+		std::cout << (devices.empty() ? "        NONE" : "\n");
 
 		size_t n   = 0;
 		size_t sel = SIZE_MAX;
@@ -31,15 +28,12 @@ namespace FSMfd {
 			if (dev.type == SaiDeviceType::X52Pro)
 				sel = n;
 
-			std::cout << "   " << ++n << ". \t" << AsString(dev.type);
+			std::cout << "\t\t" << ++n << ". " << AsString(dev.type);
 		}
 		std::cout << std::endl;
 
 		if (sel > devices.size())
-		{
-			std::cout << "NO X52 Pro devices found!" << std::endl;
 			return std::nullopt;
-		}
 
 		std::cout << "\nWill use device " << (sel + 1) << '.' << std::endl;
 		return devices[sel];

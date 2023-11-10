@@ -15,13 +15,15 @@
 
 namespace FSMfd::Pages
 {
-	// TODO doc
+	// TODO finish doc
 	/// An MFD Page connected to SimConnect Simulation Variables.
-/// Handles group creation and switching. 
-/// Using groupID = Page ID.
-
-	/// Separates concern of display updates due to fresh game data
-	/// and local updates for blinking/animation effects.
+	/// @remarks
+	///		Handles group creation and switching during Page changes.
+	/// 
+	///		Via the methots @m Update and @m Animate separates 
+	///		concern of display-updates due to fresh game data
+	///		and local updates for blinking/animation effects.
+	/// 
 	class SimPage : public DOHelper::X52Output::Page,
 					public SimClient::IDataReceiver   {
 	public:

@@ -2,9 +2,7 @@
 
 #include "DirectOutputInstance.h"
 #include "Utils/Debug.h"
-
 #include "Saitek/DirectOutputImpl.h"
-#include <iostream>
 
 
 
@@ -103,7 +101,6 @@ namespace DOHelper {
 			return res;
 
 		res = messages.front();
-		std::cout << ' ' << res->optData;
 		messages.pop_front();
 		return res;
 	}
@@ -117,8 +114,6 @@ namespace DOHelper {
 		
 		auto res = messages.front();
 		messages.pop_front();
-
-		std::cout << ' ' << res.optData;
 
 		return res;
 	}

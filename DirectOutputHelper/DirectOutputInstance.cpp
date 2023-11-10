@@ -3,10 +3,10 @@
 #include "DirectOutputError.h"
 #include "X52Output.h"
 
+#include "Utils/Debug.h"
 #include "Saitek/DirectOutputImpl.h"
 #include <cassert>
 #include <shared_mutex>
-#include <iostream>		//TODO
 
 
 
@@ -151,7 +151,7 @@ namespace DOHelper
 	/*static*/ void __stdcall
 	DirectOutputInstance::OnDeviceChange(void* device, bool added, void* pCtxt)
 	{
-		std::cout << "Device " << (added ? "ADDED" : "REMOVED") << std::endl;
+		Debug::Info("DirectOutput", added ? "Device ADDED" : "Device REMOVED");
 
 		auto& instance = *reinterpret_cast<DirectOutputInstance*> (pCtxt);
 		if (added)

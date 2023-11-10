@@ -41,11 +41,6 @@
 
 
 
-// TODO: in use?
-#define VERBOSE_CHK(x)			(std::cout << (x ? "OK" : "FAILED") << std::endl, (x))
-#define VERBOSE_FAIL(x)			(std::cout << (x ? "FAILED" : "OK") << std::endl, !(x))
-
-
 
 namespace Debug 
 {
@@ -57,7 +52,9 @@ namespace Debug
 
 	void Warning(const char* msg);
 	void Warning(const char* source, const char* msg);
+	void Warning(const char* source, const char* msg, int param);
 
 	void Info(const char* msg);
 	void Info(const char* source, const char* msg);
+	void Info(const char* source, const char* msg, int param);
 }

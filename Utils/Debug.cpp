@@ -31,6 +31,12 @@ namespace Debug
 		std::cout << source << " Warning:  " << msg << '\n';
 	}
 
+	void Warning(const char* source, const char* msg, int param)
+	{
+		std::cout << source << " Warning:  " << msg << ' ' << param << '\n';
+	}
+
+
 	void Info(const char* msg)
 	{
 		std::cout << "Debug:  " << msg << '\n';
@@ -40,5 +46,11 @@ namespace Debug
 	{
 		std::cout << source << ":  " << msg << '\n';
 	}
+
+	void Info(const char* source, const char* msg, int param)
+	{
+		std::cout << source << ":  " << msg << ' ' << param << '\n';
+	}
+
 
 }	// namespace Debug

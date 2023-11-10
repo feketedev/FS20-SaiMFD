@@ -8,7 +8,6 @@
 
 #include "Saitek/DirectOutputImpl.h"
 #include <algorithm>
-#include <iostream>
 #include <shared_mutex>
 
 
@@ -95,7 +94,7 @@ namespace DOHelper
 		switch (msg.kind)
 		{
 			case MessageKind::PageDeactivated:
-				std::cout << " \tPage OFF " << msg.optData << std::endl;
+				Debug::Info("DirectOutput Helper", "Page  OFF ", msg.optData);
 				// TODO: Is it received during removal?
 				if (activePage == nullptr)
 				{
@@ -109,7 +108,7 @@ namespace DOHelper
 
 			case MessageKind::PageActivated:
 			{
-				std::cout << " \tPage ON  " << msg.optData << std::endl;
+				Debug::Info("DirectOutput Helper", "Page  ON  ",  msg.optData);
 				LOGIC_ASSERT (activePage == nullptr || activePage->id == msg.optData);
 				if (activePage != nullptr)
 					break;
@@ -130,7 +129,7 @@ namespace DOHelper
 
 			case MessageKind::ButtonPress:
 			{
-				std::cout << " \tButton     " << msg.optData << std::endl;
+				Debug::Info("DirectOutput Helper", "Button    ", msg.optData);
 
 				LOGIC_ASSERT (activePage != nullptr);	// filtered by driver
 

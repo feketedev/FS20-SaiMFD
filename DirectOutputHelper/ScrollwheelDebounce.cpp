@@ -1,8 +1,9 @@
 #include "ScrollwheelDebounce.h"
+
 #include "InputQueue.h"
 #include "Utils/Debug.h"
 
-#include <iostream>
+
 
 namespace DOHelper {
 
@@ -245,8 +246,6 @@ namespace DOHelper {
 						|| isBoundary(*next)
 						|| ProcessBounce(queue.PopNext());
 		}
-
-		//std::cout << " Balance: " << scroll.balance << std::endl;
 
 		return scroll.Emit();
 	}
