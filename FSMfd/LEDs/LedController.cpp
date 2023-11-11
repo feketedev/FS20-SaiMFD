@@ -18,7 +18,7 @@ namespace FSMfd::Led
 
 	optional<Color> LedOverride::CalcResult(const SimClient::SimvarList& simvars)
 	{
-		optional<unsigned> state = detector->DeterminState(simvars);
+		optional<unsigned> state = detector->DetectState(simvars);
 		if (!state.has_value())
 		{
 			lastState = UINT_MAX;

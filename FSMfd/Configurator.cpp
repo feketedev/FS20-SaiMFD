@@ -113,17 +113,17 @@ namespace FSMfd
 		SwitchDetector gearNotRetracted { "GEAR TOTAL PCT EXTENDED", "percent" };
 
 		LedOverride leftGearState {
-			RangeDetector	{ "GEAR LEFT POSITION", "percent", Limits { UpIncluding(0), 100 } },
+			RangeDetector	{ "GEAR LEFT POSITION", "percent", Boundaries { UpIncluding(0), 100 } },
 			StateColors		{ LedColor::Off, LedColor::Red, LedColor::Green }
 		};
 
 		LedOverride centerGearState {
-			RangeDetector	{ "GEAR CENTER POSITION", "percent", Limits { UpIncluding(0), 100 } },
+			RangeDetector	{ "GEAR CENTER POSITION", "percent", Boundaries { UpIncluding(0), 100 } },
 			StateColors		{ LedColor::Off, LedColor::Red, LedColor::Green }
 		};
 
 		LedOverride rightGearState {
-			RangeDetector	{ "GEAR LEFT POSITION", "percent", Limits { UpIncluding(0), 100 } },
+			RangeDetector	{ "GEAR LEFT POSITION", "percent", Boundaries { UpIncluding(0), 100 } },
 			StateColors		{ LedColor::Off, LedColor::Red, LedColor::Green }
 		};
 
@@ -167,7 +167,7 @@ namespace FSMfd
 		// - Nosewheellock does not seem to be present anywhere
 		return { 
 			{ Toggle1, Color::Amber, { leftGearState } },
-			{ Toggle2, Color::Amber, { centerGearState, steeringLockWarning } },
+			{ Toggle2, Color::Amber, { centerGearState /*, steeringLockWarning*/ } },
 			{ Toggle3, Color::Amber, { rightGearState, parkBrakeWarning } },
 		};
 	}

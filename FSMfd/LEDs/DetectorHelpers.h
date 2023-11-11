@@ -9,54 +9,58 @@
 
 namespace FSMfd::Led {
 
-	// === This files contains some sugar for prettier construction of StateDetectors ===
+	/* This files contains some sugar for prettier construction of StateDetectors. *
+	 * Implicit type deduction is in focus.										   */
 
 
 	// ---- DiscreteDetector sugar ------------------------------------------------------
 
 	template<class T, size_t N>
-	using Triggers = std::array<T, N>;
+	using TriggerValues = std::array<T, N>;
 
 
 
 	// ---- RangeDetector sugar ---------------------------------------------------------
 
 	template<class T>
-	struct Limit {
+	struct Boundary {
 		const T		val;
 		const bool	includedAbove;
 
-		Limit (T v, bool ab = true) : val { v }, includedAbove { ab } {}
+		Boundary (T v, bool ab = true) : val { v }, includedAbove { ab } {}
 
-		bool MetBy(const T& p) const
+		// Note: templated to avoid narrowing conversions
+		template <class P>
+		bool MetBy(const P& p) const
 		{
 			return p < val || !includedAbove && p == val;
 		}
 
-		bool ExceededBy(const T& p) const
+		template <class P>
+		bool ExceededBy(const P& p) const
 		{
 			return val < p || includedAbove && p == val;
 		}
 	};
 
 	template<class T>
-	Limit<T> From(T v) { return { v, true }; }
+	Boundary<T> From(T v) { return { v, true }; }
 
 	template<class T>
-	Limit<T> UpIncluding(T v) { return { v, false }; }
+	Boundary<T> UpIncluding(T v) { return { v, false }; }
 
 
 
 	template<class T, size_t N>
-	struct Limits : public std::array<Limit<T>, N>
+	struct Boundaries : public std::array<Boundary<T>, N>
 	{
 	};
 
 	template <class T, class... Args>
-	Limits(Limit<T>, Args...) -> Limits<T, sizeof...(Args) + 1>;
+	Boundaries(Boundary<T>, Args...) -> Boundaries<T, sizeof...(Args) + 1>;
 
 	template <class T, class... Args>
-	Limits(T, Args...) -> Limits<T, sizeof...(Args) + 1>;
+	Boundaries(T, Args...) -> Boundaries<T, sizeof...(Args) + 1>;
 
 
 
