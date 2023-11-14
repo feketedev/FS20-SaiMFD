@@ -8,52 +8,76 @@
 
 namespace FSMfd::Led
 {
+
+#pragma region LedOverride
+
 	LedOverride::LedOverride(const LedOverride& src) :
-		detector  { src.detector->Clone() },
-		patterns  { src.patterns },
-		lastState { src.lastState }
+		detector { src.detector->Clone() },
+		patterns { src.patterns },
+		state    { src.state }
 	{
 	}
 
 
-	optional<Color> LedOverride::CalcResult(const SimClient::SimvarList& simvars)
+	std::pair<optional<Color>, Duration>	LedOverride::CurrentColor() const
 	{
-		optional<unsigned> state = detector->DetectState(simvars);
-		if (!state.has_value())
-		{
-			lastState = UINT_MAX;
-			return Nothing;
-		}
+		if (state == Nothing)
+			return { Nothing, Duration::max() };
 
-		if (*state != lastState && lastState < patterns.size())
-			patterns[lastState].Reset();
+		const BlinkPattern& blink = patterns[*state];
+		return { blink.CurrentColor(), blink.HoldTime() };
+	}
 
-		lastState = *state;
+
+	void LedOverride::AdvanceBlinking(Duration dur)
+	{
+		if (state.has_value())
+			patterns[*state].Advance(dur);
+	}
+
+	
+	void LedOverride::Update(Duration sinceBlink, const SimClient::SimvarList& simvars)
+	{
+		optional<unsigned>	freshState = detector->DetectState(simvars);
+		const bool			unchanged  = state == freshState;
+
+		state = freshState;
+		
+		if (state == Nothing)
+			return;
+
 		BlinkPattern& blink = patterns[*state];
-
-		blink.Step(1);					// TODO ticks?
-		return blink.CurrentColor();
+		if (unchanged)
+			blink.Advance(sinceBlink);
+		else
+			blink.Reset();
 	}
 
+#pragma endregion
 
 
+
+
+#pragma region LedController
 
 	LedController::LedController(UniLed id, bool defaultOn, std::vector<LedOverride> overrides) :
-		ledId        { id },
-		isMulticolor { false },
-		defaultColor { defaultOn ? Color::Green : Color::Off },
-		overrides    { std::move(overrides) },
-		lastColor	 { static_cast<Color>(UINT8_MAX) }
+		ledId			  { id },
+		isMulticolor	  { false },
+		defaultColor	  { defaultOn ? Color::Green : Color::Off },
+		overrides		  { std::move(overrides) },
+		setColor		  { static_cast<Color>(UINT8_MAX) },
+		isCurrentlyStatic { true }
 	{
 	}
 
 
 	LedController::LedController(BiLed id, Color defaultCol, std::vector<LedOverride> overrides) :
-		ledId        { id },
-		isMulticolor { true },
-		defaultColor { defaultCol },
-		overrides    { std::move(overrides) },
-		lastColor	 { static_cast<Color>(UINT8_MAX) }
+		ledId			  { id },
+		isMulticolor	  { true },
+		defaultColor	  { defaultCol },
+		overrides		  { std::move(overrides) },
+		setColor		  { static_cast<Color>(UINT8_MAX) },  // ControlPanel-set default is unknown
+		isCurrentlyStatic { true }							  // ControlPanel-set default at start is static
 	{
 	}
 
@@ -67,36 +91,73 @@ namespace FSMfd::Led
 
 	void LedController::ApplyDefault(DOHelper::X52Output& x52)
 	{
-		if (isMulticolor)
-			x52.SetColor(static_cast<BiLed>(ledId), defaultColor);
-		else
-			x52.SetState(static_cast<UniLed>(ledId), defaultColor != Color::Off);
-
-		lastColor = defaultColor;
+		Apply(defaultColor, x52);
+		isCurrentlyStatic = true;
 	}
 
 
-	void LedController::Update(DOHelper::X52Output& x52, const SimClient::SimvarList& simvars)
+	void LedController::Apply(Color c, DOHelper::X52Output& x52)
 	{
-		// It's important to always drive all the overrides -> keep Blinks ticking consistently
-		optional<Color> upmost;
-		for (LedOverride& ovr : overrides)
-		{
-			optional<Color> curr = ovr.CalcResult(simvars);
-			if (curr.has_value())
-				upmost = *curr;
-		}
+		if (c != setColor && isMulticolor)
+			x52.SetColor(static_cast<BiLed>(ledId), c);
+		if (c != setColor && !isMulticolor)
+			x52.SetState(static_cast<UniLed>(ledId), c != Color::Off);
 
-		Color ultimate = upmost.value_or(defaultColor);
-
-		if (ultimate != lastColor && isMulticolor)
-			x52.SetColor(static_cast<BiLed>(ledId), ultimate);
-		if (ultimate != lastColor && !isMulticolor)
-			x52.SetState(static_cast<UniLed>(ledId), ultimate != Color::Off);
-
-		lastColor = ultimate;
+		setColor = c;
 	}
 
+
+	std::pair<Color, Duration>	LedController::Summarize() const
+	{
+		Color    winner   = defaultColor;
+		Duration holdTime = Duration::max();
+		for (const LedOverride& ovr : overrides)
+		{
+			auto [ovrColor, timeLeft] = ovr.CurrentColor();
+			if (ovrColor.has_value())
+			{
+				winner = *ovrColor;
+				holdTime = timeLeft;		// ignore lower prio
+			}
+			else
+			{
+				holdTime = std::min(timeLeft, holdTime);
+			}
+		}
+		return { winner, holdTime };
+	}
+
+
+
+	Duration LedController::Update(DOHelper::X52Output& x52, Duration elapsed, const SimClient::SimvarList& simvars)
+	{
+		// It's important to always drive all the overrides -> keep potential Blinks ticking in sync
+		for (LedOverride& ovr : overrides)
+			ovr.Update(elapsed, simvars); 
+
+		auto [color, holdTime] = Summarize();
+		Apply(color, x52);
+
+		isCurrentlyStatic = (holdTime == Duration::max());
+		return holdTime;
+	}
+
+	
+	Duration LedController::Blink(DOHelper::X52Output& x52, Duration elapsed)
+	{
+		if (isCurrentlyStatic)
+			return Duration::max();
+
+		for (LedOverride& ovr : overrides)
+			ovr.AdvanceBlinking(elapsed);
+
+		auto [color, holdTime] = Summarize();
+		Apply(color, x52);
+
+		return holdTime;
+	}
+
+#pragma endregion
 
 
 }	//	namespace FSMfd::Led

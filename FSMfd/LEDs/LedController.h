@@ -15,25 +15,28 @@ namespace FSMfd::Led {
 	using StateColors   = std::vector<optional<Color>>;
 
 
+	// ----------------------------------------------------------------------------------
+
+	/// Can define the Color of a single LED based on SimVars' state, 
+	/// or can pass the job to the next Override or Default.
 	class LedOverride {
 		std::unique_ptr<IStateDetector> 	detector;
 		StatePatterns						patterns;
-		unsigned							lastState = UINT_MAX;
+		optional<unsigned>					state;
 
 	public:
-		LedOverride(LedOverride&&) noexcept = default;
+		LedOverride(LedOverride&&)		noexcept = default;
 		LedOverride(const LedOverride&);
 
-		IStateDetector&		Detector()		{ return *detector; }
+		IStateDetector& Detector()	{ return *detector; }
 		
-		optional<Color>		CalcResult(const SimClient::SimvarList& nextValues);
+		/// @returns  (actual override, time remain)
+		std::pair<optional<Color>, Duration>	CurrentColor() const;
 
-		template<class D, class States>
-		LedOverride(D detector, States patterns) :
-			detector { new D { std::move(detector) } },
-			patterns { ToPatterns(std::move(patterns)) }
-		{
-		}
+		void Update(Duration sinceBlink, const SimClient::SimvarList&);
+		
+		void AdvanceBlinking(Duration elapsed);
+
 
 		template<class States>
 		LedOverride(std::unique_ptr<IStateDetector> detector, States patterns) :
@@ -41,6 +44,15 @@ namespace FSMfd::Led {
 			patterns { ToPatterns(std::move(patterns)) }
 		{
 		}
+
+		// just sugar
+		template<class D, class States>
+		LedOverride(D detector, States patterns) :
+			detector { new D { std::move(detector) } },
+			patterns { ToPatterns(std::move(patterns)) }
+		{
+		}
+
 
 	private:
 		static StatePatterns ToPatterns(StatePatterns&& p)	 { return std::move(p); }
@@ -56,12 +68,17 @@ namespace FSMfd::Led {
 
 
 
+	// ----------------------------------------------------------------------------------
+
 	// TODO: name vs. LedControl?
+	/// Governs the state of a single (composite) LED.
 	class LedController {
 		const uint32_t				ledId;
 		const bool					isMulticolor;
-		Color						defaultColor;
-		Color						lastColor;
+		const Color					defaultColor;
+
+		Color						setColor;
+		bool						isCurrentlyStatic;		// no blink until next Update
 		std::vector<LedOverride>	overrides;
 
 	public:
@@ -72,10 +89,14 @@ namespace FSMfd::Led {
 
 		void ApplyDefault(DOHelper::X52Output&);
 
-		void Update(DOHelper::X52Output&, const SimClient::SimvarList&);
+		/// @returns Duration until an upcoming Blink
+		Duration Update(DOHelper::X52Output&, Duration elapsed, const SimClient::SimvarList&);
+		Duration Blink(DOHelper::X52Output&, Duration elapsed);
 
-	// Cannot read defaults
-	//	void Reset(const DOHelper::X52Output&);				// TODO if viable - maybe ctor
+	private:
+		void Apply(Color, DOHelper::X52Output&);
+
+		std::pair<Color, Duration>	Summarize() const;
 	};
 
 

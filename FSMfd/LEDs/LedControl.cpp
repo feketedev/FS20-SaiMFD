@@ -14,18 +14,18 @@ namespace FSMfd::Led
 
 
 	LedControl::LedControl(X52Output& x52, FSClient& client, std::vector<LedController>&& controllers) :
-		client		{ client },
-		output      { x52 },
-		simvars     { client.CreateVarGroup() },
-		leds        { std::move(controllers) },
-		lastUpdated { TimePoint::min() }
+		client       { client },
+		output       { x52 },
+		simvars      { client.CreateVarGroup() },
+		leds         { std::move(controllers) },
+		stateStamp   { TimePoint::min() },
+		nextBlink    { TimePoint::max() },
+		enabled      { false }
 	{
 		DedupSimvarRegister regtor { client, simvars.Group };
 
 		for (LedController& led : leds)
 			led.RegisterVariables(regtor);
-
-		client.EnableVarGroup(simvars.Group, simvars, /*fastUpdate:*/ true);
 	}
 
 
@@ -39,6 +39,7 @@ namespace FSMfd::Led
 
 		try
 		{
+			// NOTE: Probably unimportant - these are not the ControlPanel set defaults.
 			ApplyDefaults();
 		}
 		catch (...)
@@ -52,23 +53,79 @@ namespace FSMfd::Led
 	{
 		for (LedController& led : leds)
 			led.ApplyDefault(output);
+
+		stateStamp = TimePoint::min();
+		simvars.Invalidate();
 	}
 
 
-	bool LedControl::HasUpdate()
+	void LedControl::Enable()
 	{
-		return lastUpdated < simvars.LastReceived();
+		if (!enabled)
+		{
+			client.EnableVarGroup(simvars.Group, simvars, /*fastUpdate:*/ true);
+			enabled = true;
+		}
+	}
+
+
+	void LedControl::Disable()
+	{
+		if (enabled)
+		{
+			client.DisableVarGroup(simvars.Group);
+			simvars.Invalidate();
+			enabled = false;
+		}
+	}
+
+
+	void LedControl::Blink(TimePoint now)
+	{
+		if (now < nextBlink || !enabled)
+			return;
+
+		SwitchLeds(now, [this](LedController& led, Duration elapsed)
+		{
+			return led.Blink(output, elapsed);
+		});
 	}
 
 
 	void LedControl::ApplyUpdate()
 	{
-		if (!HasUpdate())	// TODO: ASSERT?
+		if (!HasUpdate())
 			return;
 
-		for (LedController& led : leds)
-			led.Update(output, simvars.Get());
+		const SimvarList& values = simvars.Get();
+
+		SwitchLeds(simvars.LastReceived(), [&](LedController& led, Duration elapsed)
+		{
+			return led.Update(output, elapsed, values);
+		});
 	}
 
+	
+	template <class LedFun>
+	void LedControl::SwitchLeds(TimePoint stamp, LedFun&& update)
+	{
+		DBG_ASSERT (stateStamp <= stamp);
 
+		const Duration elapsed	= stamp - stateStamp;
+		Duration	   tillNext	= Duration::max();
+
+		for (LedController& led : leds)
+		{
+			Duration hold = update(led, elapsed);
+			tillNext = std::min(hold, tillNext);
+		}
+
+		// i.e. static color
+		bool overflow = stamp > TimePoint::max() - tillNext;
+
+		nextBlink  = overflow ? TimePoint::max() : stamp + tillNext;
+		stateStamp = stamp;
+	}
+
+	
 }	//	namespace FSMfd::Led

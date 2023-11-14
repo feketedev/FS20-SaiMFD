@@ -53,6 +53,21 @@ namespace Utils
 	}
 
 
+	template <class N>
+	N Min(const N& first, const N& second)
+	{
+		return std::min<N>(first, second);
+	}
+
+
+	template <class N, class... More>
+	N Min(const N& first, const N& second, const More&... more)
+	{
+		return std::min<N>(first, Utils::Min<N>(second, more...));
+	}
+
+
+
 
 	// ----- For Enums ------------------------------------------------------------------
 

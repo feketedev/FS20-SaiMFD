@@ -12,13 +12,13 @@ namespace FSMfd::Led {
 	public:
 		struct Element {
 			const optional<Color>	Color;
-			const unsigned			Length;
+			const Duration			Length;
 		};
 
 	private:
 		std::vector<Element>	elements;
 		unsigned				current;
-		unsigned				elapsed;
+		Duration				elapsed;
 
 	public:
 		/// Define a series of optional override Colors, each 
@@ -32,8 +32,9 @@ namespace FSMfd::Led {
 		unsigned			StepCount()	   const	{ return elements.size(); }
 		unsigned			CurrentStep()  const	{ return current; }
 		optional<Color>		CurrentColor() const	{ return elements[current].Color; }
+		Duration			HoldTime()	   const	{ return elements[current].Length - elapsed; }
 
-		void	Step(unsigned ticks);
+		void	Advance(Duration);
 		void	Reset();
 	};
 

@@ -85,7 +85,7 @@ namespace FSMfd
 			SwitchDetector	{ "STALL WARNING" },
 			StatePatterns	{
 				{ Nothing },
-				{{ LedColor::Red, 1 }, { Nothing, 1 }} 
+				{{ LedColor::Red, 250ms }, { Nothing, 250ms }} 
 			}
 		};
 
@@ -93,7 +93,7 @@ namespace FSMfd
 			SwitchDetector	{ "OVERSPEED WARNING" },
 			StatePatterns	{ 
 				{ Nothing },
-				{{ LedColor::Red, 3 }, { Nothing, 2 }}
+				{{ LedColor::Red, 750ms }, { Nothing, 750ms }}
 			}
 		};
 

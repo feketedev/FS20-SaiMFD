@@ -1,7 +1,7 @@
 #include "MfdLoop.h"
 
 #include "Configurator.h"
-#include "SimClient/FSClient.h"			//?
+#include "SimClient/FSClient.h"
 #include "SimClient/SimConnectError.h"
 #include "Pages/Concrete/WaitSpinner.h"
 #include "Pages/FSPageList.h"			//TODO
@@ -10,7 +10,6 @@
 #include "DirectOutputHelper/X52Output.h"
 #include "Utils/Debug.h"
 #include "Utils/IoUtils.h"
-
 #include <thread>
 #include <iostream>
 
@@ -64,7 +63,8 @@ namespace FSMfd
 		const Duration	Remainder;
 
 		const bool		 IsDue(TimePoint now) const 	{ return next <= now; }
-		const TimePoint& Tick()				  const 	{ return next; }
+		const TimePoint& Tick()				  const 	{ return next;   }
+		operator const TimePoint& ()		  const 	{ return Tick(); }
 
 
 		SynchClock(Duration peri, unsigned freq, TimePoint tick0) :
@@ -294,9 +294,6 @@ namespace FSMfd
 			
 			if (re == 0)
 				Debug::Warning("SimConnect queue filling up!");
-
-			// Update LEDs in every receive cycle!
-			leds.ApplyUpdate();
 		};
 		
 		const unsigned  syncingPollCycles  = (nextUpdate.Interval - HotReceiveDelay) / HotReceiveDelay;
@@ -311,15 +308,19 @@ namespace FSMfd
 			auto* const actPage = static_cast<SimPage*>(device.GetActivePage());
 
 			// 0. Wait for a Page if none active
-			//	  Keep listening for sys events + LEDs
+			//	  Keep listening for sys events
 			if (actPage == nullptr)
 			{
+				// LEDs can't be operated when plugin doesn't own the active page!
+				leds.Disable();
+
 				if (nextReceive.IsDue(now))
 					receiveSimBatch(now);
 
 				devicePressed = device.ProcessNextMessage(nextReceive.Tick());
 				continue;
 			}
+			leds.Enable();
 
 			// 1. Dispatch/Receive FS notifications
 			//	  Expedite it when Page needs it (Page change / SetSimvar caused by input)
@@ -340,7 +341,10 @@ namespace FSMfd
 				// adjust sync after Page-change
 				if (sync && !actPage->IsAwaitingData())
 				{
-					Debug::Info("MfdLoop", "Successfully synced polling with FS.");
+					// TODO: No LED update on failed sync. Try to refactor this anyway.
+					leds.ApplyUpdate();
+					auto delayed = std::chrono::duration_cast<std::chrono::milliseconds>((syncingPollCycles - hotPollsRemain) * HotReceiveDelay);
+					Debug::Info("MfdLoop", "Synced polling with FS. Delayed [ms]:  ", delayed.count());
 					nextReceive.Reset(now, true);		// just done
 					nextAnimation.Reset(now, true);		// don't animate immediately
 					nextUpdate.Reset(now);
@@ -349,8 +353,12 @@ namespace FSMfd
 			else if (nextReceive.IsDue(now))
 			{
 				receiveSimBatch(now);
+				leds.ApplyUpdate();
 			}
 			hotPollingPage = actPage->IsAwaitingReceive() ? actPage : nullptr;
+
+			// 1.5 Drive LEDs (if receive hasn't triggered them already)
+			leds.Blink(now);
 
 			// 2. Signal that an Update is due (might not received)
 			if (nextUpdate.IsDue(now))
@@ -371,7 +379,7 @@ namespace FSMfd
 
 			TimePoint deadline = hotPoll 
 				? now + HotReceiveDelay
-				: std::min(std::min(nextReceive.Tick(), nextAnimation.Tick()), nextUpdate.Tick());
+				: Utils::Min<TimePoint>(nextReceive, nextAnimation, nextUpdate, leds.NextBlinkTime());
 			devicePressed = device.ProcessNextMessage(deadline);
 		}
 	}

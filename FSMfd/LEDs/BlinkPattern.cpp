@@ -16,26 +16,27 @@ namespace FSMfd::Led {
 		elapsed	 { 0 }
 	{
 		LOGIC_ASSERT_M (!elements.empty(), "BlinkPattern requires at least one step.");
-		LOGIC_ASSERT_M (IsStatic() ||
-						AllOf(elements, [](auto& el) { return el.Length > 0; }),
+		LOGIC_ASSERT_M (AllOf(elements, [](auto& el) { return el.Length > Duration::zero(); }),
 						"Each step must have a defined length > 0.");
 	}
 
 
-	BlinkPattern::BlinkPattern(optional<Color> c) : BlinkPattern { Element { c, 0 } }
+	BlinkPattern::BlinkPattern(optional<Color> c) :
+		BlinkPattern { Element { c, Duration::max() }}
 	{
 	}
 
 
-	void BlinkPattern::Step(unsigned ticks)
+	void BlinkPattern::Advance(Duration dur)
 	{
-		while (!IsStatic() && ticks > 0)
+		while (!IsStatic() && dur.count() > 0)
 		{
 			Element& curr = elements[current];
-			elapsed += ticks;
+			elapsed += dur;
 			const bool next = (curr.Length <= elapsed);
 			
-			ticks = next ? elapsed - curr.Length : 0;
+			dur = next ? elapsed - curr.Length : Duration::zero();
+
 			current += next;
 			current *= current < elements.size();
 			elapsed *= !next;
@@ -46,7 +47,7 @@ namespace FSMfd::Led {
 	void BlinkPattern::Reset()
 	{
 		current = 0;
-		elapsed = 0;
+		elapsed = Duration::zero();
 	}
 
 
