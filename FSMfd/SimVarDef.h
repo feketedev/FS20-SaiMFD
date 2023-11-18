@@ -23,22 +23,22 @@ namespace FSMfd {
 	///		Technically independent for Page configs,
 	///		but definitely based on SimConnect SDK.
 	struct SimVarDef {
-		const char*		name;
-		const char*		unit;
+		std::string		name;
+		std::string		unit;
 		RequestType		typeReqd = RequestType::UnsignedInt;
 
-		bool operator== (const SimVarDef& rhs);
-		bool operator!= (const SimVarDef& rhs)	{ return !operator==(rhs); }
+		bool operator==(const SimVarDef& rhs);
+		bool operator!=(const SimVarDef& rhs)	{ return !operator==(rhs); }
 	};
 
 
 
 	/// A simulation variable with generic presentation info.
 	struct DisplayVar {
-		SimVarDef				 definition;
-		const std::wstring_view	 text;
-		const std::wstring		 unitText;
-		unsigned				 decimalCount = 2;		// discarded for ints
+		SimVarDef		definition;
+		std::wstring	text;
+		std::wstring	unitText;
+		unsigned		decimalCount = 2;		// discarded for ints
 
 		size_t ValueRoomOn(size_t displayLen) const
 		{
@@ -46,19 +46,19 @@ namespace FSMfd {
 			return Utils::SubtractTillZero(displayLen, occup);
 		}
 
-		DisplayVar(std::wstring_view text, const SimVarDef&, unsigned decimalCount = 2);
-		DisplayVar(std::wstring_view text, const SimVarDef&,
-				   std::wstring		 unitTextOverride,		 unsigned decimalCount = 2);
+		DisplayVar(std::wstring text, const SimVarDef&, unsigned decimalCount = 2);
+		DisplayVar(std::wstring text, const SimVarDef&,
+				   std::wstring unitTextOverride,		unsigned decimalCount = 2);
 	};
 
 
 	
 	// ----------------------------------------------------------------------------------
 
-	inline bool SimVarDef::operator== (const SimVarDef& rhs)
+	inline bool SimVarDef::operator==(const SimVarDef& rhs)
 	{
-		return (name == rhs.name || strcmp(name, rhs.name) == 0)
-			&& (unit == rhs.unit || strcmp(unit, rhs.unit) == 0)
+		return name == rhs.name
+			&& unit == rhs.unit
 			&& typeReqd == rhs.typeReqd;
 	}
 

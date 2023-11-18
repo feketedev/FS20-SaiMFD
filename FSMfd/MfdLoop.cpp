@@ -344,7 +344,7 @@ namespace FSMfd
 					// TODO: No LED update on failed sync. Try to refactor this anyway.
 					leds.ApplyUpdate();
 					auto delayed = std::chrono::duration_cast<std::chrono::milliseconds>((syncingPollCycles - hotPollsRemain) * HotReceiveDelay);
-					Debug::Info("MfdLoop", "Synced polling with FS. Delayed [ms]:  ", delayed.count());
+					Debug::Info("MfdLoop", "Synced polling with FS. Delayed [ms]:", delayed.count());
 					nextReceive.Reset(now, true);		// just done
 					nextAnimation.Reset(now, true);		// don't animate immediately
 					nextUpdate.Reset(now);

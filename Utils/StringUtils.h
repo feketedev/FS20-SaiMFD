@@ -23,7 +23,7 @@ namespace Utils::String {
 		const Align		direction;
 		const size_t	pad;
 
-		PaddedAlignment(Align dir, size_t pad = 0) : direction { dir }, pad { pad }
+		constexpr PaddedAlignment(Align dir, size_t pad = 0) : direction { dir }, pad { pad }
 		{
 		}
 
@@ -50,11 +50,13 @@ namespace Utils::String {
 		StringSection(std::wstring& buffer, size_t pos = 0);			// pos -> buffer end
 
 		StringSection		FollowedBy(size_t length) const;
+		StringSection		SubSection(size_t offset, size_t length) const;
 
 		wchar_t*			GetStart()		const;
 		std::wstring_view	AsStringView()	const;
 
-		void FillWith(std::wstring_view src);
+		void FillIn(std::wstring_view src);
+		void FillWith(wchar_t);
 	};
 
 
@@ -116,6 +118,15 @@ namespace Utils::String {
 	// TODO: Kell?
 	std::wstring AlignCenter(size_t lineLen, const std::wstring_view& text);
 
+
+
+	// ------------------------------------------------------------------------------------------------------
+
+	// X52 only supports old ASCII characters, nothing fancy needed...
+	inline std::wstring AsDumbWString(const std::string_view& str)
+	{
+		return { str.begin(), str.end() };
+	}
 
 
 }	// namespace Utils::String

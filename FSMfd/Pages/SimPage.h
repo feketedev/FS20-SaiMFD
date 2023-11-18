@@ -37,11 +37,11 @@ namespace FSMfd::Pages
 		bool							BackgroundReceiveEnabled = false;
 
 	private:
-		std::vector<SimVarDef>			simDefinitions;
 		SimClient::UniqueReceiveBuffer	simValues;
 		TimePoint						lastUpdate;
-		bool							vargroupEnabled	   = false;
-		bool							awaitingResponse   = false;
+		size_t							simvarCount		 = 0;
+		bool							vargroupEnabled	 = false;
+		bool							awaitingResponse = false;
 
 		
 		// -------- Page ------------------------------------------------

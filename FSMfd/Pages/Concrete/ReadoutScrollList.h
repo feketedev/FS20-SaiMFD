@@ -2,7 +2,7 @@
 
 #include "Pages/SimPage.h"
 #include "Pages/Scroller.h"
-#include "Utils/StringUtils.h"
+#include "Pages/SimvarPrinter.h"
 
 
 
@@ -10,9 +10,11 @@ namespace FSMfd::Pages
 {
 
 	class ReadoutScrollList : public SimPage {
-		std::vector<DisplayVar>		variables;
-		Scroller					scroller;
+		std::vector<std::pair<DisplayVar, SimvarPrinter>>	variables;
 		
+		Scroller	scroller;
+		
+
 		void CleanContent()					  override;
 		void UpdateContent(const SimvarList&) override;
 

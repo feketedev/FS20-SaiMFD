@@ -1,31 +1,27 @@
 #include "SimVarDef.h"
 
+#include "Utils/StringUtils.h"
+
 
 
 namespace FSMfd 
 {
-
-	// X52 only supports old ASCII characters, nothing fancy needed...
-	static std::wstring AsDumbWString(const char* str)
-	{
-		size_t len = strlen(str);
-		return { str, str + len };
-	}
+	using Utils::String::AsDumbWString;
 
 
-	DisplayVar::DisplayVar(std::wstring_view text, const SimVarDef& def, unsigned decimalCount) :
+	DisplayVar::DisplayVar(std::wstring text, const SimVarDef& def, unsigned decimalCount) :
 		definition   { def },
-		text         { text },
-		unitText     { AsDumbWString(def.unit) },
+		text         { std::move(text) },
+		unitText     { AsDumbWString(def.unit.c_str()) },
 		decimalCount { decimalCount }
-		{
+	{
 	}
 
 
-	DisplayVar::DisplayVar(std::wstring_view text, const SimVarDef& def,
-						   std::wstring  unitText, unsigned decimalCount) :
+	DisplayVar::DisplayVar(std::wstring text,	  const SimVarDef& def,
+						   std::wstring unitText, unsigned decimalCount) :
 		definition   { def },
-		text         { text },
+		text         { std::move(text) },
 		unitText     { std::move(unitText) },
 		decimalCount { decimalCount }
 	{

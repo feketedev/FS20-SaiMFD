@@ -74,6 +74,14 @@ namespace Utils::String
 	}
 
 
+	StringSection StringSection::SubSection(size_t offset, size_t length) const
+	{
+		LOGIC_ASSERT (offset + length < this->length);
+
+		return { buffer, pos + offset, length };
+	}
+
+
 	wchar_t* StringSection::GetStart() const
 	{
 		return buffer.data() + pos;
@@ -86,7 +94,7 @@ namespace Utils::String
 	}
 
 
-	void StringSection::FillWith(std::wstring_view src)
+	void StringSection::FillIn(std::wstring_view src)
 	{
 		DBG_ASSERT	   (src.length() == length);
 		LOGIC_ASSERT_M (buffer.size() >= pos + length, "Buffer shortened in meantime?")
@@ -94,6 +102,14 @@ namespace Utils::String
 		wchar_t* trg = GetStart();
 		for (size_t i = 0; i < length; i++)
 			trg[i] = src[i];
+	}
+
+
+	void StringSection::FillWith(wchar_t c)
+	{
+		wchar_t* trg = GetStart();
+		for (size_t i = 0; i < length; i++)
+			trg[i] = c;
 	}
 
 #pragma endregion

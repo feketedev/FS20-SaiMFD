@@ -141,6 +141,7 @@
     <ClCompile Include="LEDs\IStateDetector.cpp" />
     <ClCompile Include="LEDs\LedControl.cpp" />
     <ClCompile Include="LEDs\LedController.cpp" />
+    <ClCompile Include="Pages\SimvarPrinter.cpp" />
     <ClCompile Include="SimClient\DedupSimvarRegister.cpp" />
     <ClCompile Include="LEDs\StateDetectors.cpp" />
     <ClCompile Include="SimClient\ConfigHelper.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="LEDs\IStateDetector.h" />
     <ClInclude Include="LEDs\LedControl.h" />
     <ClInclude Include="LEDs\LedController.h" />
+    <ClInclude Include="Pages\SimvarPrinter.h" />
     <ClInclude Include="SimClient\DedupSimvarRegister.h" />
     <ClInclude Include="LEDs\DetectorHelpers.h" />
     <ClInclude Include="LEDs\StateDetectors.h" />

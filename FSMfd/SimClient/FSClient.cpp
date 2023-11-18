@@ -62,6 +62,8 @@ namespace FSMfd::SimClient
 
 	bool FSClient::IsConnected() const
 	{
+		INMOCK_RETURN true;
+
 		return hSimConnect != nullptr;
 	}
 
@@ -128,7 +130,11 @@ namespace FSMfd::SimClient
 		SIMCONNECT_DATATYPE typ = TypeMapping[AsIndex(vardef.typeReqd)];
 		
 		FS_REQUEST (
-			SimConnect_AddToDataDefinition(hSimConnect, ToSimId(gid), vardef.name, vardef.unit, typ)
+			SimConnect_AddToDataDefinition(hSimConnect,
+										   ToSimId(gid),
+										   vardef.name.c_str(),
+										   vardef.unit.c_str(),
+										   typ				  )
 		);
 		group.Add(typ);
 		return idx;
@@ -728,20 +734,33 @@ namespace FSMfd::SimClient
 
 	bool FSClient::MockReceive(TimePoint now)
 	{
-		constexpr Duration  Wait = 500ms;
+		constexpr Duration  Wait          = 2s;
+		constexpr Duration  FirstDataWait = 300ms;
 		static	  TimePoint firstTime = now;
 		static	  TimePoint lastTime  = now;
+		static	  bool		connected = false;
 
 		if (now < lastTime + Wait)
 			return false;
 
+		// Simulate connection
+		if (!connected && firstTime + Wait <= now)
+		{
+			PushEvent(now, inflightDetector->ForwardingCode, 1u);
+			// just guess the first subscriber here...
+			PushStringEvent(now, eventSubscribers[0]->code, "SomeNotMenuAircraft.FLT");
+			lastTime = now + FirstDataWait - Wait;
+			connected = true;
+			return true;
+		}
+
 		unsigned short addition = std::chrono::duration_cast<std::chrono::seconds>(now - firstTime).count();
 
-		for (GroupId gid = 0; gid < varGroups.size(); gid++)
+		auto pushMockData = [this, addition, now](GroupId gid)
 		{
-			const VarGroup& g = varGroups[gid];
+			VarGroup& g = AccessGroup(gid);
 			if (g.dataReceiver == nullptr)
-				continue;
+				return;
 
 			std::vector<uint32_t> data (g.ExpectedBytes() / sizeof(uint32_t), 0);
 
@@ -755,10 +774,18 @@ namespace FSMfd::SimClient
 					reinterpret_cast<double&>(data[pos]) = 10.0 * i + 0.01 * addition;
 			}
 
-		// TODO Mock
-		//	PushData(now, gid, data.data());
-		}
-		lastTime = now;
+			PushData(now, gid, g, data.data());
+		};
+
+		for (GroupId gid = 0; gid < varGroupsPermanent.size(); gid++)
+			pushMockData(gid);
+
+		for (unsigned i = 0; i < varGroups.size(); i++)
+			pushMockData(i + MaxPermanentGroups);
+
+		bool duringConfig = varGroups.empty();
+
+		lastTime = duringConfig ? (now + FirstDataWait - Wait) : now;
 		return true;
 	}
 

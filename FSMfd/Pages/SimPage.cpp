@@ -29,8 +29,7 @@ namespace FSMfd::Pages
 	void SimPage::RegisterSimVar(const SimVarDef& var)
 	{
 		VarIdx vid = SimClient.AddVar(simValues.Group, var);
-		LOGIC_ASSERT_M (vid == simDefinitions.size(), "Duplicate SimVar group ID?");
-		simDefinitions.emplace_back(var);
+		LOGIC_ASSERT_M (vid == simvarCount++, "Duplicate SimVar group ID?");
 	}
 
 
@@ -43,6 +42,7 @@ namespace FSMfd::Pages
 		}
 		if (!vargroupEnabled)
 		{
+			DBG_ASSERT (simvarCount);
 			SimClient.EnableVarGroup(simValues.Group, *this);
 			vargroupEnabled = true;
 		}

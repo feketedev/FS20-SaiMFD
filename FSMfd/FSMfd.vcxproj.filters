@@ -96,6 +96,9 @@
     <ClCompile Include="Configurator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Pages\SimvarPrinter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MfdLoop.h">
@@ -168,6 +171,9 @@
       <Filter>SimClient</Filter>
     </ClInclude>
     <ClInclude Include="LEDs\LedControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pages\SimvarPrinter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
