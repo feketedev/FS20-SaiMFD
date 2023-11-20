@@ -59,7 +59,8 @@ namespace DOHelper
 		std::unique_ptr<InputQueue> 	inputQueue;
 		ScrollwheelDebounce				wheelDebounce;
 		std::vector<Page*>				pages;
-		Page*							activePage  = nullptr;
+		Page*							activePage		 = nullptr;
+		std::vector<uint32_t>			actPageBeforeAdd;  // asymmetry workaround
 
 		// Treating LED colors globally within plugin
 		// - unknown+untouched LEDs cannot be queried
@@ -115,9 +116,12 @@ namespace DOHelper
 	private:
 		void Dispatch(const InputMessage&);
 
-		void  PageDestroys(Page&) noexcept;
-		void  DisconnectPage(Page&, TimePoint);
-		Page* FindPage(uint32_t id)	const;
+		Page* FindPage(uint32_t id)			 const noexcept;
+
+		void  PageDestroys(Page&)				   noexcept;
+		bool  BookRemovedPage(const Page&)		   noexcept;
+		void  OrphanPageNoEx(Page&)			 const noexcept;
+		void  OrphanPage(Page&)				 const;
 
 		void  RestoreLeds();
 		void  SetLedComponent(uint8_t id, bool on);

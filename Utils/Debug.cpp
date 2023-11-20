@@ -23,33 +23,33 @@ namespace Debug
 
 	void Warning(const char* msg)
 	{
-		std::cout << "Debug warning:  " << msg << '\n';
+		std::cout << "Debug warning: \t" << msg << '\n';
 	}
 
 	void Warning(const char* source, const char* msg)
 	{
-		std::cout << source << " Warning:  " << msg << '\n';
+		std::cout << source << " warning:\t" << msg << '\n';
 	}
 
 	void Warning(const char* source, const char* msg, int param)
 	{
-		std::cout << source << " Warning:  " << msg << ' ' << param << '\n';
+		std::cout << source << " warning:\t" << msg << ' ' << param << '\n';
 	}
 
 
 	void Info(const char* msg)
 	{
-		std::cout << "Debug:  " << msg << '\n';
+		std::cout << "Debug:\t\t" << msg << '\n';
 	}
 
 	void Info(const char* source, const char* msg)
 	{
-		std::cout << source << ":  " << msg << '\n';
+		std::cout << source << ":\t" << msg << '\n';
 	}
 
 	void Info(const char* source, const char* msg, int param)
 	{
-		std::cout << source << ":  " << msg << ' ' << param << '\n';
+		std::cout << source << ":\t" << msg << ' ' << param << '\n';
 	}
 
 

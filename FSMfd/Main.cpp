@@ -69,7 +69,7 @@ namespace FSMfd {
 		}
 		catch (const std::logic_error& ex)
 		{
-			std::cerr << "\nInternal error : " << ex.what() << std::endl;
+			std::cerr << "\nInternal error: \"" << ex.what() << '"' << std::endl;
 		}
 	}
 
