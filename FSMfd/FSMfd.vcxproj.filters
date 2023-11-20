@@ -51,9 +51,6 @@
     <ClCompile Include="Pages\Concrete\WaitSpinner.cpp">
       <Filter>Pages\Concrete</Filter>
     </ClCompile>
-    <ClCompile Include="Pages\Gauges\StackableGauge.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SimClient\FSClient.cpp">
       <Filter>SimClient</Filter>
     </ClCompile>
@@ -75,9 +72,6 @@
     <ClCompile Include="SimClient\SimConnectError.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LEDs\StateDetectors.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LEDs\IStateDetector.cpp">
       <Filter>LEDs</Filter>
     </ClCompile>
@@ -90,14 +84,26 @@
     <ClCompile Include="SimClient\DedupSimvarRegister.cpp">
       <Filter>SimClient</Filter>
     </ClCompile>
-    <ClCompile Include="LEDs\LedControl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Configurator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LEDs\StateDetectors.cpp">
+      <Filter>LEDs</Filter>
+    </ClCompile>
     <ClCompile Include="Pages\SimvarPrinter.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Pages\Concrete\GaugeStack.cpp">
+      <Filter>Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Pages\Gauges\StackableGauge.cpp">
+      <Filter>Pages\Gauges</Filter>
+    </ClCompile>
+    <ClCompile Include="Pages\Gauges\EnginesGauge.cpp">
+      <Filter>Pages\Gauges</Filter>
+    </ClCompile>
+    <ClCompile Include="LEDs\LedControl.cpp">
+      <Filter>LEDs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -118,9 +124,6 @@
     </ClInclude>
     <ClInclude Include="Pages\Concrete\WaitSpinner.h">
       <Filter>Pages\Concrete</Filter>
-    </ClInclude>
-    <ClInclude Include="Pages\Gauges\StackableGauge.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SimVarDef.h">
       <Filter>Header Files</Filter>
@@ -161,9 +164,6 @@
     <ClInclude Include="LEDs\BlinkPattern.h">
       <Filter>LEDs</Filter>
     </ClInclude>
-    <ClInclude Include="LEDs\DetectorHelpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="LEDs\IStateDetector.h">
       <Filter>LEDs</Filter>
     </ClInclude>
@@ -173,8 +173,20 @@
     <ClInclude Include="LEDs\LedControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Pages\Gauges\EnginesGauge.h">
+      <Filter>Pages\Gauges</Filter>
+    </ClInclude>
+    <ClInclude Include="Pages\Concrete\GaugeStack.h">
+      <Filter>Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Pages\Gauges\StackableGauge.h">
+      <Filter>Pages\Gauges</Filter>
+    </ClInclude>
+    <ClInclude Include="LEDs\DetectorHelpers.h">
+      <Filter>LEDs</Filter>
+    </ClInclude>
     <ClInclude Include="Pages\SimvarPrinter.h">
-      <Filter>Header Files</Filter>
+      <Filter>Pages</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

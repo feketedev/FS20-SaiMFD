@@ -76,7 +76,7 @@ namespace Utils::String
 
 	StringSection StringSection::SubSection(size_t offset, size_t length) const
 	{
-		LOGIC_ASSERT (offset + length < this->length);
+		LOGIC_ASSERT (offset + length <= this->length);
 
 		return { buffer, pos + offset, length };
 	}
@@ -100,7 +100,7 @@ namespace Utils::String
 		LOGIC_ASSERT_M (buffer.size() >= pos + length, "Buffer shortened in meantime?")
 
 		wchar_t* trg = GetStart();
-		for (size_t i = 0; i < length; i++)
+		for (size_t i = 0; i < src.length(); i++)
 			trg[i] = src[i];
 	}
 

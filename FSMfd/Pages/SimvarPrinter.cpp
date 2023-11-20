@@ -35,6 +35,7 @@ namespace FSMfd::Pages {
 				};
 
 			case RequestType::String:
+				// TODO proper string->wstring conversion for code-pages?
 				return truncableText 
 					?	[](SimvarValue val, StringSection target, PaddedAlignment aln)
 						{

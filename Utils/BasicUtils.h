@@ -102,7 +102,7 @@ namespace Utils
 
 
 	template<class C, class E>
-	auto Contained(C& container, const E& elem)
+	auto Contains(C& container, const E& elem)
 		-> std::enable_if_t<IsBoolEvaluable<decltype(*container.begin() == elem)>, bool>
 	{
 		return Find(container, elem) != container.end();

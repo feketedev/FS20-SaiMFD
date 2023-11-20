@@ -3,9 +3,9 @@
 #include "DirectOutputHelper/X52Output.h"
 #include "Utils/Debug.h"
 
-
 #include "Concrete/ReadoutScrollList.h"
-//#include "Concrete/Engines.h"
+#include "Concrete/GaugeStack.h"
+#include "Gauges/EnginesGauge.h"
 
 
 
@@ -19,17 +19,22 @@ namespace FSMfd::Pages {
 	static const std::vector<DisplayVar> airspeedVars {
 		{ L"IAS:",	SimVarDef { "AIRSPEED INDICATED",	"knots"					  }, L"kts"	},
 		{ L"TAS:",	SimVarDef { "AIRSPEED TRUE",		"knots"					  }, L"kts"	},
-		{ L"Mach:",	SimVarDef {  "AIRSPEED MACH",		"mach", RequestType::Real }, L""	},
+		{ L"Mach:",	SimVarDef { "AIRSPEED MACH",		"mach", RequestType::Real }, L""	},
 		{ L"Alt:",	SimVarDef { "PLANE ALTITUDE",		"ft"					  }, L"ft"	}
 	};
 
 
-	//static const std::vector<Engines::DisplayVar> engVars {
-	//	{ "ENG EXHAUST GAS TEMPERATURE:",	"Rankine",	L"EGT" },
-	//	{ "GENERAL ENG RPM:",				"RPM",		L"RPM" },
-	//	{ "TURB ENG N1:",					"N1%",		L"N1%" },
-	//	{ "TURB ENG N2:",					"N2%",		L"N2%" }
-	//};
+	static const std::vector<DisplayVar> engVars {
+		{ L"EGT",   SimVarDef { "ENG EXHAUST GAS TEMPERATURE:",		"celsius" } },
+		{ L"RPM",   SimVarDef { "GENERAL ENG RPM:",					"RPM" } },
+		{ L"N1 %",  SimVarDef { "TURB ENG N1:",						"percent",			RequestType::Real }, 1 },
+		{ L"N2 %",  SimVarDef { "TURB ENG N2:",						"percent",			RequestType::Real }, 1 },
+		{ L"FF",    SimVarDef { "ENG FUEL FLOW PPH:",				"pounds per hour" } },
+		{ L"OILP",  SimVarDef { "ENG OIL PRESSURE:",				"psi",				RequestType::Real }, 1 },
+		{ L"OILT",  SimVarDef { "ENG OIL TEMPERATURE:",				"celsius",			RequestType::Real }, 1 },
+	//	{ L"OIL%",   SimVarDef { "ENG OIL QUANTITY:",				"percent",			RequestType::Real }, 1 },	// always 100%
+	};
+
 
 
 	// ---- Page List ----
@@ -39,8 +44,14 @@ namespace FSMfd::Pages {
 
 	FSPageList::FSPageList(const SimPage::Dependencies& deps) : dependencies { deps }
 	{
+		std::vector<std::unique_ptr<StackableGauge>> engineGauges;
+
+		// TODO: move properly to Configurator
+		for (const DisplayVar& dv : engVars)
+			engineGauges.push_back(std::make_unique<EnginesGauge>(2, dv));
+
 		Add<ReadoutScrollList>(airspeedVars);
-//		Add<Engines>(engVars);
+		Add<GaugeStack>(std::move(engineGauges));
 
 		LOGIC_ASSERT (pages.size() <= MaxSize);
 	}

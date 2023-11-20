@@ -137,10 +137,12 @@
   <ItemGroup>
     <ClCompile Include="Configurator.cpp" />
     <ClCompile Include="DeviceLookup.cpp" />
+    <ClCompile Include="Pages\Gauges\EnginesGauge.cpp" />
     <ClCompile Include="LEDs\BlinkPattern.cpp" />
     <ClCompile Include="LEDs\IStateDetector.cpp" />
     <ClCompile Include="LEDs\LedControl.cpp" />
     <ClCompile Include="LEDs\LedController.cpp" />
+    <ClCompile Include="Pages\Concrete\GaugeStack.cpp" />
     <ClCompile Include="Pages\SimvarPrinter.cpp" />
     <ClCompile Include="SimClient\DedupSimvarRegister.cpp" />
     <ClCompile Include="LEDs\StateDetectors.cpp" />
@@ -161,10 +163,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Configurator.h" />
+    <ClInclude Include="Pages\Gauges\EnginesGauge.h" />
     <ClInclude Include="LEDs\BlinkPattern.h" />
     <ClInclude Include="LEDs\IStateDetector.h" />
     <ClInclude Include="LEDs\LedControl.h" />
     <ClInclude Include="LEDs\LedController.h" />
+    <ClInclude Include="Pages\Concrete\GaugeStack.h" />
     <ClInclude Include="Pages\SimvarPrinter.h" />
     <ClInclude Include="SimClient\DedupSimvarRegister.h" />
     <ClInclude Include="LEDs\DetectorHelpers.h" />

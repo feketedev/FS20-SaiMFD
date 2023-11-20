@@ -1,31 +1,45 @@
 #pragma once
 
 #include "Pages/SimPage.h"
-
+#include "Pages/Scroller.h"
+#include "Pages/Gauges/StackableGauge.h"
 #include <vector>
 
 
 
 namespace FSMfd::Pages
 {
-	class StackableGauge;
-
 	class GaugeStack : public SimPage
 	{
 		struct ActiveGauge {
-			StackableGauge&	alg;					// TODO: owned or just pointed?
-			uint32_t		firstVariable;
-			size_t			firstLine;
-			size_t			firstColumn;
+			std::unique_ptr<StackableGauge>	alg;
+			const SimClient::VarIdx			firstVar;
+			const unsigned					posX;
+			const unsigned					posY;
 		};
 
-		std::vector<ActiveGauge>	gauges;
+		const std::vector<ActiveGauge>	gauges;
+		const std::vector<size_t>		byRow;		// gauge row -> 1st gauge; guarded end
+
+		Scroller	scroller;
 
 	public:
-		GaugeStack(uint32_t id, FSClient&,		std::vector<const StackableGauge*>&&);
+		GaugeStack(uint32_t id, const Dependencies&, std::vector<std::unique_ptr<StackableGauge>>&& algs);
 
-		virtual void CleanContent()  override;
-		virtual void UpdateContent() override;
+		void CleanContent()					  override;
+		void UpdateContent(const SimvarList&) override;
+
+	private:
+		static std::vector<ActiveGauge>  StackGauges(std::vector<std::unique_ptr<StackableGauge>>&&);
+		static std::vector<size_t>		 IndexByRow(const std::vector<ActiveGauge>&);
+
+		unsigned RowCount()		const;
+		unsigned TotalHeight()	const;
+
+		template <class GaugeDisplayAction>
+		void ModifyDisplayAreas(GaugeDisplayAction&&);
+
+		void OnScroll(bool up, TimePoint) override;
 	};
 
 

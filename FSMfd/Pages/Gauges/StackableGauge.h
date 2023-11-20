@@ -1,41 +1,48 @@
 #pragma once
 
+#include "FSMfdTypes.h"
 #include "Utils/BasicUtils.h"
 #include "Utils/StringUtils.h"
-
 #include <vector>
 
 
 
 namespace FSMfd::Pages
 {
-	struct SimVarDef;
+	/// Virtual list of own Variables. 
+	/// Tiny utility to avoid additional allocations during Updates.
+	class SimvarSublist {
+		const SimClient::SimvarList&	list;
+		const SimClient::VarIdx			start;
+	
+	public:
+		const SimClient::VarIdx			VarCount;
+
+		SimClient::SimvarValue operator[](SimClient::VarIdx) const;
+
+		SimvarSublist(const SimClient::SimvarList&, SimClient::VarIdx start, SimClient::VarIdx len);
+	};
 
 
+
+	/// Display for 1 or more related values on a Page.
 	class StackableGauge {
 	public:
-		using ValueList	= Utils::ArraySection<const int32_t>;
-		using Display	= Utils::ArraySection<Utils::String::StringSection>;
+		using DisplayArea = Utils::ArraySection<Utils::String::StringSection>;
 
-		const unsigned short			width;
-		const unsigned short			height;
-		const std::vector<SimVarDef>	variables;
+		const unsigned					DisplayWidth;
+		const unsigned					DisplayHeight;
+		const std::vector<SimVarDef>	Variables;
 
+		auto VarCount() const	{ return static_cast<SimClient::VarIdx>(Variables.size()); }
 
-		virtual void Update(const ValueList& measurments, Display&) const = 0;
-
-
-	  // TODO Interactions
-		/// Stack selector scrolled. This gauge is next.
-		/// @returns	Gauge has interactable parts and handles further inputs.
-		virtual bool Select()	{ return false; }
-	  //virtual bool HandleInput() = 0; ?
-
+		virtual void Clean(DisplayArea&)						const = 0;
+		virtual void Update(const SimvarSublist&, DisplayArea&) const = 0;
 
 		virtual ~StackableGauge();
 
-		
-		StackableGauge(unsigned short width, unsigned short height, std::vector<SimVarDef>&&);
+	protected:
+		StackableGauge(unsigned width, unsigned height, std::vector<SimVarDef>&&);
 	};
 
 
