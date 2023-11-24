@@ -64,7 +64,7 @@ namespace DOHelper
 
 		// Treating LED colors globally within plugin
 		// - unknown+untouched LEDs cannot be queried
-		std::array<optional<bool>, 19>	ledStates;				
+		std::array<optional<bool>, 20>	ledStates;
 
 	public:
 		X52Output(void* const handle, DirectOutputInstance&);

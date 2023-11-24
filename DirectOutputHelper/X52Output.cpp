@@ -214,6 +214,7 @@ namespace DOHelper
 			}
 			activePage = &pg;
 			std::this_thread::yield();
+			RestoreLeds();
 			pg.Activate(causeStamp);
 		}
 	}
