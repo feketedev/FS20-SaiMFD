@@ -66,6 +66,20 @@ namespace Utils
 		return std::min<N>(first, Utils::Min<N>(second, more...));
 	}
 
+	
+	template <class N>
+	N Max(const N& first, const N& second)
+	{
+		return std::max<N>(first, second);
+	}
+
+
+	template <class N, class... More>
+	N Max(const N& first, const N& second, const More&... more)
+	{
+		return std::max<N>(first, Utils::Max<N>(second, more...));
+	}
+
 
 
 
@@ -82,6 +96,17 @@ namespace Utils
 
 
 	// ---- For Containers --------------------------------------------------------------
+
+	template<class Trg, class Src>
+	void Append(Trg& target, Src&& source)
+	{
+		using E = std::conditional_t<std::is_lvalue_reference_v<Src>,
+									 typename Src::reference,
+									 typename Src::value_type		>;
+		for (E& el : source)
+			target.push_back(std::forward<E>(el));
+	}
+
 
 	template<class C, class E>
 	auto Find(C& container, const E& elem)

@@ -78,6 +78,73 @@ namespace FSMfd::Led {
 
 
 
+
+	template<class SummarizeCountStrategy, class AggregateStatesStrategy, class... Detectors>
+	class Aggregator : public IStateDetector {
+		std::tuple<Detectors...>	detectors;
+
+	public:
+		static_assert((... && std::is_convertible_v<Detectors*, IStateDetector*>));
+
+		void RegisterVariables(SimClient::DedupSimvarRegister& dp) override final
+		{
+			std::apply([&](auto&... d) { (..., d.RegisterVariables(dp)); }, detectors);
+		}
+
+
+		unsigned StateCount() const override final
+		{
+			return std::apply([](const auto&... d) 
+			{ 
+				return SummarizeCountStrategy::Aggregate(d.StateCount()...); 
+			},
+			detectors);
+		}
+
+
+		optional<unsigned>	DetectState(const SimClient::SimvarList& vars) const override final
+		{
+			return std::apply([&](const auto&... d) 
+			{
+				return AggregateStatesStrategy::Aggregate(d.DetectState(vars)...);
+			},
+			detectors);
+		}
+
+
+		std::unique_ptr<IStateDetector> Clone() const override
+		{
+			return std::make_unique<Aggregator>(*this);
+		}
+
+
+		Aggregator(Detectors... detectors) : detectors { std::move(detectors)... }
+		{
+		}
+	};
+
+	// not simple usings to allow deduction...
+	template<class... Detectors>
+	struct Max : Aggregator<Strategies::Max, Strategies::Max, Detectors...>
+	{
+		using Aggregator<Strategies::Max, Strategies::Max, Detectors...>::Aggregator;
+	};
+
+	template<class... Detectors>
+	struct Min : Aggregator<Strategies::Min, Strategies::Min, Detectors...>
+	{
+		using Aggregator<Strategies::Min, Strategies::Min, Detectors...>::Aggregator;
+	};
+
+	template <class... D>
+	Max(D...) -> Max<D...>;
+
+	template <class... D>
+	Min(D...) -> Min<D...>;
+
+
+
+
 	// ==== Utility =====================================================================
 
 	/// Eliminates some boilerplate by CRTP.
@@ -115,10 +182,12 @@ namespace FSMfd::Led {
 		{
 		}
 
+
 		unsigned StateCount() const override
 		{
 			return 2; 
 		}
+
 
 		optional<unsigned> DetectState(const SimClient::SimvarList& simvars) const override
 		{

@@ -43,7 +43,9 @@ namespace FSMfd
 		std::vector<Led::LedController>	CreateLedEffects()								 const;
 
 	private:
-		std::vector<Led::LedController> CreateGearEffects() const;
+		std::vector<Led::LedController> CreateGenericWarningEffects()	const;
+		std::vector<Led::LedController> CreateGearEffects()				const;
+		std::vector<Led::LedController> CreateEngApEffects()			const;
 	};
 
 

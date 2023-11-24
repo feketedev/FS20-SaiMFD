@@ -15,8 +15,16 @@ namespace FSMfd::Led {
 
 	// ---- DiscreteDetector sugar ------------------------------------------------------
 
+	//template<class T, size_t N>
+	//using TriggerValues = std::array<T, N>;
+
 	template<class T, size_t N>
-	using TriggerValues = std::array<T, N>;
+	struct TriggerValues : public std::array<T, N>
+	{
+	};
+
+	template <class T, class... Args>
+	TriggerValues(T, Args...) -> TriggerValues<T, sizeof...(Args) + 1>;
 
 
 
@@ -61,6 +69,25 @@ namespace FSMfd::Led {
 
 	template <class T, class... Args>
 	Boundaries(T, Args...) -> Boundaries<T, sizeof...(Args) + 1>;
+
+
+
+
+	// ---- Aggregator strategies -------------------------------------------------------
+
+	namespace Strategies {
+		struct Max {
+			template <class... Nums>
+			static auto Aggregate(Nums... ns) { return Utils::Max(ns...); }
+		};
+
+
+		struct Min {
+			template <class... Nums>
+			static auto Aggregate(Nums... ns) { return Utils::Min(ns...); }
+		};
+	}
+
 
 
 

@@ -2,6 +2,7 @@
 
 #include "IStateDetector.h"
 #include "DirectOutputHelper/X52Output.h"	// colors
+#include "Utils/Debug.h"
 
 
 
@@ -16,6 +17,7 @@ namespace FSMfd::Led
 		patterns { src.patterns },
 		state    { src.state }
 	{
+		LOGIC_ASSERT_M (detector->StateCount() == patterns.size(), "LED Configuration error!");
 	}
 
 

@@ -17,6 +17,10 @@ namespace FSMfd::Pages {
 	// ---- Page configurations ----
 
 	static const std::vector<DisplayVar> airspeedVars {
+		{ L"SPOIL:",	SimVarDef { "SPOILERS LEFT POSITION",	"Percent", RequestType::Real }, L""	},
+		{ L"AT ARM:",	SimVarDef { "AUTOPILOT THROTTLE ARM",	"Bool" }, L""	},
+		{ L"AT SPEED:",	SimVarDef { "AUTOPILOT AIRSPEED HOLD",	"Bool" }, L""	},
+
 		{ L"IAS:",	SimVarDef { "AIRSPEED INDICATED",	"knots"					  }, L"kts"	},
 		{ L"TAS:",	SimVarDef { "AIRSPEED TRUE",		"knots"					  }, L"kts"	},
 		{ L"Mach:",	SimVarDef { "AIRSPEED MACH",		"mach", RequestType::Real }, L""	},
@@ -25,6 +29,7 @@ namespace FSMfd::Pages {
 
 
 	static const std::vector<DisplayVar> engVars {
+		{ L"REV",   SimVarDef { "TURB ENG REVERSE NOZZLE PERCENT:",	"percent", RequestType::Real  } },
 		{ L"EGT",   SimVarDef { "ENG EXHAUST GAS TEMPERATURE:",		"celsius" } },
 		{ L"RPM",   SimVarDef { "GENERAL ENG RPM:",					"RPM" } },
 		{ L"N1 %",  SimVarDef { "TURB ENG N1:",						"percent",			RequestType::Real }, 1 },
