@@ -191,14 +191,25 @@ namespace FSMfd
 	}
 
 
+	static void AddPages(FSPageList& list, X52Output& device)
+	{
+		if (list.Pages().empty())
+			return;
+
+		auto it = list.Pages().begin();
+		SimPage& first = **it++;
+		device.AddPage(first, /*activate:*/ true);
+
+		for (; it != list.Pages().end(); ++it)
+			device.AddPage(**it, false);
+	}
+
+
 	void MfdLoop::Run(X52Output& device)
 	{
 		// shouldn't exceed, but care not to display irrelevant data :)
 		const Duration contentAgeLimit = BasePeriod / UpdateFreq * 2;
 
-		// TODO: 
-		// - SimVars needed for instantiation ??
-		// - .IsConnected misery --> throw at GetActivePage maybe?
 		while (CanUse(device))
 		{
 			FSClient client = ConnectToFS(device);
@@ -223,8 +234,8 @@ namespace FSMfd
 
 						client.ResetVarGroups();
 
-						FSPageList fsPages { SimPage::Dependencies { client, contentAgeLimit } };
-						fsPages.AddAllTo(device);
+						FSPageList fsPages = config.CreatePages({ client, contentAgeLimit });
+						AddPages(fsPages, device);
 						
 						LedControl ledControl { device, client, config.CreateLedEffects() };
 						ledControl.ApplyDefaults();

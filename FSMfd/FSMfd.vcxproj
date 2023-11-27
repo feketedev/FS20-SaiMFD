@@ -154,7 +154,6 @@
     <ClCompile Include="Pages\SimPage.cpp" />
     <ClCompile Include="Pages\Concrete\ReadoutScrollList.cpp" />
     <ClCompile Include="Pages\Concrete\WaitSpinner.cpp" />
-    <ClCompile Include="Pages\FSPageList.cpp" />
     <ClCompile Include="Pages\Gauges\StackableGauge.cpp" />
     <ClCompile Include="Pages\Scroller.cpp" />
     <ClCompile Include="SimClient\IReceiver.cpp" />

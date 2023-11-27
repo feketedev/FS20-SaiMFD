@@ -11,6 +11,9 @@
 #include "SimClient/FSClient.h"
 #include "LEDs/LedController.h"
 #include "LEDs/StateDetectors.h"
+#include "Pages/Concrete/GaugeStack.h"
+#include "Pages/Concrete/ReadoutScrollList.h"
+#include "Pages/Gauges/EnginesGauge.h"
 #include "Utils/Debug.h"
 
 
@@ -20,6 +23,7 @@ namespace FSMfd
 	using namespace DOHelper;
 	using namespace SimClient;
 	using namespace Led;
+	using namespace Pages;
 
 
 #pragma region Decision SimVars
@@ -59,6 +63,12 @@ namespace FSMfd
 	}
 
 
+	unsigned Configurator::EngineCount() const
+	{
+		return configVars.Get()[2].AsUnsigned32();
+	}
+
+
 	bool Configurator::IsJet() const
 	{
 		return configVars.Get()[3].AsUnsigned32() == 1;
@@ -89,10 +99,16 @@ namespace FSMfd
 
 #pragma region Page Config
 
-	//Pages::FSPageList Configurator::CreatePages(const Pages::SimPage::Dependencies& deps) const
-	//{
-	//	return {};
-	//}
+	FSPageList Configurator::CreatePages(const SimPage::Dependencies& deps) const
+	{
+		FSPageList pages { deps };
+		
+		AddBaseInstruments(pages);
+		AddConfigInstruments(pages);
+		AddEnginesPage(pages);
+
+		return pages;
+	}
 
 #pragma endregion
 
@@ -102,7 +118,7 @@ namespace FSMfd
 #pragma region LED Config
 
 
-	std::vector<Led::LedController> Configurator::CreateLedEffects() const
+	std::vector<LedController> Configurator::CreateLedEffects() const
 	{
 		LOGIC_ASSERT (IsReady());
 
@@ -114,7 +130,59 @@ namespace FSMfd
 	}
 
 
-	std::vector<Led::LedController> Configurator::CreateGenericWarningEffects() const
+	void Configurator::AddBaseInstruments(FSPageList& pages) const
+	{
+		std::vector<DisplayVar> baseVars {
+			{ L"IAS:",	SimVarDef { "AIRSPEED INDICATED",	"knots"					  }, L"kts"	},
+			{ L"TAS:",	SimVarDef { "AIRSPEED TRUE",		"knots"					  }, L"kts"	},
+			{ L"Mach:",	SimVarDef { "AIRSPEED MACH",		"mach", RequestType::Real }, L""	},
+			{ L"Alt:",	SimVarDef { "PLANE ALTITUDE",		"ft"					  }, L"ft"	},
+		};
+
+		pages.Add<ReadoutScrollList>(std::move(baseVars));
+	};
+
+
+	void Configurator::AddConfigInstruments(FSPageList& pages) const
+	{
+		std::vector<DisplayVar> configVars {
+			// TODO: Left-Right
+			{ L"SPOIL:",	SimVarDef { "SPOILERS LEFT POSITION",	"Percent", RequestType::Real }, L""	},
+			{ L"AT ARM:",	SimVarDef { "AUTOPILOT THROTTLE ARM",	"Bool" }, L""	},
+			{ L"AT SPEED:",	SimVarDef { "AUTOPILOT AIRSPEED HOLD",	"Bool" }, L""	},
+		};
+
+		pages.Add<ReadoutScrollList>(std::move(configVars));
+	}
+
+
+	// TODO: differentiate for propeller and single-engine aircraft
+	void Configurator::AddEnginesPage(FSPageList& pages) const
+	{
+		if (EngineCount() == 0)		// glider
+			return;
+
+		const std::vector<DisplayVar> engVars {
+			{ L"REV",   SimVarDef { "TURB ENG REVERSE NOZZLE PERCENT:",	"percent", RequestType::Real  } },
+			{ L"EGT",   SimVarDef { "ENG EXHAUST GAS TEMPERATURE:",		"celsius" } },
+			{ L"RPM",   SimVarDef { "GENERAL ENG RPM:",					"RPM" } },
+			{ L"N1 %",  SimVarDef { "TURB ENG N1:",						"percent",			RequestType::Real }, 1 },
+			{ L"N2 %",  SimVarDef { "TURB ENG N2:",						"percent",			RequestType::Real }, 1 },
+			{ L"FF",    SimVarDef { "ENG FUEL FLOW PPH:",				"pounds per hour" } },
+			{ L"OILP",  SimVarDef { "ENG OIL PRESSURE:",				"psi",				RequestType::Real }, 1 },
+			{ L"OILT",  SimVarDef { "ENG OIL TEMPERATURE:",				"celsius",			RequestType::Real }, 1 },
+		//	{ L"OIL%",   SimVarDef { "ENG OIL QUANTITY:",				"percent",			RequestType::Real }, 1 },	// always 100%
+		};
+
+		std::vector<std::unique_ptr<StackableGauge>> engineGauges;
+		for (const DisplayVar& dv : engVars)
+			engineGauges.push_back(std::make_unique<EnginesGauge>(EngineCount(), dv));
+
+		pages.Add<GaugeStack>(std::move(engineGauges));
+	}
+
+
+	std::vector<LedController> Configurator::CreateGenericWarningEffects() const
 	{
 		LedOverride stallBlink {
 			SwitchDetector	{ "STALL WARNING" },
@@ -171,7 +239,7 @@ namespace FSMfd
 	}
 
 
-	std::vector<Led::LedController> Configurator::CreateGearEffects() const
+	std::vector<LedController> Configurator::CreateGearEffects() const
 	{
 		SwitchDetector gearNotRetracted { "GEAR TOTAL PCT EXTENDED", "percent" };
 
@@ -236,7 +304,7 @@ namespace FSMfd
 	}
 
 
-	std::vector<Led::LedController> Configurator::CreateEngApEffects() const
+	std::vector<LedController> Configurator::CreateEngApEffects() const
 	{
 		// this is purely the control axis mode, not an indication of actual thrust-reverser status
 		// however, from a control perspective this is the more useful

@@ -9,19 +9,30 @@ namespace FSMfd::Pages
 {
 
 	class FSPageList {
-		const SimPage::Dependencies dependencies;
+		const SimPage::Dependencies				dependencies;
+
+		uint32_t								nextId;
+		std::vector<std::unique_ptr<SimPage>>	pages;
+
+	public:
+		const auto& Pages() const				{ return pages; }
+
 		
-		std::vector<std::unique_ptr<SimPage>>  pages;
+		FSPageList(const SimPage::Dependencies& deps, uint32_t firstId = 1) :
+			dependencies { deps },
+			nextId		 { firstId }
+		{
+		}
+		
 
 		template <class P, class... Args>
-		void Add(Args&&...);
-		
-	public:
-		static const unsigned MaxSize;	
-		static const unsigned MaxId;	// TODO Del?
-		
-		FSPageList(const SimPage::Dependencies&);
-		void AddAllTo(DOHelper::X52Output&);
+		void Add(Args&&... args)
+		{
+			uint32_t id = nextId++;
+			pages.push_back(
+				std::make_unique<P>(id, dependencies, std::forward<Args>(args)...)
+			);
+		}
 	};
 
 }

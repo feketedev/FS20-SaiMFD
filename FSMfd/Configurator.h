@@ -6,10 +6,11 @@
 	 *  Released under GPLv3.		   */
 
 
-#include "SimClient/ReceiveBuffer.h"
-#include "SimClient/FSClientTypes.h"
-#include "Pages/FSPageList.h"
 #include "LEDs/LedController.h"
+#include "Pages/FSPageList.h"
+#include "Pages/SimPage.h"
+#include "SimClient/FSClientTypes.h"
+#include "SimClient/ReceiveBuffer.h"
 
 
 
@@ -43,6 +44,11 @@ namespace FSMfd
 		std::vector<Led::LedController>	CreateLedEffects()								 const;
 
 	private:
+		void AddBaseInstruments(Pages::FSPageList&)		const;
+		void AddConfigInstruments(Pages::FSPageList&)	const;
+		void AddEnginesPage(Pages::FSPageList&)			const;
+
+
 		std::vector<Led::LedController> CreateGenericWarningEffects()	const;
 		std::vector<Led::LedController> CreateGearEffects()				const;
 		std::vector<Led::LedController> CreateEngApEffects()			const;

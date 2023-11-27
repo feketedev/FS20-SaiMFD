@@ -39,9 +39,6 @@
     <ClCompile Include="Pages\SimPage.cpp">
       <Filter>Pages</Filter>
     </ClCompile>
-    <ClCompile Include="Pages\FSPageList.cpp">
-      <Filter>Pages</Filter>
-    </ClCompile>
     <ClCompile Include="Pages\Scroller.cpp">
       <Filter>Pages</Filter>
     </ClCompile>
