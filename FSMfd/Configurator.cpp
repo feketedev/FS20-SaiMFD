@@ -110,26 +110,7 @@ namespace FSMfd
 		return pages;
 	}
 
-#pragma endregion
-
-
-
-
-#pragma region LED Config
-
-
-	std::vector<LedController> Configurator::CreateLedEffects() const
-	{
-		LOGIC_ASSERT (IsReady());
-
-		std::vector<LedController> leds = CreateGenericWarningEffects();
-		Utils::Append(leds, CreateGearEffects());
-		Utils::Append(leds, CreateEngApEffects());
-		
-		return leds;
-	}
-
-
+	
 	void Configurator::AddBaseInstruments(FSPageList& pages) const
 	{
 		std::vector<DisplayVar> baseVars {
@@ -179,6 +160,25 @@ namespace FSMfd
 			engineGauges.push_back(std::make_unique<EnginesGauge>(EngineCount(), dv));
 
 		pages.Add<GaugeStack>(std::move(engineGauges));
+	}
+
+#pragma endregion
+
+
+
+
+#pragma region LED Config
+
+
+	std::vector<LedController> Configurator::CreateLedEffects() const
+	{
+		LOGIC_ASSERT (IsReady());
+
+		std::vector<LedController> leds = CreateGenericWarningEffects();
+		Utils::Append(leds, CreateGearEffects());
+		Utils::Append(leds, CreateEngApEffects());
+		
+		return leds;
 	}
 
 
