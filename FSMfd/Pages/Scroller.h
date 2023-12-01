@@ -12,13 +12,12 @@ namespace FSMfd::Pages {
 		DOHelper::X52Output::Page&	target;
 		std::vector<std::wstring>	unseenLines;
 		unsigned					displayPos;
-		bool						emptyGuardLines;
-
+		bool						useEmptyGuards;
 
 	public:
-		Scroller(DOHelper::X52Output::Page& target, unsigned size, bool useEmptyGuardLines = true);
+		Scroller(DOHelper::X52Output::Page& target, unsigned size = 3, bool useEmptyGuardLines = true);
 
-		bool	 HasEmptyGuardLines() const  { return emptyGuardLines; }
+		bool	 HasEmptyGuardLines() const  { return useEmptyGuards; }
 		unsigned LineCount()		  const;
 		unsigned FirstDisplayedLine() const;
 		unsigned LastDisplayedLine()  const;
@@ -30,6 +29,9 @@ namespace FSMfd::Pages {
 
 		bool ScrollUp();
 		bool ScrollDown();
+
+		void AddLines(unsigned count);
+		void EnsureLineCount(unsigned totalCount);
 	};
 
 
@@ -37,7 +39,8 @@ namespace FSMfd::Pages {
 
 	inline unsigned Scroller::LineCount() const
 	{
-		return unseenLines.size() + (emptyGuardLines ? 1 : 3);
+		return static_cast<unsigned>(unseenLines.size())
+			 + (useEmptyGuards ? 1u : 3u);
 	}
 
 

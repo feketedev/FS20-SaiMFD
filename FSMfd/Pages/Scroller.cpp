@@ -8,48 +8,48 @@ namespace FSMfd::Pages {
 
 
 Scroller::Scroller(DOHelper::X52Output::Page& target, unsigned size, bool useEmptyGuardLines) :
-	target			{ target },
-	emptyGuardLines { useEmptyGuardLines },
-	displayPos		{ useEmptyGuardLines ? 1u : 0u }
+	target         { target },
+	useEmptyGuards { useEmptyGuardLines },
+	displayPos     { useEmptyGuardLines ? 1u : 0u }
 {
 	LOGIC_ASSERT_M (size >= 3, "Narrowing the screen is not supported.");
-	unseenLines.resize(size - 3 + 2 * (int)emptyGuardLines);
+	unseenLines.resize(size - 3 + 2 * useEmptyGuards);
 }
 
 
 // Public index of currently displayed line on middle of the screen.
-static unsigned PubMidIdx(unsigned displayPos, bool emptyGuardLines)
+static unsigned PubMidIdx(unsigned displayPos, bool useEmptyGuards)
 {
-	return displayPos + 1 - (int)emptyGuardLines;
+	return displayPos + 1 - useEmptyGuards;
 }
 
 
 unsigned Scroller::FirstDisplayedLine() const
 {
-	unsigned mid = PubMidIdx(displayPos, emptyGuardLines);
+	unsigned mid = PubMidIdx(displayPos, useEmptyGuards);
 	return std::max(mid, 1u) - 1;
 }
 
 
 unsigned Scroller::LastDisplayedLine() const
 {
-	unsigned mid = PubMidIdx(displayPos, emptyGuardLines);
+	unsigned mid = PubMidIdx(displayPos, useEmptyGuards);
 	return std::min(mid + 1, LineCount() - 1);
 }
 
 
 bool Scroller::IsDisplayed(unsigned line) const
 {
-	return displayPos <= line + (int)emptyGuardLines
-		&& displayPos + 3 > line + (int)emptyGuardLines;
+	return displayPos <= line + useEmptyGuards
+		&& displayPos + 3 > line + useEmptyGuards;
 }
 
 
 /// @returns [Index, DisplayedNotUnseen]
-static pair<unsigned, bool>	GetBuffIndex(unsigned i, unsigned displayPos, bool emptyGuardLines)
+static pair<unsigned, bool>	GetBuffIndex(unsigned i, unsigned displayPos, bool useEmptyGuards)
 {
-	const unsigned offset = (unsigned)emptyGuardLines;
-	const unsigned mid	  = PubMidIdx(displayPos, emptyGuardLines);
+	const unsigned offset = useEmptyGuards;
+	const unsigned mid	  = PubMidIdx(displayPos, useEmptyGuards);
 
 	if (i + 1 < mid)
 		return { i + offset, false };
@@ -65,7 +65,7 @@ const std::wstring& 	Scroller::GetLine(unsigned i) const
 {
 	LOGIC_ASSERT (i < LineCount());
 
-	auto [b, displayed] = GetBuffIndex(i, displayPos, emptyGuardLines);
+	auto [b, displayed] = GetBuffIndex(i, displayPos, useEmptyGuards);
 
 	return displayed 
 		? target.GetLine(b) 
@@ -77,7 +77,7 @@ std::wstring&			Scroller::ModLine(unsigned i)
 {
 	LOGIC_ASSERT (i < LineCount());
 
-	auto [b, displayed] = GetBuffIndex(i, displayPos, emptyGuardLines);
+	auto [b, displayed] = GetBuffIndex(i, displayPos, useEmptyGuards);
 
 	return displayed
 		? target.ModLine(b)
@@ -89,7 +89,7 @@ void Pages::Scroller::SetLine(unsigned i, std::wstring text)
 {
 	LOGIC_ASSERT (i < LineCount());
 
-	auto [b, displayed] = GetBuffIndex(i, displayPos, emptyGuardLines);
+	auto [b, displayed] = GetBuffIndex(i, displayPos, useEmptyGuards);
 	if (displayed)
 		target.SetLine(b, std::move(text), true);
 	else
@@ -124,6 +124,21 @@ bool Scroller::ScrollDown()
 	l1.swap(l2);
 	l2.swap(unseenLines[displayPos++]);
 	return true;
+}
+
+
+void Scroller::AddLines(unsigned count)
+{
+	unseenLines.resize(unseenLines.size() + count);
+	// NOTE: No need to move the bottom empty guard - as it's just a regular empty line.
+}
+
+
+void Scroller::EnsureLineCount(unsigned count)
+{
+	unsigned current = LineCount();
+	if (current < count)
+		AddLines(count - current);
 }
 
 

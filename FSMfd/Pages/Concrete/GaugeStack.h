@@ -18,29 +18,60 @@ namespace FSMfd::Pages
 			const unsigned					posY;
 		};
 
-		const std::vector<ActiveGauge>	gauges;
-		const std::vector<size_t>		byRow;		// gauge row -> 1st gauge; guarded end
+		std::vector<ActiveGauge>	gauges;
+		std::vector<size_t>			byRow;		// gauge row -> 1st gauge; guarded end
 
-		Scroller	scroller;
+		Scroller					scroller;
 
 	public:
-		GaugeStack(uint32_t id, const Dependencies&, std::vector<std::unique_ptr<StackableGauge>>&& algs);
+		GaugeStack(uint32_t id, const Dependencies&, std::vector<std::unique_ptr<StackableGauge>>&& algs = {});
+
+
+		void Add(std::unique_ptr<StackableGauge>, unsigned margin = 1);
+
+		template<class Gauge>
+		void Add(Gauge&&, unsigned margin = 1);
+		
+		template<class ConcreteGauge>
+		void Add(std::unique_ptr<ConcreteGauge>, unsigned margin = 1);		// just in case, disambiguates overload resol.
+
 
 		void CleanContent()					  override;
 		void UpdateContent(const SimvarList&) override;
 
 	private:
-		static std::vector<ActiveGauge>  StackGauges(std::vector<std::unique_ptr<StackableGauge>>&&);
-		static std::vector<size_t>		 IndexByRow(const std::vector<ActiveGauge>&);
+		static std::vector<size_t>	IndexByRow(const std::vector<ActiveGauge>&);
+		static bool					FitsInRow(const ActiveGauge& prev, unsigned margin, const FSMfd::Pages::StackableGauge&);
 
-		unsigned RowCount()		const;
-		unsigned TotalHeight()	const;
+		static bool					AddTo(std::vector<ActiveGauge>& gauges, std::unique_ptr<StackableGauge> next, unsigned margin);
+
+		unsigned RowCount()		const;	 // Number of gauge rows.
+		unsigned TotalHeight()	const;	 // Height in screen lines.
+
+
+
+		void AllocRowBuffer(unsigned int r);
 
 		template <class GaugeDisplayAction>
 		void ModifyDisplayAreas(GaugeDisplayAction&&);
 
 		void OnScroll(bool up, TimePoint) override;
 	};
+
+
+
+	template<class Gauge>
+	void GaugeStack::Add(Gauge&& next, unsigned margin)
+	{
+		Add(std::make_unique<std::remove_reference_t<Gauge>>(std::forward<Gauge>(next)), margin);
+	}
+
+
+	template<class ConcreteGauge>
+	void GaugeStack::Add(std::unique_ptr<ConcreteGauge> next, unsigned margin)
+	{
+		Add(std::unique_ptr<StackableGauge> { next.release() }, margin);
+	}
 
 
 }	// namespace FSMfd::Pages
