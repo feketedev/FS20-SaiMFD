@@ -1,5 +1,6 @@
 #pragma once
 
+#include "FSMfdTypes.h"
 #include "Utils/BasicUtils.h"
 #include <string>
 
@@ -49,6 +50,8 @@ namespace FSMfd {
 		DisplayVar(std::wstring text, const SimVarDef&, unsigned decimalCount = 2);
 		DisplayVar(std::wstring text, const SimVarDef&,
 				   std::wstring unitTextOverride,		unsigned decimalCount = 2);
+
+		static optional<std::wstring_view>  LabelWellknownUnit(const char* simUnit);
 	};
 
 

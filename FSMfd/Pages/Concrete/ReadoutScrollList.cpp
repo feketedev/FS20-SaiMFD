@@ -49,7 +49,7 @@ namespace FSMfd::Pages
 
 		for (DisplayVar& dv : dvars)
 		{
-			res.emplace_back(std::move(dv), CreatePrinterFor(dv.definition.typeReqd, dv.decimalCount));
+			res.emplace_back(std::move(dv), CreateValuePrinterFor(dv));
 		}
 		return res;
 	}

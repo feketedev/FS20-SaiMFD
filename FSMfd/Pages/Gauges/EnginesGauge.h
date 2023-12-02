@@ -24,6 +24,10 @@ namespace FSMfd::Pages
 	public:
 		EnginesGauge(unsigned engineCount, const DisplayVar& varProto);
 
+		EnginesGauge(EnginesGauge&&);
+		EnginesGauge(const EnginesGauge&);
+		~EnginesGauge();
+
 		void Clean(DisplayArea&)						const override;
 		void Update(const SimvarSublist&, DisplayArea&) const override;
 	};

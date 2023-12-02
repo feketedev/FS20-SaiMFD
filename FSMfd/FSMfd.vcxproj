@@ -143,6 +143,7 @@
     <ClCompile Include="LEDs\LedControl.cpp" />
     <ClCompile Include="LEDs\LedController.cpp" />
     <ClCompile Include="Pages\Concrete\GaugeStack.cpp" />
+    <ClCompile Include="Pages\Gauges\CompactGauge.cpp" />
     <ClCompile Include="Pages\SimvarPrinter.cpp" />
     <ClCompile Include="SimClient\DedupSimvarRegister.cpp" />
     <ClCompile Include="LEDs\StateDetectors.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="LEDs\LedControl.h" />
     <ClInclude Include="LEDs\LedController.h" />
     <ClInclude Include="Pages\Concrete\GaugeStack.h" />
+    <ClInclude Include="Pages\Gauges\CompactGauge.h" />
     <ClInclude Include="Pages\SimvarPrinter.h" />
     <ClInclude Include="SimClient\DedupSimvarRegister.h" />
     <ClInclude Include="LEDs\DetectorHelpers.h" />

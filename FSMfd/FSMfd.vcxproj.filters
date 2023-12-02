@@ -102,6 +102,9 @@
     <ClCompile Include="SimClient\SimConnectError.cpp">
       <Filter>SimClient</Filter>
     </ClCompile>
+    <ClCompile Include="Pages\Gauges\CompactGauge.cpp">
+      <Filter>Pages\Gauges</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MfdLoop.h">
@@ -184,6 +187,9 @@
     </ClInclude>
     <ClInclude Include="LEDs\LedControl.h">
       <Filter>LEDs</Filter>
+    </ClInclude>
+    <ClInclude Include="Pages\Gauges\CompactGauge.h">
+      <Filter>Pages\Gauges</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

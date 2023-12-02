@@ -56,4 +56,10 @@ namespace FSMfd::Pages {
 	}
 
 
+	SimvarPrinter CreateValuePrinterFor(const DisplayVar& dv, bool truncable)
+	{
+		return CreatePrinterFor(dv.definition.typeReqd, dv.decimalCount, truncable);
+	}
+
+
 }	// namespace FSMfd::Pages

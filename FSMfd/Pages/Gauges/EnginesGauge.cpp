@@ -72,6 +72,12 @@ namespace FSMfd::Pages
 
 #pragma region Construction
 
+	// needed by vector<Field> becuase of Field being hidden from header... well...
+	EnginesGauge::~EnginesGauge()					= default;
+	EnginesGauge::EnginesGauge(const EnginesGauge&)	= default;
+	EnginesGauge::EnginesGauge(EnginesGauge&&)		= default;
+
+
 	static std::vector<SimVarDef> DefineVars(const SimVarDef& proto, unsigned engineCount)
 	{
 		std::vector<SimVarDef> defs;
@@ -90,11 +96,11 @@ namespace FSMfd::Pages
 
 	EnginesGauge::EnginesGauge(unsigned engineCount, const DisplayVar& varProto) :
 		StackableGauge { DisplayLen,				
-						 engineCount <= 2 ? 1u : 2u,
+						 engineCount <= 2 ? 1u : 3u,
 						 DefineVars(varProto.definition, std::min(4u, engineCount)) },
 		title		   { varProto.text },
 		layout         { CreateLayout(engineCount, title.length()) },
-		printValue	   { CreatePrinterFor(varProto.definition.typeReqd, varProto.decimalCount) }
+		printValue	   { CreateValuePrinterFor(varProto) }
 	{
 		LOGIC_ASSERT_M (varProto.definition.name.back() == ':', "EnginesGauge expects an indexable engine variable!");
 
@@ -119,6 +125,8 @@ namespace FSMfd::Pages
 			StringSection s = layout[eng].GetField(display);
 			s.FillWith(L' ');
 		}
+		if (EngCount() >= 3)
+			display[2].FillIn(L"  - - -  - - -  ");
 	}
 
 

@@ -7,7 +7,8 @@
 
 
 
-namespace FSMfd::Pages {
+namespace FSMfd::Pages
+{
 
 	using SimvarPrinter = std::function<bool (SimClient::SimvarValue,
 											  Utils::String::StringSection, 
@@ -15,6 +16,8 @@ namespace FSMfd::Pages {
 
 
 	SimvarPrinter CreatePrinterFor(RequestType, unsigned decimalCount = 2, bool truncableText = false);
+
+	SimvarPrinter CreateValuePrinterFor(const DisplayVar&, bool truncableText = false);
 
 
 }	// namespace FSMfd::Pages

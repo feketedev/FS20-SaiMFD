@@ -32,6 +32,8 @@ namespace FSMfd
 		bool		IsTurboprop()	const;			// 
 		bool		IsHeli()		const;			// 
 
+		bool		HasSpoilers()	const;			// var 4
+
 	public:
 		Configurator(SimClient::FSClient&);
 

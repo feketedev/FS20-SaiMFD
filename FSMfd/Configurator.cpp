@@ -14,6 +14,7 @@
 #include "Pages/Concrete/GaugeStack.h"
 #include "Pages/Concrete/ReadoutScrollList.h"
 #include "Pages/Gauges/EnginesGauge.h"
+#include "Pages/Gauges/CompactGauge.h"
 #include "Utils/Debug.h"
 
 
@@ -38,6 +39,7 @@ namespace FSMfd
 		client.AddVar(configVars.Group, { "IS TAIL DRAGGER",	 "Bool" });
 		client.AddVar(configVars.Group, { "NUMBER OF ENGINES",	 "Number" });
 		client.AddVar(configVars.Group, { "ENGINE TYPE",		 "Enum" });
+		client.AddVar(configVars.Group, { "SPOILER AVAILABLE",	 "Bool" });
 
 		client.RequestOnetimeUpdate(configVars.Group, configVars);
 	}
@@ -92,12 +94,21 @@ namespace FSMfd
 		return configVars.Get()[3].AsUnsigned32() == 3;
 	}
 
+
+	bool Configurator::HasSpoilers() const
+	{
+		return configVars.Get()[4].AsUnsigned32() > 0;
+	}
+
 #pragma endregion
 
 
 
 
 #pragma region Page Config
+
+	constexpr unsigned DisplayLength = SimPage::DisplayLength;
+
 
 	FSPageList Configurator::CreatePages(const SimPage::Dependencies& deps) const
 	{
@@ -127,22 +138,39 @@ namespace FSMfd
 	void Configurator::AddConfigInstruments(FSPageList& pages) const
 	{
 		std::vector<DisplayVar> configVars {
-			// TODO: Left-Right
-			{ L"SPOIL:",	SimVarDef { "SPOILERS LEFT POSITION",	"Percent", RequestType::Real }, L""	},
-			{ L"AT ARM:",	SimVarDef { "AUTOPILOT THROTTLE ARM",	"Bool" }, L""	},
-			{ L"AT SPEED:",	SimVarDef { "AUTOPILOT AIRSPEED HOLD",	"Bool" }, L""	},
+			// TODO: Left-Right, trim etc.
+			{ L"SPOIL:",	SimVarDef { "SPOILERS LEFT POSITION",	"Percent", RequestType::Real } },
+			{ L"AT ARM:",	SimVarDef { "AUTOPILOT THROTTLE ARM",	"Bool" } },
+			{ L"AT SPEED:",	SimVarDef { "AUTOPILOT AIRSPEED HOLD",	"Bool" } },
 		};
 
 		pages.Add<ReadoutScrollList>(std::move(configVars));
 	}
 
 
-	// TODO: differentiate for propeller and single-engine aircraft
 	void Configurator::AddEnginesPage(FSPageList& pages) const
 	{
 		if (EngineCount() == 0)		// glider
 			return;
 
+		GaugeStack& engStack = pages.Add<GaugeStack>();
+
+		// TODO: turboprop
+		if (EngineCount() == 1 && IsPiston())
+		{
+			engStack.Add(CompactGauge { 8, { L"RPM ",	SimVarDef { "GENERAL ENG RPM:1",			  "RPM" } }});
+			engStack.Add(CompactGauge { 7, { L"OiP ",	SimVarDef { "ENG OIL PRESSURE:1",			  "psi" },				L"" }});
+			engStack.Add(CompactGauge { 8, { L"Mix ",	SimVarDef { "RECIP MIXTURE RATIO:1",		  "percent", RequestType::Real } }});
+			engStack.Add(CompactGauge { 7, { L"OiT",	SimVarDef { "ENG OIL TEMPERATURE:1",		  "celsius" },			L"" }});
+			engStack.Add(CompactGauge { 8, { L"Prop ",	SimVarDef { "PROP BETA:1",					  "degrees" } }});
+			engStack.Add(CompactGauge { 7, { L"FF ",	SimVarDef { "RECIP ENG FUEL FLOW:1",		  "pounds per hour" },	L"" }});
+			engStack.Add(CompactGauge { 8, { L"CARBT ", SimVarDef { "RECIP CARBURETOR TEMPERATURE:1", "celsius" },			L"" }});
+			engStack.Add(CompactGauge { 7, { L"VAC ",	SimVarDef { "SUCTION PRESSURE", "inHg", RequestType::Real },		L"", 1 }});
+
+			return;
+		}
+
+		// TODO: prop/turboprop
 		const std::vector<DisplayVar> engVars {
 			{ L"REV",   SimVarDef { "TURB ENG REVERSE NOZZLE PERCENT:",	"percent", RequestType::Real  } },
 			{ L"EGT",   SimVarDef { "ENG EXHAUST GAS TEMPERATURE:",		"celsius" } },
@@ -155,11 +183,8 @@ namespace FSMfd
 		//	{ L"OIL%",   SimVarDef { "ENG OIL QUANTITY:",				"percent",			RequestType::Real }, 1 },	// always 100%
 		};
 
-		std::vector<std::unique_ptr<StackableGauge>> engineGauges;
 		for (const DisplayVar& dv : engVars)
-			engineGauges.push_back(std::make_unique<EnginesGauge>(EngineCount(), dv));
-
-		pages.Add<GaugeStack>(std::move(engineGauges));
+			engStack.Add(EnginesGauge { EngineCount(), dv });
 	}
 
 #pragma endregion
@@ -229,12 +254,20 @@ namespace FSMfd
 		};
 
 
+		std::vector<LedOverride> warningsE;
+		if (HasSpoilers() && HasRetractableGears())
+			warningsE.push_back(spoilersUnArmed);
+		if (HasSpoilers())
+			warningsE.push_back(spoilersExtended);
+		warningsE.push_back(overspdBlink);
+		warningsE.push_back(stallBlink);
+
 		return {
 			LedController { Throttle, true,		   { overspdBlink } },
-			LedController { ButtonE, Color::Green, { spoilersUnArmed, spoilersExtended, overspdBlink, stallBlink } },
+			LedController { ButtonE, Color::Green, std::move(warningsE) },
 			LedController { Fire,     true,		   { overspdBlink, stallBlink } },
-			LedController { ButtonA, Color::Off, { flapsExtended1 } },
-			LedController { ButtonB, Color::Off, { flapsExtended2 } },
+			LedController { ButtonA, Color::Off,   { flapsExtended1 } },
+			LedController { ButtonB, Color::Off,   { flapsExtended2 } },
 		};
 	}
 
@@ -278,9 +311,13 @@ namespace FSMfd
 
 		if (!HasRetractableGears())
 		{
+			std::vector<LedOverride> centerEffects;
+			if (IsTaildragger())
+				centerEffects.push_back(steeringLockWarning);
+
 			return {
 				{ Toggle1, Color::Green, {} },
-				{ Toggle2, Color::Green, { steeringLockWarning } },
+				{ Toggle2, Color::Green, std::move(centerEffects) },
 				{ Toggle3, Color::Green, { parkBrakeWarning } },
 			};
 		}
