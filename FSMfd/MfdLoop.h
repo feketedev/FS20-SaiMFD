@@ -45,7 +45,7 @@ namespace FSMfd
 
 	private:
 		FSClient ConnectToFS(X52Output&);
-		void	 WaitForFlight(X52Output&, FSClient&, const Configurator& config);
+		void	 WaitForFlight(X52Output&, FSClient&, Configurator&);
 		void	 PollFS(X52Output&, Led::LedControl&, FSClient&);
 
 		bool CanUse(X52Output&)		const;

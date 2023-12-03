@@ -21,35 +21,65 @@ namespace Debug
 	}
 
 
+
+	static bool WasInline = false;
+
+	static void CleanLine()
+	{
+		if (WasInline)
+		{
+			std::cout << '\n';
+			WasInline = false;
+		}
+	}
+
+
 	void Warning(const char* msg)
 	{
+		CleanLine();
 		std::cout << "Debug warning: \t" << msg << '\n';
 	}
 
 	void Warning(const char* source, const char* msg)
 	{
+		CleanLine();
 		std::cout << source << " warning:\t" << msg << '\n';
 	}
 
 	void Warning(const char* source, const char* msg, int param)
 	{
+		CleanLine();
 		std::cout << source << " warning:\t" << msg << ' ' << param << '\n';
 	}
 
 
 	void Info(const char* msg)
 	{
+		CleanLine();
 		std::cout << "Debug:\t\t" << msg << '\n';
 	}
 
 	void Info(const char* source, const char* msg)
 	{
+		CleanLine();
 		std::cout << source << ":\t" << msg << '\n';
 	}
 
 	void Info(const char* source, const char* msg, int param)
 	{
+		CleanLine();
 		std::cout << source << ":\t" << msg << ' ' << param << '\n';
+	}
+
+	void InlineInfo(const char* source, const char* msg)
+	{
+		if (!WasInline)
+			std::cout << source << ":\t" << msg;
+		else
+			std::cout << msg;	
+		// no checking for different source, this thing is just 1-time eye-candy :)
+
+		WasInline = true;
 	}
 
 

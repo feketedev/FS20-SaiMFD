@@ -153,29 +153,30 @@ namespace FSMfd
 	}
 
 
-	// Returns when inFlight OR connection lost with FS
-	void MfdLoop::WaitForFlight(X52Output& device, FSClient& client, const Configurator& config)
+	// Returns when inFlight with ready config OR connection lost with FS
+	void MfdLoop::WaitForFlight(X52Output& device, FSClient& client, Configurator& config)
 	{
 		Pages::WaitSpinner loadingPage { L"FS20-SaiMFD", 0, L"->>-" };
 		device.AddPage(loadingPage);
 
-		TimePoint time = TimePoint::clock::now();
+		TimePoint time       = TimePoint::clock::now();
+		unsigned  configWait = 0;
 		do
 		{
 			loadingPage.SetStatus(inFlight ? L"Configuring..." : L"Load flight...");
 			loadingPage.DrawAnimation();
+			if (inFlight && configWait-- == 0)
+			{
+				config.Refresh();
+				configWait = 3;			// arbitrary, but do wait a bit
+			}
 
 			AdvanceToUpcomingTick(time, WelcomeAnimationIval, TimePoint::clock::now());
 			device.ProcessMessages(time);
-
-			// TODO: FSClient method?
-			int re = 3;
-			while (client.Receive(time) && re-- > 0);
-			DBG_ASSERT (re);
+			client.ReceiveMultiple(time);
 		}
 		while (CanReload(client) && (!inFlight || !config.IsReady()));
 	}
-
 
 #pragma endregion
 
@@ -339,7 +340,9 @@ namespace FSMfd
 			const bool hotPoll	 = actPage->IsAwaitingReceive() && (cleanPoll || hotPollsRemain);
 			if (hotPoll)
 			{
-				Debug::Info("MfdLoop", "Hot-polling FS...");
+				if (cleanPoll)
+					Debug::InlineInfo("MfdLoop", "Hot-polling FS ");
+				Debug::InlineInfo("MfdLoop", ".");
 
 				const bool sync = actPage->IsAwaitingData();
 				hotPollsRemain = cleanPoll && actPage->IsAwaitingData()		? syncingPollCycles

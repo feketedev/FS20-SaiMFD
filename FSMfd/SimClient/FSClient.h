@@ -147,6 +147,14 @@ namespace FSMfd::SimClient {
 		/// @returns:	more coming => should check again to keep the queue empty!
 		bool [[nodiscard]] Receive(TimePoint now);
 	
+		/// Call Receive multiple times in attempt to empty the FS's queue. 
+		/// @remarks
+		///				It seems that SimConnect does dispatch all queued messages under a
+		///				single request, only what's received in the mean-time will remain
+		///				- hence the suggested default parameter.
+		/// @returns:	even more coming
+		bool ReceiveMultiple(TimePoint now, unsigned triesToEmpty = 3);
+
 	
 		struct ReceiveContext;		// internal
 

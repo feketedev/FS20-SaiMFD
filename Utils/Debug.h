@@ -50,6 +50,7 @@ namespace Debug
 	// affects _CrtDbgReport -> macros in this file
 	void PrintAssertsToStderr();
 
+
 	void Warning(const char* msg);
 	void Warning(const char* source, const char* msg);
 	void Warning(const char* source, const char* msg, int param);
@@ -57,4 +58,8 @@ namespace Debug
 	void Info(const char* msg);
 	void Info(const char* source, const char* msg);
 	void Info(const char* source, const char* msg, int param);
+
+	// for minimal eye-candy progress indication
+	void InlineInfo(const char* source, const char* msg);
+
 }

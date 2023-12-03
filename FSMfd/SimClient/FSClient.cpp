@@ -810,6 +810,15 @@ namespace FSMfd::SimClient
 		return !context.quit && context.received;
 	}
 
+
+	bool FSClient::ReceiveMultiple(TimePoint now, unsigned tries)
+	{
+		while (tries && Receive(now))
+			--tries;
+
+		return tries == 0;
+	}
+
 #pragma endregion
 
 

@@ -40,14 +40,12 @@ namespace FSMfd
 		client.AddVar(configVars.Group, { "NUMBER OF ENGINES",	 "Number" });
 		client.AddVar(configVars.Group, { "ENGINE TYPE",		 "Enum" });
 		client.AddVar(configVars.Group, { "SPOILER AVAILABLE",	 "Bool" });
-
-		client.RequestOnetimeUpdate(configVars.Group, configVars);
 	}
 
 
 	void Configurator::Refresh()
 	{
-		Debug::Info("Config INVALIDATED");
+		Debug::Info("Configurator", "Refreshing. Old data existed: ", configVars.HasData());
 		configVars.Invalidate();
 		client.RequestOnetimeUpdate(configVars.Group, configVars);
 	}
