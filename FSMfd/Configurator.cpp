@@ -192,7 +192,6 @@ namespace FSMfd
 
 #pragma region LED Config
 
-
 	std::vector<LedController> Configurator::CreateLedEffects() const
 	{
 		LOGIC_ASSERT (IsReady());
@@ -202,6 +201,29 @@ namespace FSMfd
 		Utils::Append(leds, CreateEngApEffects());
 		
 		return leds;
+	}
+
+
+
+	template <class... Elems>
+	std::vector<LedOverride> IfAvail(const Elems&... elems)
+	{
+		std::vector<LedOverride> res;
+		
+		auto addValue = [&res](auto& o)
+		{
+			if constexpr (std::is_same_v<std::decay_t<decltype(o)>, optional<LedOverride>>)
+			{
+				if (o.has_value())
+					res.push_back(*o);
+			}
+			else
+			{
+				res.push_back(o);
+			}
+		};
+		(..., addValue(elems));
+		return res;
 	}
 
 
@@ -224,20 +246,28 @@ namespace FSMfd
 		};
 		
 		// going to land => arm spoilers
-		LedOverride spoilersUnArmed {
-			Conditional {
-				SwitchDetector	{ "GEAR HANDLE POSITION" },
-				SwitchDetector	{ "SPOILERS ARMED" },
-			},
-			StateColors { Color::Amber, Nothing }
+		optional<LedOverride> spoilersUnArmed;
+		if (HasSpoilers() && HasRetractableGears())
+		{
+			spoilersUnArmed.emplace(
+				Conditional {
+					SwitchDetector	{ "GEAR HANDLE POSITION" },
+					SwitchDetector	{ "SPOILERS ARMED" },
+				},
+				StateColors { Color::Amber, Nothing }
+			);
 		};
 
 		// triggering for Min(left, right): asymm spoilers used along with aileron to roll should not trigger
-		LedOverride spoilersExtended {
-			Max { SwitchDetector { "SPOILERS LEFT POSITION",  "percent" },
-				  SwitchDetector { "SPOILERS RIGHT POSITION", "percent" } },
-			StatePatterns { { Nothing },
-							{{ Nothing, 800ms }, { Color::Amber, 200ms }} }
+		optional<LedOverride> spoilersExtended;
+		if (HasSpoilers())
+		{
+			spoilersExtended.emplace(
+				Max { SwitchDetector { "SPOILERS LEFT POSITION",  "percent" },
+					  SwitchDetector { "SPOILERS RIGHT POSITION", "percent" } },
+				StatePatterns { { Nothing },
+								{{ Nothing, 800ms }, { Color::Amber, 200ms }} }
+			);
 		};
 
 		LedOverride flapsExtended1 {
@@ -252,17 +282,9 @@ namespace FSMfd
 		};
 
 
-		std::vector<LedOverride> warningsE;
-		if (HasSpoilers() && HasRetractableGears())
-			warningsE.push_back(spoilersUnArmed);
-		if (HasSpoilers())
-			warningsE.push_back(spoilersExtended);
-		warningsE.push_back(overspdBlink);
-		warningsE.push_back(stallBlink);
-
 		return {
 			LedController { Throttle, true,		   { overspdBlink } },
-			LedController { ButtonE, Color::Green, std::move(warningsE) },
+			LedController { ButtonE, Color::Green, IfAvail(spoilersUnArmed, spoilersExtended, overspdBlink, stallBlink) },
 			LedController { Fire,     true,		   { overspdBlink, stallBlink } },
 			LedController { ButtonA, Color::Off,   { flapsExtended1 } },
 			LedController { ButtonB, Color::Off,   { flapsExtended2 } },
@@ -290,13 +312,17 @@ namespace FSMfd
 		};
 
 
-		LedOverride steeringLockWarning {
-			Conditional {
-				gearNotRetracted,
-				SwitchDetector { IsTaildragger() ? "TAILWHEEL LOCK ON" : "NOSEWHEEL LOCK ON" }
-			},
-			StateColors		{ LedColor::Amber, Nothing }
-		};
+		optional<LedOverride> steeringLockWarning;
+		if (IsTaildragger())						// Nosewheellock does not seem to be present anywhere
+		{
+			steeringLockWarning.emplace(
+				Conditional {
+					gearNotRetracted,
+					SwitchDetector { IsTaildragger() ? "TAILWHEEL LOCK ON" : "NOSEWHEEL LOCK ON" }
+				},
+				StateColors { LedColor::Amber, Nothing }
+			);
+		}
 
 		LedOverride parkBrakeWarning {
 			Conditional {
@@ -307,35 +333,22 @@ namespace FSMfd
 		};
 
 
-		if (!HasRetractableGears())
-		{
-			std::vector<LedOverride> centerEffects;
-			if (IsTaildragger())
-				centerEffects.push_back(steeringLockWarning);
-
-			return {
-				{ Toggle1, Color::Green, {} },
-				{ Toggle2, Color::Green, std::move(centerEffects) },
-				{ Toggle3, Color::Green, { parkBrakeWarning } },
-			};
-		}
-
-		if (IsTaildragger())
+		if (HasRetractableGears())
 		{
 			return { 
-				{ Toggle1, Color::Amber, { leftGearState } },
-				{ Toggle2, Color::Amber, { centerGearState, steeringLockWarning } },
-				{ Toggle3, Color::Amber, { rightGearState, parkBrakeWarning } },
+				{ Toggle1, Color::Amber, { leftGearState, parkBrakeWarning } },
+				{ Toggle2, Color::Amber, IfAvail(centerGearState, steeringLockWarning) },
+				{ Toggle3, Color::Amber, { rightGearState } },
 			};
 		}
-
-		// Rretractable Tricycle
-		// - Nosewheellock does not seem to be present anywhere
-		return { 
-			{ Toggle1, Color::Amber, { leftGearState } },
-			{ Toggle2, Color::Amber, { centerGearState /*, steeringLockWarning*/ } },
-			{ Toggle3, Color::Amber, { rightGearState, parkBrakeWarning } },
-		};
+		else
+		{
+			return {
+				{ Toggle1, Color::Off, { parkBrakeWarning } },
+				{ Toggle2, Color::Off, IfAvail(steeringLockWarning) },
+				{ Toggle3, Color::Off, {} },
+			};
+		}
 	}
 
 
@@ -360,19 +373,23 @@ namespace FSMfd
 
 		// this shows when reverse thrust is actually applied
 		// -> approximation: e.g. 787 gives around 0.4% reverse thrust with nozzles just opened
-		LedOverride jetReverserActive {
-			Max {
-				RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:1", "percent", Boundaries { 0.2 } },
-				RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:2", "percent", Boundaries { 0.2 } },
-				RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:3", "percent", Boundaries { 0.2 } },
-				RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:4", "percent", Boundaries { 0.2 } },
-				RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:5", "percent", Boundaries { 0.2 } },
-				RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:6", "percent", Boundaries { 0.2 } },
-				RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:7", "percent", Boundaries { 0.2 } },
-				RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:8", "percent", Boundaries { 0.2 } }
-			},
-			StatePatterns { { Nothing }, {{ Color::Off, 500ms }, { Color::Red, 500ms }} }
-		};
+		optional<LedOverride> jetReverserActive;
+		if (IsJet())
+		{
+			jetReverserActive.emplace(
+				Max {
+					RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:1", "percent", Boundaries { 0.2 } },
+					RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:2", "percent", Boundaries { 0.2 } },
+					RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:3", "percent", Boundaries { 0.2 } },
+					RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:4", "percent", Boundaries { 0.2 } },
+					RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:5", "percent", Boundaries { 0.2 } },
+					RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:6", "percent", Boundaries { 0.2 } },
+					RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:7", "percent", Boundaries { 0.2 } },
+					RangeDetector { "TURB ENG REVERSE NOZZLE PERCENT:8", "percent", Boundaries { 0.2 } }
+				},
+				StatePatterns { { Nothing }, {{ Color::Off, 500ms }, { Color::Red, 500ms }} }
+			);
+		}
 
 
 		LedOverride apMaster {
@@ -407,14 +424,10 @@ namespace FSMfd
 		};
 
 
-		auto thrustRelated = IsJet() 
-			? std::vector<LedOverride> { generalReverseThrust, atTOGA }
-			: std::vector<LedOverride> { generalReverseThrust, jetReverserActive, atTOGA };
-
 		return {
 			LedController { Pov2,	 Color::Off, { apMaster, apOnGlideslope, apDisengage } },
 			LedController { ButtonD, Color::Off, { atArmed, atActive, apDisengage } },
-			LedController { ButtonI, Color::Off,  std::move(thrustRelated) },
+			LedController { ButtonI, Color::Off, IfAvail(generalReverseThrust, jetReverserActive, atTOGA) },
 		};
 	}
 
