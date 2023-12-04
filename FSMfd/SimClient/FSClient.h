@@ -8,7 +8,7 @@
 
 #include "IReceiver.h"
 #include "FSClientTypes.h"
-#include "Utils/Reassignable.h"	// TODO tulzas :)
+#include "Utils/Reassignable.h"
 
 #include <array>
 #include <memory>

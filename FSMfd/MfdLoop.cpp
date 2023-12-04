@@ -4,7 +4,7 @@
 #include "SimClient/FSClient.h"
 #include "SimClient/SimConnectError.h"
 #include "Pages/Concrete/WaitSpinner.h"
-#include "Pages/FSPageList.h"			//TODO
+#include "Pages/FSPageList.h"
 #include "LEDs/LedControl.h"
 
 #include "DirectOutputHelper/X52Output.h"
@@ -299,12 +299,9 @@ namespace FSMfd
 		{
 			nextReceive.Advance(now);
 			
-			// try to empty SimConnect queue, but stay responsive
+			// aim to empty SimConnect queue, but stay responsive
 			// - assuming FSPollIval matches subscribed update freq. of SimVars
-			int re = 5;
-			while (client.Receive(now) && re-- > 0);
-			
-			if (re == 0)
+			if (client.ReceiveMultiple(now))
 				Debug::Warning("SimConnect queue filling up!");
 		};
 		

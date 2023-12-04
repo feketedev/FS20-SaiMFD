@@ -356,7 +356,7 @@ namespace FSMfd::SimClient
 		bool					mainMenuLoaded = false;		// TODO: if started already in Main Menu
 
 	public:
-		const NotificationCode	ForwardingCode;	// TODO: naming?
+		const NotificationCode	DetectionEvent;
 
 		bool InFlight() const	{ return simActive && !mainMenuLoaded; }
 
@@ -367,7 +367,7 @@ namespace FSMfd::SimClient
 
 		InFlightDetector(FSClient& owner) :
 			owner		   { &owner },
-			ForwardingCode { owner.nextEventId++ }
+			DetectionEvent { owner.nextEventId++ }
 		{
 			try
 			{
@@ -418,7 +418,7 @@ namespace FSMfd::SimClient
 
 		void PushChange(TimePoint stamp)
 		{
-			owner->PushEvent(stamp, ForwardingCode, InFlight());
+			owner->PushEvent(stamp, DetectionEvent, InFlight());
 		}
 	};
 
@@ -493,7 +493,7 @@ namespace FSMfd::SimClient
 		if (inflightDetector == nullptr)
 			inflightDetector = std::make_unique<InFlightDetector>(*this);
 	
-		NotificationCode code = inflightDetector->ForwardingCode;
+		NotificationCode code = inflightDetector->DetectionEvent;
 		eventSubscribers.emplace_back(code, receiver);
 		return code;
 	}
@@ -520,7 +520,7 @@ namespace FSMfd::SimClient
 		{
 			if (&(*it)->subscriber == &receiver)
 			{
-				if (inflightDetector == nullptr || (*it)->code != inflightDetector->ForwardingCode)
+				if (inflightDetector == nullptr || (*it)->code != inflightDetector->DetectionEvent)
 				{
 					FS_REQUEST (
 						SimConnect_UnsubscribeFromSystemEvent(hSimConnect, (*it)->code)
@@ -539,18 +539,14 @@ namespace FSMfd::SimClient
 			}
 		}
 
-		// TODO: a counter maybe?
-		if (inFlightDetectInvolved)
+		bool inflightUnused = inFlightDetectInvolved &&
+							  !Utils::AnyOf(eventSubscribers, [this](auto& sub) {
+								return sub->code == inflightDetector->DetectionEvent;
+							  });
+		if (inflightUnused)
 		{
-			auto other = std::find_if(eventSubscribers.begin(), eventSubscribers.end(), [this](auto& sub) {
-				return sub->code == inflightDetector->ForwardingCode;
-			});
-
-			if (other == eventSubscribers.end())
-			{
-				UnscribeEvents(*inflightDetector);
-				inflightDetector.reset();
-			}
+			UnscribeEvents(*inflightDetector);
+			inflightDetector.reset();
 		}
 	}
 
@@ -597,11 +593,11 @@ namespace FSMfd::SimClient
 			bool lateMsg = !IsPermanent(simId) &&
 						   simId < self.exhaustedGroupIdCount + MaxPermanentGroups;
 			if (lateMsg)
+			{
+				Debug::Info("FSClient", "Received late message for now obsolete group.");
 				return;
+			}
 
-			// TODO: ToLogical / ToSimId etc...
-			//const bool shiftingId = !IsPermanent(simId);
-			//const GroupId gid = simId - shiftingId * self.exhaustedGroupIdCount;
 			const GroupId gid   = self.ToGroupId(simId);
 			VarGroup*	  group = self.TryAccessGroup(gid);
 
@@ -620,8 +616,8 @@ namespace FSMfd::SimClient
 					error	= "Received unexpected data count.";
 				return;
 			}
-		// TODO
-		//	DBG_ASSERT(count == self.varGroups[gid].ExpectedBytes());
+			// not so important check - objData ends in a flexible array
+			DBG_ASSERT(count == group->ExpectedBytes() + sizeof(SIMCONNECT_RECV_SIMOBJECT_DATA) - sizeof(objData.dwData));
 
 			// just to avoid including SimConnect everywhere
 			static_assert(sizeof(uint32_t) == sizeof(DWORD));
@@ -716,13 +712,10 @@ namespace FSMfd::SimClient
 				return;
 			}
 
-			// TODO
 			case SIMCONNECT_RECV_ID_EXCEPTION:
 			{
 				auto* pExData = static_cast<SIMCONNECT_RECV_EXCEPTION*> (pData);
-				std::stringstream ss;
-				ss << "SimConnect exception: " << pExData->dwException;
-				Debug::Warning("FSClient", ss.str().data());
+				Debug::Warning("FSClient", "SimConnect exception: ", pExData->dwException);
 				return;
 			}
 
@@ -746,7 +739,7 @@ namespace FSMfd::SimClient
 		// Simulate connection
 		if (!connected && firstTime + Wait <= now)
 		{
-			PushEvent(now, inflightDetector->ForwardingCode, 1u);
+			PushEvent(now, inflightDetector->DetectionEvent, 1u);
 			// just guess the first subscriber here...
 			PushStringEvent(now, eventSubscribers[0]->code, "SomeNotMenuAircraft.FLT");
 			lastTime = now + FirstDataWait - Wait;
