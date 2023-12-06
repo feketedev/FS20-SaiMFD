@@ -26,6 +26,9 @@ namespace FSMfd::Pages {
 		const std::wstring& GetLine		(unsigned i) const;
 		std::wstring&		ModLine		(unsigned i);
 		void 				SetLine		(unsigned i, std::wstring text);
+		
+		bool				IsAtop()	const;
+		bool				IsBottom()	const;
 
 		bool ScrollUp();
 		bool ScrollDown();

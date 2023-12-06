@@ -170,15 +170,15 @@ namespace FSMfd
 
 		// TODO: prop/turboprop
 		const std::vector<DisplayVar> engVars {
-			{ L"REV",   SimVarDef { "TURB ENG REVERSE NOZZLE PERCENT:",	"percent", RequestType::Real  } },
-			{ L"EGT",   SimVarDef { "ENG EXHAUST GAS TEMPERATURE:",		"celsius" } },
-			{ L"RPM",   SimVarDef { "GENERAL ENG RPM:",					"RPM" } },
-			{ L"N1 %",  SimVarDef { "TURB ENG N1:",						"percent",			RequestType::Real }, 1 },
-			{ L"N2 %",  SimVarDef { "TURB ENG N2:",						"percent",			RequestType::Real }, 1 },
-			{ L"FF",    SimVarDef { "ENG FUEL FLOW PPH:",				"pounds per hour" } },
-			{ L"OILP",  SimVarDef { "ENG OIL PRESSURE:",				"psi",				RequestType::Real }, 1 },
-			{ L"OILT",  SimVarDef { "ENG OIL TEMPERATURE:",				"celsius",			RequestType::Real }, 1 },
-		//	{ L"OIL%",   SimVarDef { "ENG OIL QUANTITY:",				"percent",			RequestType::Real }, 1 },	// always 100%
+			{ L"REV",	SimVarDef { "TURB ENG REVERSE NOZZLE PERCENT:",	"percent", RequestType::Real  } },
+			{ L"EGT ",	SimVarDef { "ENG EXHAUST GAS TEMPERATURE:",		"celsius" } },
+			{ L"RPM",	SimVarDef { "GENERAL ENG RPM:",					"RPM" } },
+			{ L"N1 ",	SimVarDef { "TURB ENG N1:",						"percent", RequestType::Real },	1 },
+			{ L"N2 ",	SimVarDef { "TURB ENG N2:",						"percent", RequestType::Real },	1 },
+			{ L"FF",	SimVarDef { "ENG FUEL FLOW PPH:",				"pounds per hour" },			L" lbs" },
+			{ L"OIL",	SimVarDef { "ENG OIL PRESSURE:",				"psi",	   RequestType::Real},	1},
+			{ L"OIL ",	SimVarDef { "ENG OIL TEMPERATURE:",				"celsius", RequestType::Real },	1 },
+		//	{ L"OIL%",   SimVarDef { "ENG OIL QUANTITY:",				"percent", RequestType::Real },	1 },	// always 100%
 		};
 
 		for (const DisplayVar& dv : engVars)

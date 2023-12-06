@@ -15,7 +15,8 @@ namespace FSMfd::Pages
 #pragma region Layouts
 
 	constexpr unsigned DisplayLen	 = DOHelper::X52Output::Page::DisplayLength;
-	constexpr unsigned DisplayCenter = DisplayLen / 2;
+	constexpr unsigned DisplayCenter = DisplayLen / 2 - 1;
+	constexpr unsigned TopRowInset   = 2;
 	
 
 	struct EnginesGauge::Field {
@@ -28,13 +29,13 @@ namespace FSMfd::Pages
 	};
 
 
-	/*static*/ std::vector<EnginesGauge::Field>		EnginesGauge::CreateLayout(unsigned engCount, unsigned titleLen)
+	/*static*/ std::vector<EnginesGauge::Field>  EnginesGauge::CreateLayout(unsigned engCount, unsigned titleLen)
 	{
 		LOGIC_ASSERT_M (titleLen + 4 < DisplayLen, "Gauge title too long.");
 
 		const unsigned readoutLen = (DisplayLen - titleLen) / 2 - 1;	// for 2 values surrounding Title
+		const unsigned centralPos = (DisplayLen - readoutLen) / 2;
 		const unsigned titlePos	  = readoutLen + 1;						// prefer to keep left
-		const unsigned centralPos = DisplayCenter - readoutLen / 2;
 
 		switch (engCount)
 		{
@@ -50,17 +51,17 @@ namespace FSMfd::Pages
 				return {
 					{ 1, titlePos,						titleLen   },
 					{ 1, 0,								readoutLen, Align::Left },
-					{ 1, DisplayLen - readoutLen,		readoutLen },
 					{ 0, centralPos,					readoutLen },
+					{ 1, DisplayLen - readoutLen,		readoutLen },
 				};
 
 			default:
 				return {
-					{ 1, titlePos,						titleLen   },
-					{ 1, 0,								readoutLen, Align::Left },
-					{ 1, DisplayLen - readoutLen,		readoutLen },
-					{ 0, 2,								readoutLen, Align::Left },
-					{ 0, DisplayLen - readoutLen - 2,	readoutLen },
+					{ 1, titlePos,								titleLen   },
+					{ 1, 0,										readoutLen, Align::Left },
+					{ 0, TopRowInset,							readoutLen, { Align::Left,  1 } },
+					{ 0, DisplayLen - readoutLen - TopRowInset,	readoutLen, { Align::Right, 1 } },
+					{ 1, DisplayLen - readoutLen,				readoutLen },
 				};
 		}
 	}
@@ -95,12 +96,12 @@ namespace FSMfd::Pages
 
 
 	EnginesGauge::EnginesGauge(unsigned engineCount, const DisplayVar& varProto) :
-		StackableGauge { DisplayLen,				
-						 engineCount <= 2 ? 1u : 3u,
-						 DefineVars(varProto.definition, std::min(4u, engineCount)) },
-		title		   { varProto.text },
-		layout         { CreateLayout(engineCount, title.length()) },
-		printValue	   { CreateValuePrinterFor(varProto) }
+		StackableGauge   { DisplayLen,
+						   engineCount <= 2 ? 1u : 2u,
+						   DefineVars(varProto.definition, std::min(4u, engineCount)) },
+		title		     { varProto.text + varProto.unitText },
+		layout           { CreateLayout(engineCount, title.length()) },
+		printValue	     { CreateValuePrinterFor(varProto, false) }
 	{
 		LOGIC_ASSERT_M (varProto.definition.name.back() == ':', "EnginesGauge expects an indexable engine variable!");
 
@@ -125,8 +126,12 @@ namespace FSMfd::Pages
 			StringSection s = layout[eng].GetField(display);
 			s.FillWith(L' ');
 		}
-		if (EngCount() >= 3)
-			display[2].FillIn(L"  - - -  - - -  ");
+		if (display.size > 1)
+		{
+			display[0].FillWith(L'¨');
+			*display[0].GetStart() = L'´';
+			*display[0].GetLast()  = L'`';
+		}
 	}
 
 
@@ -138,6 +143,15 @@ namespace FSMfd::Pages
 		{
 			StringSection field = layout[eng].GetField(display);
 			printValue(measurements[eng - 1], field, layout[eng].aln);
+		}
+
+		// dynamic separator dots
+		if (display.size > 1)
+		{
+			unsigned midLen = DisplayLen - 2 * TopRowInset;
+			for (wchar_t& c : display[0].SubSection(TopRowInset, midLen - 1))
+				if (c == L' ')
+					c = L'¨';
 		}
 	}
 

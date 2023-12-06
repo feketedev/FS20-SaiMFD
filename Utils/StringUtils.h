@@ -20,8 +20,8 @@ namespace Utils::String {
 	///	  This allows to "break the margin" as last resort 
 	///   to squeeze some extra digits on a small screen.
 	struct PaddedAlignment {
-		const Align		direction;
-		const size_t	pad;
+		Align		direction;
+		size_t		pad;
 
 		constexpr PaddedAlignment(Align dir, size_t pad = 0) : direction { dir }, pad { pad }
 		{
@@ -40,6 +40,22 @@ namespace Utils::String {
 
 
 
+	/// Controls truncation of decimal numbers.
+	struct DecimalLimit {
+		/// Requested precision, truncated further as needed. Max numeric_limits{double}::digits10.
+		unsigned short maxDecimals;
+
+		/// When room is scarce, violate padding before cutting decimals.
+		bool preferDecimalsOverPadding;
+
+		constexpr DecimalLimit(unsigned short max, bool preferDecimals = false) :
+			maxDecimals { max }, preferDecimalsOverPadding { preferDecimals }
+		{
+		}
+	};
+
+
+
 	/// Modifiable part of a wstring buffer. Usually target of string operations.
 	struct StringSection {
 		std::wstring&	buffer;
@@ -53,6 +69,7 @@ namespace Utils::String {
 		StringSection		SubSection(size_t offset, size_t length) const;
 
 		wchar_t*			GetStart()		const;
+		wchar_t*			GetLast()		const;
 		std::wstring_view	AsStringView()	const;
 
 		void FillIn(std::wstring_view src);
@@ -79,11 +96,10 @@ namespace Utils::String {
 	bool PlaceNumber(int32_t value, StringSection target, const PaddedAlignment& = Align::Right, const std::wstring_view& overrunSymb = L"##");
 	
 	/// Put space-padded digits (in decimal form) to a field specified as a section of a string buffer.
-	/// @param maxDecimals  Requested precision, truncated as needed. Max numeric_limits<double>::digits10.
 	/// @param target 		Section of buffer to be updated.
 	/// @param overrunSymb 	Put this string (trimmed to target length) to signal if @p target was too short for the whole digits.
 	/// @returns 			Had enough space at least for the digits preceeding the decimal point.
-	bool PlaceNumber(double value, unsigned maxDecimals, StringSection target, const PaddedAlignment& = Align::Right, const std::wstring_view& overrunSymb = L"##");
+	bool PlaceNumber(double value, DecimalLimit, StringSection target, const PaddedAlignment& = Align::Right, const std::wstring_view& overrunSymb = L"##");
 
 	
 
@@ -127,6 +143,12 @@ namespace Utils::String {
 	{
 		return { str.begin(), str.end() };
 	}
+
+
+	inline wchar_t*			begin(StringSection& s)			{ return s.GetStart(); }
+	inline wchar_t*			end(StringSection& s)			{ return s.GetStart() + s.length; }
+	inline const wchar_t*	begin(const StringSection& s)	{ return s.GetStart(); }
+	inline const wchar_t*	end(const StringSection& s)		{ return s.GetStart() + s.length; }
 
 
 }	// namespace Utils::String

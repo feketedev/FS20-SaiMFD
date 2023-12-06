@@ -39,7 +39,7 @@ namespace FSMfd {
 		SimVarDef		definition;
 		std::wstring	text;
 		std::wstring	unitText;
-		unsigned		decimalCount = 2;		// discarded for ints
+		unsigned short	decimalCount = 2;		// discarded for ints
 
 		size_t ValueRoomOn(size_t displayLen) const
 		{
@@ -47,9 +47,9 @@ namespace FSMfd {
 			return Utils::SubtractTillZero(displayLen, occup);
 		}
 
-		DisplayVar(std::wstring text, const SimVarDef&, unsigned decimalCount = 2);
+		DisplayVar(std::wstring text, const SimVarDef&, unsigned short decimalCount = 2);
 		DisplayVar(std::wstring text, const SimVarDef&,
-				   std::wstring unitTextOverride,		unsigned decimalCount = 2);
+				   std::wstring unitTextOverride,		unsigned short decimalCount = 2);
 
 		static optional<std::wstring_view>  LabelWellknownUnit(const char* simUnit);
 	};

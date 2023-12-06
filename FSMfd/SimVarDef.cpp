@@ -9,16 +9,19 @@ namespace FSMfd
 	using Utils::String::AsDumbWString;
 
 
-	static std::wstring_view DefaultUnitText(const SimVarDef& def)
+	static std::wstring DefaultUnitText(const SimVarDef& def)
 	{
 		const char* name = def.unit.c_str();
 
-		return DisplayVar::LabelWellknownUnit(name)
-			   .value_or(AsDumbWString(name));
+		optional<std::wstring_view> known = DisplayVar::LabelWellknownUnit(name);
+		if (known.has_value())
+			return std::wstring { *known };
+
+		return AsDumbWString(name);
 	}
 
 
-	DisplayVar::DisplayVar(std::wstring text, const SimVarDef& def, unsigned decimalCount) :
+	DisplayVar::DisplayVar(std::wstring text, const SimVarDef& def, unsigned short decimalCount) :
 		definition   { def },
 		text         { std::move(text) },
 		unitText     { DefaultUnitText(def) },
@@ -27,8 +30,8 @@ namespace FSMfd
 	}
 
 
-	DisplayVar::DisplayVar(std::wstring text,	  const SimVarDef& def,
-						   std::wstring unitText, unsigned decimalCount) :
+	DisplayVar::DisplayVar(std::wstring text, const SimVarDef& def,
+						   std::wstring unitText, unsigned short decimalCount) :
 		definition   { def },
 		text         { std::move(text) },
 		unitText     { std::move(unitText) },

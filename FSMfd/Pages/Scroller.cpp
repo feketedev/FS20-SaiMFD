@@ -97,6 +97,18 @@ void Pages::Scroller::SetLine(unsigned i, std::wstring text)
 }
 
 
+bool Scroller::IsAtop() const
+{
+	return displayPos == 0;
+}
+
+
+bool Scroller::IsBottom() const
+{
+	return displayPos == unseenLines.size();
+}
+
+
 bool Scroller::ScrollUp()
 {
 	if (displayPos < 1)

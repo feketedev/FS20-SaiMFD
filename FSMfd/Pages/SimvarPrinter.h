@@ -15,9 +15,9 @@ namespace FSMfd::Pages
 											  Utils::String::PaddedAlignment)>;
 
 
-	SimvarPrinter CreatePrinterFor(RequestType, unsigned decimalCount = 2, bool truncableText = false);
+	SimvarPrinter CreatePrinterFor(RequestType, Utils::String::DecimalLimit = 2, bool truncableText = false);
 
-	SimvarPrinter CreateValuePrinterFor(const DisplayVar&, bool truncableText = false);
+	SimvarPrinter CreateValuePrinterFor(const DisplayVar&, bool paddingCutsDecimals = true, bool truncableText = false);
 
 
 }	// namespace FSMfd::Pages

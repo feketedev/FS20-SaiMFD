@@ -88,6 +88,13 @@ namespace Utils::String
 	}
 
 
+	wchar_t * StringSection::GetLast() const
+	{
+		LOGIC_ASSERT (length > 0);
+		return GetStart() + length - 1;
+	}
+
+
 	std::wstring_view StringSection::AsStringView() const
 	{
 		return { GetStart(), length };
@@ -253,7 +260,7 @@ namespace Utils::String
 
 
 
-	static bool TryAlignDecimal(const std::wstring_view& num, StringSection target, const PaddedAlignment& aln)
+	static bool TryAlignDecimal(const std::wstring_view& num, StringSection target, const PaddedAlignment& aln, bool preferDecimals)
 	{
 		LOGIC_ASSERT (aln.pad < target.length);
 		DBG_ASSERT	 (0 < num.length());
@@ -264,11 +271,13 @@ namespace Utils::String
 		if (target.length < wholePart)
 			return false;
 
-		const bool letFraction = hasPoint && target.length > wholePart + aln.pad + 1;
+		const bool letFraction = hasPoint 
+			&& target.length > wholePart + (preferDecimals ? 2 : 1 + aln.pad);
 
+		const size_t limit  = target.length - (!preferDecimals * aln.pad);
 		const size_t cpyLen = letFraction
-			? std::min(num.length(), target.length - aln.pad)		// cut fraction to maintain preferred padding
-			: wholePart;											// must fit, that we established
+			? std::min(num.length(), limit)		// cut fraction to maintain preferred padding / target length
+			: wholePart;						// must fit, that we established
 
 		DBG_ASSERT (cpyLen <= target.length);
 
@@ -277,11 +286,11 @@ namespace Utils::String
 	}
 
 
-	bool PlaceNumber(double value, unsigned maxDecimals, StringSection target, const PaddedAlignment& aln, const std::wstring_view& overrunSymb)
+	bool PlaceNumber(double value, DecimalLimit limit, StringSection target, const PaddedAlignment& aln, const std::wstring_view& overrunSymb)
 	{
-		DBG_ASSERT(maxDecimals <= MaxFractionDigits);
+		DBG_ASSERT(limit.maxDecimals <= MaxFractionDigits);
 
-		// Disable rounding, we want to consistently truncate here.
+		// Disable rounding, we want to consistently truncate here. Eg. Mach 0.95 != Mach 1.0
 		struct RoundModeGuard {
 			const int origMode = std::fegetround();
 			RoundModeGuard()   { std::fesetround(FE_TOWARDZERO); }
@@ -290,11 +299,11 @@ namespace Utils::String
 
 
 		wchar_t num[PlaceDoubleMaxChars + 1];
-		int len = PrintTo(num, L"%.*f", maxDecimals, value);
+		int len = PrintTo(num, L"%.*f", limit.maxDecimals, value);
 		if (len > 0)
 		{
 			std::wstring_view unrounded { num, static_cast<size_t>(len) };
-			if (TryAlignDecimal(unrounded, target, aln))
+			if (TryAlignDecimal(unrounded, target, aln, limit.preferDecimalsOverPadding))
 				return true;
 		}
 		PlaceTruncableText(overrunSymb, target, aln);

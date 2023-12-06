@@ -13,11 +13,9 @@ namespace FSMfd::Pages
 
 	/*static*/ bool GaugeStack::FitsInRow(const ActiveGauge& prev, unsigned margin, const StackableGauge& g)
 	{
-		unsigned prevEnd = prev.posX + prev.alg->DisplayWidth;
-		
 		// no smart tiling, just allow smaller gauge to follow a taller one
 		return prev.alg->DisplayHeight >= g.DisplayHeight
-			&& prevEnd + margin + g.DisplayWidth <= SimPage::DisplayLength;
+			&& prev.EndX() + margin + g.DisplayWidth <= SimPage::DisplayLength;
 	}
 
 
@@ -51,8 +49,14 @@ namespace FSMfd::Pages
 		DBG_ASSERT (!byRow.empty());	// guarded end
 
 		scroller.EnsureLineCount(TotalHeight());
+		rowByLine.reserve(TotalHeight());
 		for (unsigned r = 0; r < RowCount(); r++)
+		{
 			AllocRowBuffer(r);
+			for (unsigned li = 0; li < gauges[byRow[r]].alg->DisplayHeight; li++)
+				rowByLine.push_back(r);
+		}
+		DBG_ASSERT (rowByLine.size() == TotalHeight());
 
 		for (const ActiveGauge& g : gauges)
 		{
@@ -71,10 +75,16 @@ namespace FSMfd::Pages
 		for (const SimVarDef& v : next->Variables)
 			RegisterSimVar(v);
 
+		const unsigned height = next->DisplayHeight;
+
 		bool newRow = AddTo(gauges, std::move(next), margin);
 		if (newRow)
 		{
+			const unsigned row = RowCount();
 			byRow.push_back(gauges.size());
+			for (unsigned i = 0; i < height; i++)
+				rowByLine.push_back(row);
+
 			scroller.EnsureLineCount(TotalHeight());
 		}
 		else
@@ -99,7 +109,7 @@ namespace FSMfd::Pages
 		const SimClient::VarIdx nextVar = last.firstVar + last.alg->VarCount();
 		const bool				newRow  = !FitsInRow(last, margin, *next);
 
-		unsigned x = last.posX + last.alg->DisplayWidth + margin;
+		unsigned x = last.EndX() + margin;
 		unsigned y = last.posY;
 		if (newRow)
 		{
@@ -116,7 +126,7 @@ namespace FSMfd::Pages
 		DBG_ASSERT_M (r + 1 < byRow.size(), "Index out of date.");
 
 		const ActiveGauge& rowLast = gauges[byRow[r + 1] - 1];
-		const size_t	   lineLen = rowLast.posX + rowLast.alg->DisplayWidth;
+		const size_t	   lineLen = rowLast.EndX();
 		const unsigned	   lines   = rowLast.alg->DisplayHeight;
 
 		for (unsigned l = 0; l < lines; l++)
@@ -136,7 +146,18 @@ namespace FSMfd::Pages
 			return 0;
 
 		const ActiveGauge& bottomFirst = gauges[byRow[RowCount() - 1]];
-		return bottomFirst.posY + bottomFirst.alg->DisplayHeight;
+		return bottomFirst.EndY();
+	}
+
+
+	unsigned GaugeStack::ActiveGauge::EndX() const
+	{
+		return posX + alg->DisplayWidth;
+	}
+
+	unsigned GaugeStack::ActiveGauge::EndY() const
+	{
+		return posY + alg->DisplayHeight;
 	}
 
 #pragma endregion
@@ -202,11 +223,28 @@ namespace FSMfd::Pages
 
 	void GaugeStack::OnScroll(bool up, TimePoint)
 	{
-		// NOTE: although for interactions probably normal scrolling will be better
+		// NOTE: inverted scrolling - although for interactions probably normal scrolling will be better
+		// NOTE: scrolling to reach top/bottom of next gauge, as long as no lines get skipped
 		if (up)
+		{
+			bool firstDown = scroller.IsAtop();
 			scroller.ScrollDown();
+			const ActiveGauge& bottomGauge = gauges[byRow[rowByLine[scroller.LastDisplayedLine()]]];
+			if (bottomGauge.EndY() > scroller.LastDisplayedLine() + 1)
+				scroller.ScrollDown();
+			if (!firstDown && bottomGauge.EndY() > scroller.LastDisplayedLine() + 1)
+				scroller.ScrollDown();
+		}
 		else
+		{
+			bool firstUp = scroller.IsBottom();
 			scroller.ScrollUp();
+			const ActiveGauge& topGauge = gauges[byRow[rowByLine[scroller.FirstDisplayedLine()]]];
+			if (topGauge.posY < scroller.FirstDisplayedLine())
+				scroller.ScrollUp();
+			if (!firstUp && topGauge.posY < scroller.FirstDisplayedLine())
+				scroller.ScrollUp();
+		}
 	}
 
 #pragma endregion

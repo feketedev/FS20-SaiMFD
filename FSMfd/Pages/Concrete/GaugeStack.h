@@ -16,10 +16,14 @@ namespace FSMfd::Pages
 			const SimClient::VarIdx			firstVar;
 			const unsigned					posX;
 			const unsigned					posY;
+
+			unsigned EndX() const;
+			unsigned EndY() const;
 		};
 
 		std::vector<ActiveGauge>	gauges;
 		std::vector<size_t>			byRow;		// gauge row -> 1st gauge; guarded end
+		std::vector<size_t>			rowByLine;	// scroller line -> gauge row
 
 		Scroller					scroller;
 
@@ -45,9 +49,8 @@ namespace FSMfd::Pages
 
 		static bool					AddTo(std::vector<ActiveGauge>& gauges, std::unique_ptr<StackableGauge> next, unsigned margin);
 
-		unsigned RowCount()		const;	 // Number of gauge rows.
-		unsigned TotalHeight()	const;	 // Height in screen lines.
-
+		unsigned RowCount()		const;		// Number of gauge rows.
+		unsigned TotalHeight()	const;		// Height in screen lines.
 
 
 		void AllocRowBuffer(unsigned int r);

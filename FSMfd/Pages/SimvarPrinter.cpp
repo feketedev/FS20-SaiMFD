@@ -10,7 +10,7 @@ namespace FSMfd::Pages {
 	using SimClient::SimvarValue;
 
 
-    SimvarPrinter CreatePrinterFor(RequestType type, unsigned decimalCount, bool truncableText)
+    SimvarPrinter CreatePrinterFor(RequestType type, DecimalLimit decimalLimit, bool truncableText)
     {
 		// TODO: TypeMapping?
 		switch (type)
@@ -18,7 +18,7 @@ namespace FSMfd::Pages {
 			case RequestType::Real:
 				return [=](SimvarValue val, StringSection target, PaddedAlignment aln)
 				{
-					return PlaceNumber(val.AsDouble(), decimalCount, target, aln);
+					return PlaceNumber(val.AsDouble(), decimalLimit, target, aln);
 				};
 
 			case RequestType::UnsignedInt:
@@ -56,9 +56,10 @@ namespace FSMfd::Pages {
 	}
 
 
-	SimvarPrinter CreateValuePrinterFor(const DisplayVar& dv, bool truncable)
+	SimvarPrinter CreateValuePrinterFor(const DisplayVar& dv, bool paddingCutsDecimals, bool truncable)
 	{
-		return CreatePrinterFor(dv.definition.typeReqd, dv.decimalCount, truncable);
+		DecimalLimit dlim { dv.decimalCount, !paddingCutsDecimals };
+		return CreatePrinterFor(dv.definition.typeReqd, dlim, truncable);
 	}
 
 
