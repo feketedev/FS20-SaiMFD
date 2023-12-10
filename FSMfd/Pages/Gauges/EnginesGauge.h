@@ -28,8 +28,8 @@ namespace FSMfd::Pages
 		EnginesGauge(const EnginesGauge&);
 		~EnginesGauge();
 
-		void Clean(DisplayArea&)						const override;
-		void Update(const SimvarSublist&, DisplayArea&) const override;
+		void Clean(DisplayArea&)						override;
+		void Update(const SimvarSublist&, DisplayArea&) override;
 	};
 
 	

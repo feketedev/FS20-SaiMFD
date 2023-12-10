@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FSMfdTypes.h"
+#include "SimVarDef.h"
 #include "Utils/BasicUtils.h"
 #include "Utils/StringUtils.h"
 #include <vector>
@@ -18,7 +19,8 @@ namespace FSMfd::Pages
 	public:
 		const SimClient::VarIdx			VarCount;
 
-		SimClient::SimvarValue operator[](SimClient::VarIdx) const;
+		SimClient::SimvarValue operator[](SimClient::VarIdx)								const;
+		SimvarSublist		   Sublist(SimClient::VarIdx relFirst, SimClient::VarIdx len)	const;
 
 		SimvarSublist(const SimClient::SimvarList&, SimClient::VarIdx start, SimClient::VarIdx len);
 	};
@@ -36,8 +38,8 @@ namespace FSMfd::Pages
 
 		auto VarCount() const	{ return static_cast<SimClient::VarIdx>(Variables.size()); }
 
-		virtual void Clean(DisplayArea&)						const = 0;
-		virtual void Update(const SimvarSublist&, DisplayArea&) const = 0;
+		virtual void Clean(DisplayArea&)						= 0;
+		virtual void Update(const SimvarSublist&, DisplayArea&) = 0;
 
 		virtual ~StackableGauge();
 

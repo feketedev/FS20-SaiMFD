@@ -9,6 +9,12 @@
 
 namespace FSMfd::Pages
 {
+	/// Displays a scrollable stack of gauges.
+	/// @remarks
+	///	  *	No real tiling, just a basic stacking algorithm:
+	///		each row's height is defined by the first gauge in it,
+	///		which can be followed only by smaller or same height gauges.
+	///	  *	Scrolling is multiplied around taller gauges.
 	class GaugeStack : public SimPage
 	{
 		struct ActiveGauge {
@@ -31,13 +37,15 @@ namespace FSMfd::Pages
 		GaugeStack(uint32_t id, const Dependencies&, std::vector<std::unique_ptr<StackableGauge>>&& algs = {});
 
 
+		/// Add a gauge to the bottom.
+		/// @param margin: number of blank characters to leave after the previous gauge.
 		void Add(std::unique_ptr<StackableGauge>, unsigned margin = 1);
 
 		template<class Gauge>
-		void Add(Gauge&&, unsigned margin = 1);
+		void Add(Gauge&&,						  unsigned margin = 1);
 		
 		template<class ConcreteGauge>
-		void Add(std::unique_ptr<ConcreteGauge>, unsigned margin = 1);		// just in case, disambiguates overload resol.
+		void Add(std::unique_ptr<ConcreteGauge>,  unsigned margin = 1);		// just in case, disambiguates overload resol.
 
 
 		void CleanContent()					  override;

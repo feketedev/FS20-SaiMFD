@@ -63,6 +63,10 @@ namespace FSMfd
 		{ "pound per hour",		L"lb" },
 		{ "pounds per hour",	L"lb" },
 		{ "knots",				L"kts" },
+		{ "nautical mile",		L"nm" },
+		{ "nautical miles",		L"nm" },
+		{ "nmile",				L"nm" },
+		{ "nmiles",				L"nm" },
 	};
 
 

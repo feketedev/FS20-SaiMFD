@@ -116,7 +116,7 @@ namespace FSMfd::Pages
 
 #pragma region Display
 
-	void EnginesGauge::Clean(DisplayArea& display) const
+	void EnginesGauge::Clean(DisplayArea& display)
 	{
 		StringSection titleSect = layout[0].GetField(display);
 		titleSect.FillIn(title);
@@ -135,7 +135,7 @@ namespace FSMfd::Pages
 	}
 
 
-	void EnginesGauge::Update(const SimvarSublist& measurements, DisplayArea& display) const
+	void EnginesGauge::Update(const SimvarSublist& measurements, DisplayArea& display)
 	{
 		using namespace SimClient;
 

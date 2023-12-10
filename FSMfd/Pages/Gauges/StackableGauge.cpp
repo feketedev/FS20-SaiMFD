@@ -21,7 +21,7 @@ namespace FSMfd::Pages
     {
     }
 
-
+    
     SimvarSublist::SimvarSublist(const SimvarList& origin, VarIdx start, VarIdx len) :
         list     { origin },
         start    { start },
@@ -36,6 +36,14 @@ namespace FSMfd::Pages
         DBG_ASSERT (iVirt < VarCount);
 
         return list[start + iVirt];
+    }
+
+
+    SimvarSublist SimvarSublist::Sublist(SimClient::VarIdx relFirst, SimClient::VarIdx len) const
+    {
+        DBG_ASSERT (relFirst + len <= VarCount);
+
+        return { list, start + relFirst, len };
     }
 
 

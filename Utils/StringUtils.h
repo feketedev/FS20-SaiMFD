@@ -68,9 +68,10 @@ namespace Utils::String {
 		StringSection		FollowedBy(size_t length) const;
 		StringSection		SubSection(size_t offset, size_t length) const;
 
-		wchar_t*			GetStart()		const;
-		wchar_t*			GetLast()		const;
-		std::wstring_view	AsStringView()	const;
+		wchar_t&			operator[](size_t) const;
+		wchar_t*			GetStart()		   const;
+		wchar_t*			GetLast()		   const;
+		std::wstring_view	AsStringView()	   const;
 
 		void FillIn(std::wstring_view src);
 		void FillWith(wchar_t);

@@ -100,9 +100,10 @@ namespace Utils
 	template<class Trg, class Src>
 	void Append(Trg& target, Src&& source)
 	{
+		using S = std::remove_reference_t<Src>;
 		using E = std::conditional_t<std::is_lvalue_reference_v<Src>,
-									 typename Src::reference,
-									 typename Src::value_type		>;
+									 decltype(*source.begin()),
+									 typename S::value_type			>;
 		for (E& el : source)
 			target.push_back(std::forward<E>(el));
 	}

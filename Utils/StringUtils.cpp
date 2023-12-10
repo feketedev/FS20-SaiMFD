@@ -81,6 +81,13 @@ namespace Utils::String
 		return { buffer, pos + offset, length };
 	}
 
+	
+	wchar_t& StringSection::operator[](size_t i) const
+	{
+		DBG_ASSERT (i < length);
+		return buffer[pos + i];
+	}
+
 
 	wchar_t* StringSection::GetStart() const
 	{

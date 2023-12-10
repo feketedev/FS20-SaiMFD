@@ -613,7 +613,7 @@ namespace FSMfd::SimClient
 				if (group->IsEmpty())
 					warning = "Received obsolete packet for inactivated VarGroup.";
 				else
-					error	= "Received unexpected data count.";
+					error	= "Received unexpected data count. Check configured SimVar identifiers and their supported units.";
 				return;
 			}
 			// not so important check - objData ends in a flexible array

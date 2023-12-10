@@ -15,6 +15,10 @@
 #include "Pages/Concrete/ReadoutScrollList.h"
 #include "Pages/Gauges/EnginesGauge.h"
 #include "Pages/Gauges/CompactGauge.h"
+#include "Pages/Gauges/ConditionalGauge.h"
+#include "Pages/Gauges/RadioGauge.h"
+#include "Pages/Gauges/SwitchGauge.h"
+#include "Pages/Gauges/Label.h"
 #include "Utils/Debug.h"
 
 
@@ -114,7 +118,9 @@ namespace FSMfd
 		
 		AddBaseInstruments(pages);
 		AddConfigInstruments(pages);
-		AddEnginesPage(pages);
+		AddEnginesMonitor(pages);
+		AddAutopilotSettings(pages);
+		AddRadioFreqSettings(pages);
 
 		return pages;
 	}
@@ -146,7 +152,41 @@ namespace FSMfd
 	}
 
 
-	void Configurator::AddEnginesPage(FSPageList& pages) const
+	void Configurator::AddAutopilotSettings(Pages::FSPageList& pages) const
+	{
+		GaugeStack& panel = pages.Add<GaugeStack>();
+
+		const SwitchGauge::SideSymbols dotRight   { Nothing, L'·' };
+		const SwitchGauge::SideSymbols dotsAround { L'·', L'·' };
+
+		panel.Add(SwitchGauge { L"AT", "AUTOPILOT THROTTLE ARM",			dotsAround });
+		panel.Add(SwitchGauge { L"AP", "AUTOPILOT MASTER",					dotsAround }, 2);
+		panel.Add(SwitchGauge { L"FD", "AUTOPILOT FLIGHT DIRECTOR ACTIVE",	dotsAround }, 2);
+
+		// 2nd row
+		// NOTE: Would be nice to utilize DedupSimvarRegister here, but it's not worth the effort for this only use case.
+		panel.Add(ConditionalGauge {{ "AUTOPILOT AIRSPEED HOLD", "AUTOPILOT MACH HOLD" }, {
+			std::make_unique<SwitchGauge>(L"IAS", "AUTOPILOT AIRSPEED HOLD", dotRight),
+			std::make_unique<SwitchGauge>(L"Mch", "AUTOPILOT MACH HOLD",	 dotRight)
+		}});
+		panel.Add(ConditionalGauge {{ "AUTOPILOT AIRSPEED HOLD", "AUTOPILOT MACH HOLD" }, {
+			std::make_unique<CompactGauge>(3, SimVarDef  { "AUTOPILOT AIRSPEED HOLD VAR", "knots" }),
+			std::make_unique<CompactGauge>(3, DisplayVar { L".", { "AUTOPILOT MACH HOLD VAR", "percent" }, L"" })
+		}}, 0);
+		panel.Add(SwitchGauge  { L"VS", "AUTOPILOT VERTICAL HOLD", dotRight });
+		panel.Add(CompactGauge { 5, DisplayVar { L"", { "AUTOPILOT VERTICAL HOLD VAR", "ft/min", RequestType::UnsignedInt }, L"", 0 }}, 0);
+	 // panel.Add(CompactGauge { 5, DisplayVar { L"", { "AUTOPILOT VERTICAL HOLD VAR", "ft/min", RequestType::SignedInt }, L"" }}, 0);
+	 // TODO received DWORD can be signed or unsigned - int64 not really needed
+ 
+		// 3rd row
+		panel.Add(SwitchGauge  { L"HDG", "AUTOPILOT HEADING LOCK",	dotRight });
+		panel.Add(CompactGauge { 3, { "AUTOPILOT HEADING LOCK DIR", "degrees" } }, 0);
+		panel.Add(SwitchGauge  { L"Al", "AUTOPILOT ALTITUDE LOCK",	dotRight });
+		panel.Add(CompactGauge { 5, { "AUTOPILOT ALTITUDE LOCK VAR", "ft" } }, 0);
+	}
+
+
+	void Configurator::AddEnginesMonitor(FSPageList& pages) const
 	{
 		if (EngineCount() == 0)		// glider
 			return;
@@ -156,33 +196,52 @@ namespace FSMfd
 		// TODO: turboprop
 		if (EngineCount() == 1 && IsPiston())
 		{
-			engStack.Add(CompactGauge { 8, { L"RPM ",	SimVarDef { "GENERAL ENG RPM:1",			  "RPM" } }});
-			engStack.Add(CompactGauge { 7, { L"OiP ",	SimVarDef { "ENG OIL PRESSURE:1",			  "psi" },				L"" }});
-			engStack.Add(CompactGauge { 8, { L"Mix ",	SimVarDef { "RECIP MIXTURE RATIO:1",		  "percent", RequestType::Real } }});
-			engStack.Add(CompactGauge { 7, { L"OiT",	SimVarDef { "ENG OIL TEMPERATURE:1",		  "celsius" },			L"" }});
-			engStack.Add(CompactGauge { 8, { L"Prop ",	SimVarDef { "PROP BETA:1",					  "degrees" } }});
-			engStack.Add(CompactGauge { 7, { L"FF ",	SimVarDef { "RECIP ENG FUEL FLOW:1",		  "pounds per hour" },	L"" }});
-			engStack.Add(CompactGauge { 8, { L"CARBT ", SimVarDef { "RECIP CARBURETOR TEMPERATURE:1", "celsius" },			L"" }});
-			engStack.Add(CompactGauge { 7, { L"VAC ",	SimVarDef { "SUCTION PRESSURE", "inHg", RequestType::Real },		L"", 1 }});
+			engStack.Add(CompactGauge { 8, DisplayVar { L"RPM ",   { "GENERAL ENG RPM:1",			   "RPM" }} });
+			engStack.Add(CompactGauge { 7, DisplayVar { L"OiP ",   { "ENG OIL PRESSURE:1",			   "psi" },							L"" } });
+			engStack.Add(CompactGauge { 8, DisplayVar { L"Mix ",   { "RECIP MIXTURE RATIO:1",		   "percent", RequestType::Real }} });
+			engStack.Add(CompactGauge { 7, DisplayVar { L"OiT",	   { "ENG OIL TEMPERATURE:1",		   "celsius" },						L"" } });
+			engStack.Add(CompactGauge { 8, DisplayVar { L"Prop ",  { "PROP BETA:1",					   "degrees" }} });
+			engStack.Add(CompactGauge { 7, DisplayVar { L"FF ",	   { "RECIP ENG FUEL FLOW:1",		   "pounds per hour" },				L"" } });
+			engStack.Add(CompactGauge { 8, DisplayVar { L"CARBT ", { "RECIP CARBURETOR TEMPERATURE:1", "celsius" },						L"" } });
+			engStack.Add(CompactGauge { 7, DisplayVar { L"VAC ",   { "SUCTION PRESSURE",			   "inHg", RequestType::Real },		L"", 1 } });
 
 			return;
 		}
 
 		// TODO: prop/turboprop
 		const std::vector<DisplayVar> engVars {
-			{ L"REV",	SimVarDef { "TURB ENG REVERSE NOZZLE PERCENT:",	"percent", RequestType::Real  } },
-			{ L"EGT ",	SimVarDef { "ENG EXHAUST GAS TEMPERATURE:",		"celsius" } },
-			{ L"RPM",	SimVarDef { "GENERAL ENG RPM:",					"RPM" } },
-			{ L"N1 ",	SimVarDef { "TURB ENG N1:",						"percent", RequestType::Real },	1 },
-			{ L"N2 ",	SimVarDef { "TURB ENG N2:",						"percent", RequestType::Real },	1 },
-			{ L"FF",	SimVarDef { "ENG FUEL FLOW PPH:",				"pounds per hour" },			L" lbs" },
-			{ L"OIL",	SimVarDef { "ENG OIL PRESSURE:",				"psi",	   RequestType::Real},	1},
-			{ L"OIL ",	SimVarDef { "ENG OIL TEMPERATURE:",				"celsius", RequestType::Real },	1 },
-		//	{ L"OIL%",   SimVarDef { "ENG OIL QUANTITY:",				"percent", RequestType::Real },	1 },	// always 100%
+			{ L"REV",	{ "TURB ENG REVERSE NOZZLE PERCENT:",	"percent",			RequestType::Real }},
+			{ L"EGT ",	{ "ENG EXHAUST GAS TEMPERATURE:",		"celsius" }},
+			{ L"N1 ",	{ "TURB ENG N1:",						"percent",			RequestType::Real }, 1 },
+			{ L"N2 ",	{ "TURB ENG N2:",						"percent",			RequestType::Real }, 1 },
+			{ L"RPM",	{ "GENERAL ENG RPM:",					"RPM" }},
+			{ L"FF",	{ "ENG FUEL FLOW PPH:",					"pounds per hour" },					 L" lbs" },
+			{ L"OIL",	{ "ENG OIL PRESSURE:",					"psi",				RequestType::Real }, 1 },
+			{ L"OIL ",	{ "ENG OIL TEMPERATURE:",				"celsius",			RequestType::Real }, 1 },
+		//	{ L"OIL%",	{ "ENG OIL QUANTITY:",					"percent",			RequestType::Real }, 1 },	// always 100%
 		};
 
 		for (const DisplayVar& dv : engVars)
 			engStack.Add(EnginesGauge { EngineCount(), dv });
+	}
+
+
+	void Configurator::AddRadioFreqSettings(Pages::FSPageList& pages) const
+	{
+		GaugeStack& radioStack = pages.Add<GaugeStack>();
+
+		radioStack.Add(Label { L"ACT  -COM-  STBY" });
+		radioStack.Add(RadioGauge { "COM", 1 });
+		radioStack.Add(RadioGauge { "COM", 2 });
+		radioStack.Add(Label { L"ACT  -NAV-  STBY" });
+		radioStack.Add(RadioGauge { "NAV", 1 });
+		radioStack.Add(RadioGauge { "NAV", 2 });
+		radioStack.Add(CompactGauge { 8, DisplayVar { L"DME ",	{ "NAV DME:1", "nautical miles", RequestType::Real }, L"" } });
+		radioStack.Add(CompactGauge { 7, DisplayVar { L"",		{ "NAV DME:2", "nautical miles", RequestType::Real }} });
+		radioStack.Add(Label { L"ACT  -ADF-  STBY" });
+		radioStack.Add(RadioGauge { "ADF", 1 });
+		radioStack.Add(RadioGauge { "ADF", 2 });
+		radioStack.Add(CompactGauge { 11, DisplayVar { L"XPDR:", { "TRANSPONDER CODE:1", "Number" }} });
 	}
 
 #pragma endregion

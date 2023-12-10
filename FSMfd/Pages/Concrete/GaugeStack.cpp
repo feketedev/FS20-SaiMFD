@@ -113,8 +113,12 @@ namespace FSMfd::Pages
 		unsigned y = last.posY;
 		if (newRow)
 		{
+			unsigned iHead = gauges.size();
+			while (0 < iHead && gauges[iHead - 1].posY == last.posY)
+				--iHead;
+
 			x =  0;
-			y += last.alg->DisplayHeight;
+			y += gauges[iHead].alg->DisplayHeight;
 		}
 		gauges.push_back({ std::move(next), nextVar, x, y });
 		return newRow;

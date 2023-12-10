@@ -105,6 +105,18 @@
     <ClCompile Include="Pages\Gauges\CompactGauge.cpp">
       <Filter>Pages\Gauges</Filter>
     </ClCompile>
+    <ClCompile Include="Pages\Gauges\SwitchGauge.cpp">
+      <Filter>Pages\Gauges</Filter>
+    </ClCompile>
+    <ClCompile Include="Pages\Gauges\Label.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pages\Gauges\ConditionalGauge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pages\Gauges\RadioGauge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MfdLoop.h">
@@ -190,6 +202,18 @@
     </ClInclude>
     <ClInclude Include="Pages\Gauges\CompactGauge.h">
       <Filter>Pages\Gauges</Filter>
+    </ClInclude>
+    <ClInclude Include="Pages\Gauges\SwitchGauge.h">
+      <Filter>Pages\Gauges</Filter>
+    </ClInclude>
+    <ClInclude Include="Pages\Gauges\Label.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pages\Gauges\ConditionalGauge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pages\Gauges\RadioGauge.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

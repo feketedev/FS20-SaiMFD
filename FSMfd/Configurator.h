@@ -48,7 +48,9 @@ namespace FSMfd
 	private:
 		void AddBaseInstruments(Pages::FSPageList&)		const;
 		void AddConfigInstruments(Pages::FSPageList&)	const;
-		void AddEnginesPage(Pages::FSPageList&)			const;
+		void AddAutopilotSettings(Pages::FSPageList&)	const;
+		void AddEnginesMonitor(Pages::FSPageList&)		const;
+		void AddRadioFreqSettings(Pages::FSPageList&)	const;
 
 
 		std::vector<Led::LedController> CreateGenericWarningEffects()	const;

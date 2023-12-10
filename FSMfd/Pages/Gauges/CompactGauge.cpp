@@ -12,6 +12,8 @@ namespace FSMfd::Pages
 {
 	using namespace Utils::String;
 
+	constexpr unsigned short SignificantDigits = std::numeric_limits<double>::digits10;
+
 
 	static unsigned CountLeadingSpaces(const std::wstring& s)
 	{
@@ -32,34 +34,34 @@ namespace FSMfd::Pages
 	CompactGauge::CompactGauge(unsigned displayLength, const DisplayVar& dv) :
 		StackableGauge { displayLength, 1, { dv.definition } },
 		printValue     { CreateValuePrinterFor(dv) },
+		unitPadding    { CountLeadingSpaces(dv.unitText) },
 		label          { dv.text },
-		unitText       { dv.unitText },
-		unitPadding    { CountLeadingSpaces(unitText) }
+		unitSymbol     { dv.unitText.substr(unitPadding) }
 	{
-		LOGIC_ASSERT_M (label.length() + unitText.length() - unitPadding < displayLength,
+		LOGIC_ASSERT_M (label.length() + dv.unitText.length() - unitPadding < displayLength,
 						"Insufficient space for defined texts.");
+	}
+
+
+	CompactGauge::CompactGauge(unsigned displayLength, const SimVarDef& simvar) :
+		CompactGauge { displayLength, DisplayVar { L"", simvar, L"", std::min<unsigned short>(displayLength - 2, SignificantDigits) }}
+	{
 	}
 
 
 	std::array<StringSection, 3>	CompactGauge::DissectLine(StringSection& display) const
 	{
-		const unsigned valueRoom = DisplayWidth - label.length() - GetUnit().length();
+		const size_t valueRoom = DisplayWidth - label.length() - unitSymbol.length();
 
 		StringSection labelTrg = display.SubSection(0, label.length());
 		StringSection valueTrg = labelTrg.FollowedBy(valueRoom);
-		StringSection unitTrg  = valueTrg.FollowedBy(GetUnit().length());
+		StringSection unitTrg  = valueTrg.FollowedBy(unitSymbol.length());
 
 		return { labelTrg, valueTrg, unitTrg };
 	}
 
 
-	std::wstring_view CompactGauge::GetUnit() const
-	{
-		return { unitText.data() + unitPadding, unitText.length() - unitPadding };
-	}
-
-
-	void CompactGauge::Clean(DisplayArea& display) const
+	void CompactGauge::Clean(DisplayArea& display)
 	{
 		DBG_ASSERT (display.size == 1);
 
@@ -67,11 +69,11 @@ namespace FSMfd::Pages
 
 		labelTrg.FillIn(label);
 		valueTrg.FillWith(L' ');
-		unitTrg.FillIn(unitText);
+		unitTrg.FillIn(unitSymbol);
 	}
 
 
-	void CompactGauge::Update(const SimvarSublist& measurement, DisplayArea& display) const
+	void CompactGauge::Update(const SimvarSublist& measurement, DisplayArea& display)
 	{
 		DBG_ASSERT (measurement.VarCount == 1u);
 		DBG_ASSERT (display.size == 1);
