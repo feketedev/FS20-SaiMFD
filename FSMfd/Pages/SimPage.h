@@ -15,14 +15,21 @@
 
 namespace FSMfd::Pages
 {
-	// TODO finish doc
+
 	/// An MFD Page connected to SimConnect Simulation Variables.
 	/// @remarks
 	///		Handles group creation and switching during Page changes.
 	/// 
-	///		Via the methots @m Update and @m Animate separates 
+	///		By the methods @a Update and @a Animate separates 
 	///		concern of display-updates due to fresh game data
-	///		and local updates for blinking/animation effects.
+	///		from local updates for blinking/animation effects.
+	/// 
+	///		@a CleanContent is called immediately after page change,
+	///		allowing to quickly present page layout before data is received.
+	///		An alternative would be to set @a BackgroundReceiveEnabled,
+	///		so that up-to-date data is always available.
+	///		@a CleanContent's other usage is to clear obsolete data
+	///		when it is stopped being received.
 	/// 
 	class SimPage : public DOHelper::X52Output::Page,
 					public SimClient::IDataReceiver   {
@@ -44,6 +51,9 @@ namespace FSMfd::Pages
 		bool							awaitingResponse = false;
 
 		
+		bool HasOutdatedData(TimePoint at) const;
+
+		
 		// -------- Page ------------------------------------------------
 
 		void OnActivate(TimePoint)	 override final;
@@ -58,26 +68,25 @@ namespace FSMfd::Pages
 		// -------- For descendant --------------------------------------
 
 		/// Quickly show layout on page change, before data is available.
-		virtual void CleanContent()  = 0;
+		virtual void CleanContent() = 0;
 
 		/// Pull and display current data from the game.
 		virtual void UpdateContent(const SimvarList&) = 0;
 
 		/// Change state of blinking/moving parts, if any.
-		virtual void StepAnimate(unsigned steps) {}
-
-
-		// -------- Private helpers -------------------------------------
-
-		bool HasOutdatedData(TimePoint at) const;
+		virtual void StepAnimation(unsigned steps) {}
 
 	protected:
 		SimPage(uint32_t id, const Dependencies&);
 		
+		/// To register a SimConnect variables before the page is activated.
 		void RegisterSimVar(const SimVarDef&);
 
+		/// Signal that a SimConnect variable has been changed, and relevant response is imminent.
 		void AwaitSimResponse()	{ awaitingResponse = true; }
 
+
+		// -------- For framework ---------------------------------------
 	public:
 		~SimPage() override;
 

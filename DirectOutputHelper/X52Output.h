@@ -47,8 +47,14 @@ namespace DOHelper
 	};
 
 
-	// TODO doc
-	///
+	/// DirectOutput wrapper for the the functions of an X52 device.
+	/// @remarks
+	///	  *	Synchronizes bare DirectOutput events firing on various threads
+	///   *	Keeps track of the active page
+	///	  *	Provides complete page activation/deactivation events
+	///	  *	Attempts to debounce scrollwheel inputs (the API behaves suspiciously wild for me...)
+	///   *	Instead of DirectOutput's per-page LED handling, stores a global state of LEDs, which
+	///		it automatically reapplies after any page change (within the plugin)
 	class X52Output {
 	public:
 		class Page;
@@ -80,12 +86,13 @@ namespace DOHelper
 		// If false, this object went stale permanently and any modifier method may throw DirectOutputError.
 		bool IsConnected() const noexcept;
 
-		/// Waits for and processes any input message within the given Duration.
-		/// @remark	After the Duration control is returned to allow periodic update of data.
-		void ProcessMessages(Duration);
+		/// Waits for and processes any input message until the given TimePoint.
+		/// @remark 	After the TimePoint control is returned to allow periodic update of data.
 		void ProcessMessages(TimePoint until);
+
+		/// Waits for the next input message until the given TimePoint and processes it if arrives.
+		/// @returns	Received anything (not timed out). 
 		bool ProcessNextMessage(TimePoint waitUntil = TimePoint::max());
-		//TODO: melyik kell vegul?
 
 
 		// ---- LED functions --------------------

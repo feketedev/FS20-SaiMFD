@@ -21,6 +21,14 @@ namespace DOHelper
     };
 
 
+	void X52Output::Page::Remove()
+	{
+        if (IsAdded ())
+			device->RemovePage(*this);
+        DBG_ASSERT (!IsAdded());
+	}
+
+
 	std::wstring&   X52Output::Page::ModLine(char i)
 	{
         LOGIC_ASSERT (i < 3);
@@ -51,8 +59,7 @@ namespace DOHelper
 	}
 
 
-	// TODO: Remove parameter if no need!
-	void X52Output::Page::DrawLines(bool forceAll) const
+	void X52Output::Page::DrawLines() const
 	{
         LOGIC_ASSERT (IsActive());
 
@@ -60,7 +67,7 @@ namespace DOHelper
 
         for (DWORD i = 0; i < 3; i++)
         {
-            if (!forceAll && !isDirty[i])
+            if (!isDirty[i])
                 continue;
 
             const wchar_t* s = lines[i].data();
@@ -70,22 +77,6 @@ namespace DOHelper
             SAI_ASSERT (lib.SetString(device->Handle(), Id, i, len, s));
         }
 	}
-
-
-// TODO: Del
-	//void X52Output::Page::AddTo(X52Output& x52, bool activate)
-	//{
- //       LOGIC_ASSERT (!IsAdded());
-
- //       x52.AddPage(*this, activate);
-	//}
-
-
-	//void X52Output::Page::Remove()
-	//{
- //       device->RemovePage(this);
- //       DBG_ASSERT (!IsAdded());
-	//}
 
 
 } // namespace DOHelper

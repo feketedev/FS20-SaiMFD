@@ -149,7 +149,6 @@
     <ClCompile Include="Pages\Gauges\RadioGauge.cpp" />
     <ClCompile Include="Pages\SimvarPrinter.cpp" />
     <ClCompile Include="SimClient\DedupSimvarRegister.cpp" />
-    <ClCompile Include="LEDs\StateDetectors.cpp" />
     <ClCompile Include="SimClient\ConfigHelper.cpp" />
     <ClCompile Include="SimClient\ReceiveBuffer.cpp" />
     <ClCompile Include="SimClient\FSClient.cpp" />

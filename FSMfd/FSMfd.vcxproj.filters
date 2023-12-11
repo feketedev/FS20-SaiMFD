@@ -75,9 +75,6 @@
     <ClCompile Include="Configurator.cpp">
       <Filter>Main</Filter>
     </ClCompile>
-    <ClCompile Include="LEDs\StateDetectors.cpp">
-      <Filter>LEDs</Filter>
-    </ClCompile>
     <ClCompile Include="Pages\SimvarPrinter.cpp">
       <Filter>Pages</Filter>
     </ClCompile>

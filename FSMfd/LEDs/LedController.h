@@ -72,7 +72,6 @@ namespace FSMfd::Led
 
 	// ----------------------------------------------------------------------------------
 
-	// TODO: name vs. LedControl?
 	/// Governs the state of a single (composite) LED.
 	class LedController {
 		const uint32_t				ledId;

@@ -18,7 +18,6 @@ namespace DOHelper
 	class X52Output::Page {
 	public:
 		const uint32_t 			Id;
-
 		static constexpr size_t	DisplayLength = 16;
 
 	private:
@@ -46,17 +45,19 @@ namespace DOHelper
 		std::wstring& 			ModLine(char i);
 		std::wstring&			SetLine(char i, std::wstring text, bool allowMarquee = false);
 
-		/// Send buffered contents to X52 device
-        /// @param forceAll: send all lines, not only the changed subset
-		void DrawLines(bool forceAll = false) const;
+		/// Send buffered contents to X52 device.
+		void DrawLines() const;
 
-		//void AddTo(X52Output&, bool activate = true);
-		//void Remove();
+		/// Remove page from device. Can be re-added later.
+		void Remove();
 
 	private:
 		friend class X52Output;
 
 		void Activate(TimePoint);
+
+
+		// ---- Event handlers for descendants ----
 
 		virtual void OnActivate(TimePoint)			{ DrawLines(); }
 		virtual void OnDeactivate(TimePoint)		{}

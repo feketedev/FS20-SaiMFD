@@ -115,25 +115,6 @@ namespace Utils::String
 
 
 
-
-	template <size_t LineLen, size_t TLen>
-	std::wstring AlignCenter(const wchar_t (&textLiter)[TLen])
-	{
-		static_assert(TLen <= LineLen + 1);
-
-		std::wstring s (LineLen, ' ');
-
-		constexpr size_t len = TLen - 1;
-		constexpr size_t pad = (LineLen - len) / 2;
-
-		for (size_t i = 0; i < len; i++)
-			s[pad + i] = textLiter[i];
-
-		return s;
-	};
-
-
-	// TODO: Kell?
 	std::wstring AlignCenter(size_t lineLen, const std::wstring_view& text);
 
 

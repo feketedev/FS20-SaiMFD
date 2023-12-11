@@ -70,13 +70,6 @@ namespace DOHelper
 
 #pragma region InputEvents
 
-	void X52Output::ProcessMessages(Duration dur)
-	{
-		TimePoint now = TimePoint::clock::now();
-		return ProcessMessages(now + dur);
-	}
-
-
 	void X52Output::ProcessMessages(TimePoint until)
 	{
 		while (ProcessNextMessage(until));

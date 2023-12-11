@@ -87,7 +87,7 @@ namespace FSMfd::Pages
 
 	void SimPage::Animate(unsigned steps)
 	{
-		StepAnimate(steps);
+		StepAnimation(steps);
 	}
 
 
