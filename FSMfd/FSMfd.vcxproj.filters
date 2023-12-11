@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -28,13 +20,18 @@
     <Filter Include="SimClient">
       <UniqueIdentifier>{30196b8b-b732-42c6-9517-7af94b4ef49f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>
+      </Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Main</Filter>
     </ClCompile>
     <ClCompile Include="MfdLoop.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Main</Filter>
     </ClCompile>
     <ClCompile Include="Pages\SimPage.cpp">
       <Filter>Pages</Filter>
@@ -58,13 +55,13 @@
       <Filter>SimClient</Filter>
     </ClCompile>
     <ClCompile Include="DeviceLookup.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Main</Filter>
     </ClCompile>
     <ClCompile Include="SimClient\ConfigHelper.cpp">
       <Filter>SimClient</Filter>
     </ClCompile>
     <ClCompile Include="SimVarDef.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Main</Filter>
     </ClCompile>
     <ClCompile Include="LEDs\IStateDetector.cpp">
       <Filter>LEDs</Filter>
@@ -76,7 +73,7 @@
       <Filter>SimClient</Filter>
     </ClCompile>
     <ClCompile Include="Configurator.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Main</Filter>
     </ClCompile>
     <ClCompile Include="LEDs\StateDetectors.cpp">
       <Filter>LEDs</Filter>
@@ -108,20 +105,17 @@
     <ClCompile Include="Pages\Gauges\SwitchGauge.cpp">
       <Filter>Pages\Gauges</Filter>
     </ClCompile>
-    <ClCompile Include="Pages\Gauges\Label.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Pages\Gauges\ConditionalGauge.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Pages\Gauges</Filter>
+    </ClCompile>
+    <ClCompile Include="Pages\Gauges\Label.cpp">
+      <Filter>Pages\Gauges</Filter>
     </ClCompile>
     <ClCompile Include="Pages\Gauges\RadioGauge.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Pages\Gauges</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MfdLoop.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Pages\SimPage.h">
       <Filter>Pages</Filter>
     </ClInclude>
@@ -137,9 +131,6 @@
     <ClInclude Include="Pages\Concrete\WaitSpinner.h">
       <Filter>Pages\Concrete</Filter>
     </ClInclude>
-    <ClInclude Include="SimVarDef.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SimClient\ReceiveBuffer.h">
       <Filter>SimClient</Filter>
     </ClInclude>
@@ -152,20 +143,11 @@
     <ClInclude Include="SimClient\FSClientTypes.h">
       <Filter>SimClient</Filter>
     </ClInclude>
-    <ClInclude Include="DeviceLookup.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FSMfdTypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SimClient\ConfigHelper.h">
       <Filter>SimClient</Filter>
     </ClInclude>
     <ClInclude Include="SimClient\SimConnectError.h">
       <Filter>SimClient</Filter>
-    </ClInclude>
-    <ClInclude Include="Configurator.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LEDs\LedController.h">
       <Filter>LEDs</Filter>
@@ -207,13 +189,28 @@
       <Filter>Pages\Gauges</Filter>
     </ClInclude>
     <ClInclude Include="Pages\Gauges\Label.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Pages\Gauges\ConditionalGauge.h">
-      <Filter>Header Files</Filter>
+      <Filter>Pages\Gauges</Filter>
     </ClInclude>
     <ClInclude Include="Pages\Gauges\RadioGauge.h">
-      <Filter>Header Files</Filter>
+      <Filter>Pages\Gauges</Filter>
+    </ClInclude>
+    <ClInclude Include="Pages\Gauges\ConditionalGauge.h">
+      <Filter>Pages\Gauges</Filter>
+    </ClInclude>
+    <ClInclude Include="Configurator.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceLookup.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="FSMfdTypes.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="MfdLoop.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="SimVarDef.h">
+      <Filter>Main</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
