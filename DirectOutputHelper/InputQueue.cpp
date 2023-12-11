@@ -6,7 +6,8 @@
 
 
 
-namespace DOHelper {
+namespace DOHelper
+{
 
 	// helps hiding Windows.h inclusion just for DWORD...
 	struct InputQueue::CallbackConverter {

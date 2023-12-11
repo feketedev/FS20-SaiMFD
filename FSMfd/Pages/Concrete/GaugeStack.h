@@ -9,14 +9,15 @@
 
 namespace FSMfd::Pages
 {
+
 	/// Displays a scrollable stack of gauges.
 	/// @remarks
 	///	  *	No real tiling, just a basic stacking algorithm:
 	///		each row's height is defined by the first gauge in it,
 	///		which can be followed only by smaller or same height gauges.
 	///	  *	Scrolling is multiplied around taller gauges.
-	class GaugeStack : public SimPage
-	{
+	class GaugeStack : public SimPage {
+
 		struct ActiveGauge {
 			std::unique_ptr<StackableGauge>	alg;
 			const SimClient::VarIdx			firstVar;

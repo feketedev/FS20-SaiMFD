@@ -4,7 +4,8 @@
 
 
 
-namespace FSMfd::SimClient {
+namespace FSMfd::SimClient
+{
 
 	IDataReceiver::~IDataReceiver() = default;
 	IEventReceiver::~IEventReceiver() = default;

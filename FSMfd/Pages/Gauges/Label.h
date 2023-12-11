@@ -7,13 +7,11 @@
 namespace FSMfd::Pages
 {
 
-	class Label : public StackableGauge
-	{
-		std::wstring		text;
+	class Label : public StackableGauge {
+		std::wstring text;
 
 	public:
 		Label(std::wstring text);
-
 
 		void Clean(DisplayArea&)						override;
 		void Update(const SimvarSublist&, DisplayArea&)	override;

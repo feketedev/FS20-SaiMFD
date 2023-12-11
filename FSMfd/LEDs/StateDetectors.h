@@ -7,8 +7,8 @@
 
 
 
-namespace FSMfd::Led {
-
+namespace FSMfd::Led
+{
 	/* Available implementations of IStateDetector.	  *
 	 * 												  *
 	 * These are simplistic algorithms templated for  *
@@ -125,14 +125,12 @@ namespace FSMfd::Led {
 
 	// not simple usings to allow deduction...
 	template<class... Detectors>
-	struct Max : Aggregator<Strategies::Max, Strategies::Max, Detectors...>
-	{
+	struct Max : Aggregator<Strategies::Max, Strategies::Max, Detectors...> {
 		using Aggregator<Strategies::Max, Strategies::Max, Detectors...>::Aggregator;
 	};
 
 	template<class... Detectors>
-	struct Min : Aggregator<Strategies::Min, Strategies::Min, Detectors...>
-	{
+	struct Min : Aggregator<Strategies::Min, Strategies::Min, Detectors...> {
 		using Aggregator<Strategies::Min, Strategies::Min, Detectors...>::Aggregator;
 	};
 

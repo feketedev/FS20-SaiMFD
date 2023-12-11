@@ -4,8 +4,8 @@
 
 
 
-namespace FSMfd::Pages {
-
+namespace FSMfd::Pages
+{
 
 	/// Helper to display 3< rows on X52 display by allowing to scroll them.
 	class Scroller {

@@ -15,13 +15,11 @@ namespace Utils
 {
 
 	/// Fully optimistic for reads, assuming writes are occasional.
-	class LiteSharedLock
-	{
-		std::atomic_int		shareCount		= 0;		// < 0 during exclusive lock!
-		std::atomic_bool	exclusiveAwaits = false;
+	class LiteSharedLock {
+		std::atomic_int		 shareCount		 = 0;		// < 0 during exclusive lock!
+		std::atomic_bool	 exclusiveAwaits = false;
 		
 		static constexpr int MinInt = std::numeric_limits<int>::min();
-
 
 	public:
 		// tolerable maximum, no checks

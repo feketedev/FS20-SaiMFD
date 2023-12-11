@@ -5,7 +5,8 @@
 
 
 
-namespace FSMfd::Led {
+namespace FSMfd::Led
+{
 
 	/// Generalized blinking effect or static light.
 	class BlinkPattern {

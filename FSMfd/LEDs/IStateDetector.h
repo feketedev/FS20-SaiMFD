@@ -5,7 +5,8 @@
 
 
 
-namespace FSMfd::Led {
+namespace FSMfd::Led
+{
 
 	/// Some simple algorithm that maps certain states of Simulation Variables to numbered states.
 	/// @remarks	

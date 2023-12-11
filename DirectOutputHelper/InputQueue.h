@@ -7,7 +7,8 @@
 
 
 
-namespace DOHelper {
+namespace DOHelper
+{
 
 	/// Synchronized buffer for input events of 1 device, to be processed by the thread handling outputs.
 	class InputQueue {

@@ -12,8 +12,7 @@
 namespace FSMfd::SimClient
 {
 
-	class SimConnectError : public std::runtime_error
-	{
+	class SimConnectError : public std::runtime_error {
 	public:
 		const HRESULT error;
 

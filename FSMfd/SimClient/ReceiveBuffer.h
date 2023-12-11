@@ -7,8 +7,8 @@
 namespace FSMfd::SimClient
 {
 
-	class UniqueReceiveBuffer final : public IDataReceiver
-	{
+	class UniqueReceiveBuffer final : public IDataReceiver {
+
 		TimePoint				lastReceive;
 		optional<SimvarList>	lastData;
 		std::vector<uint32_t>	buffer;

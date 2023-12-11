@@ -21,8 +21,8 @@
 
 
 
-namespace FSMfd {
-
+namespace FSMfd
+{
 	constexpr char	  FSClientName[]  = "FS20-SaiMFD";
 	constexpr wchar_t SaiPluginName[] = L"FS2020 MFD";
 

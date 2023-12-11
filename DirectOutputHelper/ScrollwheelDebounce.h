@@ -4,19 +4,18 @@
 #include <cstdint>
 
 
-namespace DOHelper {
-	
+namespace DOHelper
+{	
 	using namespace std::chrono_literals;
 
-
-	class  InputQueue;		
+	class  InputQueue;
 	struct InputMessage;
 
 
 
 	/// A consumer-side filter to get cleaner inputs from X52's scrolling wheel.
-	class ScrollwheelDebounce
-	{
+	class ScrollwheelDebounce {
+
 		static constexpr Duration PressCancelDelay	 = 40ms;
 		static constexpr Duration OppositePressDelay = 40ms;
 		static constexpr Duration OppositeDelayLimit = 120ms;

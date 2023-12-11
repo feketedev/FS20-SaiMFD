@@ -6,13 +6,15 @@
 
 
 
-namespace FSMfd::Led {
+namespace FSMfd::Led
+{
 
 	/// Define color sequence for each state
 	using StatePatterns = std::vector<BlinkPattern>;
 
 	/// Define optional static color for each state.
 	using StateColors   = std::vector<optional<Color>>;
+
 
 
 	// ----------------------------------------------------------------------------------

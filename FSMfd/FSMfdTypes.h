@@ -32,7 +32,8 @@ namespace FSMfd
 	}
 
 
-	namespace Led {
+	namespace Led
+	{
 		using DOHelper::BiLed;
 		using DOHelper::UniLed;
 

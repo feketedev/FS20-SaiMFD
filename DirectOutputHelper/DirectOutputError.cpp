@@ -2,7 +2,8 @@
 
 
 
-namespace DOHelper {
+namespace DOHelper
+{
 
 	DirectOutputError::DirectOutputError(HRESULT err, const char* msg) :
 		error { err }, std::runtime_error { msg }

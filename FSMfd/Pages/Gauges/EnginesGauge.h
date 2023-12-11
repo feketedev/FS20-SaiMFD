@@ -9,8 +9,7 @@
 namespace FSMfd::Pages
 {
 
-	class EnginesGauge : public StackableGauge
-	{
+	class EnginesGauge : public StackableGauge {
 		struct Field;
 
 		const std::wstring			title;

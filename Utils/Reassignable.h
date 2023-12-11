@@ -7,8 +7,8 @@
 
 namespace Utils
 {
-	namespace Internal {
-		
+	namespace Internal
+	{		
 		template <class...Ts>
 		struct TypeList {};
 

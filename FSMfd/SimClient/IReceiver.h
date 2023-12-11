@@ -5,8 +5,8 @@
 
 
 
-namespace FSMfd::SimClient {
-
+namespace FSMfd::SimClient
+{
 	
 	// ----- Callback interfaces ----------------------------------------------------
 

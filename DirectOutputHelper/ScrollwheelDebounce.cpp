@@ -5,8 +5,8 @@
 
 
 
-namespace DOHelper {
-
+namespace DOHelper
+{
 
 	// TODO Cleanup, check Press & Scroll!
 

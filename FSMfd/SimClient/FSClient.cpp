@@ -347,8 +347,7 @@ namespace FSMfd::SimClient
 
 #pragma region InFlightDetector - workaround
 
-	class FSClient::InFlightDetector : public IEventReceiver
-	{
+	class FSClient::InFlightDetector : public IEventReceiver {
 		FSClient*				owner;
 		NotificationCode		codeFlightLoad;
 		NotificationCode		codeSimRunning;
@@ -360,10 +359,6 @@ namespace FSMfd::SimClient
 
 		bool InFlight() const	{ return simActive && !mainMenuLoaded; }
 
-		
-		void OwnerMoved(FSClient& newAddr) { owner = &newAddr; }
-
-		InFlightDetector(InFlightDetector&&) = delete;
 
 		InFlightDetector(FSClient& owner) :
 			owner		   { &owner },
@@ -380,6 +375,10 @@ namespace FSMfd::SimClient
 				throw;
 			}
 		}
+
+		InFlightDetector(InFlightDetector&&) = delete;
+
+		void OwnerMoved(FSClient& newAddr) { owner = &newAddr; }
 
 	private:
 		void Notify(NotificationCode code, uint32_t parameter, TimePoint stamp) override

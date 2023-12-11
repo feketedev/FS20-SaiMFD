@@ -9,7 +9,8 @@
 #include <string>
 
 
-namespace Utils::String {
+namespace Utils::String
+{
 
 	enum class Align { Left, Right };
 	

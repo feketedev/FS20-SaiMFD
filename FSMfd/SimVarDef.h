@@ -6,7 +6,8 @@
 
 
 
-namespace FSMfd {
+namespace FSMfd
+{
 
 	enum class RequestType : unsigned short {
 		UnsignedInt,

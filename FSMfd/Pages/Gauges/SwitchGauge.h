@@ -7,8 +7,8 @@
 namespace FSMfd::Pages
 {
 
-	class SwitchGauge : public StackableGauge
-	{
+	class SwitchGauge : public StackableGauge {
+
 		std::wstring		title;
 		optional<wchar_t>	leftSymbol;
 		optional<wchar_t>	rightSymbol;

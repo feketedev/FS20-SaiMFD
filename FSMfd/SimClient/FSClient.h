@@ -15,7 +15,8 @@
 
 
 
-namespace FSMfd::SimClient {
+namespace FSMfd::SimClient
+{
 
 	/// Wether ResetVarGroups will affect the Group or not.
 	enum class GroupLifetime { Resettable, Permanent };

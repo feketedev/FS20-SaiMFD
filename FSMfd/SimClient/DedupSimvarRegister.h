@@ -6,7 +6,8 @@
 
 
 
-namespace FSMfd::SimClient {
+namespace FSMfd::SimClient
+{
 
 	class DedupSimvarRegister {
 		FSClient&				client;

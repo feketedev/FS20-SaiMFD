@@ -6,8 +6,8 @@
 
 namespace FSMfd::Pages
 {
-	class RadioGauge : public StackableGauge
-	{
+	class RadioGauge : public StackableGauge {
+
 		void (&printFreq) (unsigned, Utils::String::StringSection);
 
 	public:

@@ -2,8 +2,8 @@
 #include "DirectOutputImpl.h"
 
 
-namespace Saitek {
-
+namespace Saitek
+{
 	DirectOutput::DirectOutput() :
 		m_module(NULL),
 		m_initialize(0), m_deinitialize(0),

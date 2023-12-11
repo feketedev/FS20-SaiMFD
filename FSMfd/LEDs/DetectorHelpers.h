@@ -7,20 +7,16 @@
 
 
 
-namespace FSMfd::Led {
-
+namespace FSMfd::Led
+{
 	/* This files contains some sugar for prettier construction of StateDetectors. *
 	 * Implicit type deduction is in focus.										   */
 
 
 	// ---- DiscreteDetector sugar ------------------------------------------------------
 
-	//template<class T, size_t N>
-	//using TriggerValues = std::array<T, N>;
-
 	template<class T, size_t N>
-	struct TriggerValues : public std::array<T, N>
-	{
+	struct TriggerValues : public std::array<T, N> {
 	};
 
 	template <class T, class... Args>
@@ -60,8 +56,7 @@ namespace FSMfd::Led {
 
 
 	template<class T, size_t N>
-	struct Boundaries : public std::array<Boundary<T>, N>
-	{
+	struct Boundaries : public std::array<Boundary<T>, N> {
 	};
 
 	template <class T, class... Args>
@@ -75,7 +70,8 @@ namespace FSMfd::Led {
 
 	// ---- Aggregator strategies -------------------------------------------------------
 
-	namespace Strategies {
+	namespace Strategies
+	{
 		struct Max {
 			template <class... Nums>
 			static auto Aggregate(Nums... ns) { return Utils::Max(ns...); }
@@ -101,8 +97,6 @@ namespace FSMfd::Led {
 										   : std::is_signed_v<T>		 ? RequestType::SignedInt
 										   : std::is_unsigned_v<T>		 ? RequestType::UnsignedInt
 										   : RequestType::String;
-
-
 	private:
 		template <class TT>
 		static constexpr auto GetAccessor(std::enable_if_t<std::is_floating_point_v<TT>>* = nullptr)

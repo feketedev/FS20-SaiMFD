@@ -13,15 +13,15 @@
 
 
 
-namespace Saitek {
+namespace Saitek
+{
 
 	///
 	/// DirectOutput
 	///
 	/// Simplifies the LoadLibrary interface to DirectOutput
 	///
-	class DirectOutput
-	{
+	class DirectOutput {
 	public:
 		DirectOutput();
 		~DirectOutput();

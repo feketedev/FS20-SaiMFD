@@ -4,8 +4,8 @@
 
 
 
-namespace FSMfd::Pages {
-
+namespace FSMfd::Pages
+{
 	using namespace Utils::String;
 	using SimClient::SimvarValue;
 
