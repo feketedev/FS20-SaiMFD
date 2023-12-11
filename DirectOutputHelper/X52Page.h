@@ -17,7 +17,7 @@ namespace DOHelper
 	/// Buffer for the contents of single MFD page
 	class X52Output::Page {
 	public:
-		const uint32_t 			id;
+		const uint32_t 			Id;
 
 		static constexpr size_t	DisplayLength = 16;
 
@@ -28,7 +28,7 @@ namespace DOHelper
 
 	public:
 		explicit Page(uint32_t id);
-		Page(Page&&) = delete;				// address is used while IsAdded
+		Page(Page&&) = delete;		// address is used while IsAdded
 
 		virtual ~Page();
 

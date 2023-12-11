@@ -11,6 +11,7 @@
 
 #include "DOHelperTypes.h"
 #include "Utils/LiteSharedLock.h"
+#include <array>
 #include <future>
 #include <deque>
 #include <guiddef.h>
@@ -26,19 +27,20 @@ namespace DOHelper
 	enum class SaiDeviceType { Unknown, X52Pro, X56Stick, X56Throttle, InstrumentPanel };
 
 
-	// TODO: re-const :)
 	struct SaiDevice {
-		void*			handle 	   	  = nullptr;
-		SaiDeviceType	type       	  = SaiDeviceType::Unknown;
-		wchar_t			serial[16] 	  = {0};
-		GUID			directInputId = {};		// this data seems unreliable!
+		void* const						Handle;
+		const SaiDeviceType				Type;
+		const std::array<wchar_t, 16>	Serial;
+		const GUID						DirectInputId;	// this data seems unreliable!
 	};
 
 
 
 	class DirectOutputInstance {
 		friend class X52Output;
+		friend class InputQueue;
 
+		std::unique_ptr<Saitek::DirectOutput>	library;
 
 		struct HandleInUse {
 			void*				handle;
@@ -53,15 +55,14 @@ namespace DOHelper
 		mutable Utils::LiteSharedLock	connectionListLock;
 
 	public:
-		const wchar_t*							pluginName;	// TODO: Capital letters!
-		std::unique_ptr<Saitek::DirectOutput>	library;	// TODO: private?
+		const wchar_t* const			PluginName;
 
 
 		explicit DirectOutputInstance(const wchar_t* pluginName);
 		DirectOutputInstance(const DirectOutputInstance&) = delete;
 		~DirectOutputInstance();
 
-		void Reset();	// ?
+		void Reset();
 
 		std::vector<SaiDevice>			EnumerateDevices()		const;
 		std::vector<SaiDevice>			EnumerateFreeDevices()	const;
@@ -82,5 +83,6 @@ namespace DOHelper
 
 
 	const char*	AsString(SaiDeviceType t);
+
 
 }	// namespace DOHelper

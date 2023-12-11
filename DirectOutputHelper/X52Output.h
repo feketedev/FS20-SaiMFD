@@ -8,7 +8,6 @@
 	 *  See Saitek/DirectOutput.h for details.				   */
 
 
-#include "InputMessage.h"
 #include "ScrollwheelDebounce.h"
 #include <memory>
 #include <string>
@@ -20,6 +19,9 @@
 
 namespace DOHelper
 {
+	struct InputMessage;
+
+
 	/// Possible colors of a BiLed.
 	enum class LedColor : uint8_t { Off, Green, Red, Amber };
 
@@ -53,7 +55,8 @@ namespace DOHelper
 		friend class DirectOutputInstance;
 
 		/// BiLeds and UniLeds in total
-		static constexpr size_t	LedCount = 11;
+		static constexpr uint32_t	LedCount = 11;
+		static constexpr uint32_t	LedIdMax = 19;
 
 	private:
 		std::unique_ptr<InputQueue> 	inputQueue;
@@ -110,7 +113,7 @@ namespace DOHelper
 		void RemovePage(Page&, TimePoint causeStamp);
 
 
-		// NOTE: Lehet ertelme?
+		// NOTE: Would it make sense to utilize this capability?
 		//bool SetProfile(const wchar_t* path);
 
 	private:

@@ -15,7 +15,7 @@ namespace FSMfd
 		Real,
 		String,
 
-		COUNT	// TODO: convention?
+		COUNT
 	};
 
 

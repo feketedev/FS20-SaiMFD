@@ -38,7 +38,7 @@ namespace DOHelper
 		};
 
 
-		// 0 ---> emitPend (countint) ----> cancelling ----> 0
+		// 0 ---> emitPend (counting) ----> cancelling ----> 0
 		//    `press1                 |                 `timeout
 		//                            `timeout/threshold/event => emit
 		struct ScrollTracker {

@@ -36,7 +36,7 @@ namespace FsMfdTests
 		}
 		else
 		{
-			const size_t space = target.length - actual.length();
+			const size_t space = target.Length - actual.length();
 			Assert::IsTrue(space < 2 + preferredPad, L"Unnecessary truncation.");
 		}
 	}
@@ -49,15 +49,15 @@ namespace FsMfdTests
 								Truncability			 trunc	  )
 								-> std::wstring_view	 // found text without alignment
 	{ 
-		Assert::IsTrue(actTarget.length > 0);
+		Assert::IsTrue(actTarget.Length > 0);
 
 		const wchar_t* trg = actTarget.GetStart();
 
 		size_t left = 0;
-		while (left < actTarget.length && trg[left] == L' ')
+		while (left < actTarget.Length && trg[left] == L' ')
 			++left;
 
-		size_t right = actTarget.length;
+		size_t right = actTarget.Length;
 		while (0 < right && trg[right - 1] == L' ')
 			--right;
 
@@ -73,7 +73,7 @@ namespace FsMfdTests
 		Assert::IsTrue(trunc != Forbidden || copied == expText.length(), L"Copied text got truncated. It was forbidden.");
 		
 		// -- check padding --
-		const size_t rspace = actTarget.length - right;
+		const size_t rspace = actTarget.Length - right;
 
 		const auto [padding, alignment] = (aln.direction == Align::Right)
 										   ? std::make_pair(rspace, left)
@@ -93,8 +93,8 @@ namespace FsMfdTests
 	// buffer left intact outside targeted StringSection
 	static void AssertIntactContext(wchar_t filler, const StringSection& trg)
 	{
-		const size_t s = trg.pos;
-		const size_t e = trg.pos + trg.length;
+		const size_t s = trg.Pos;
+		const size_t e = trg.Pos + trg.Length;
 
 		for (size_t i = 0; i < s; i++)
 			Assert::AreEqual(filler, trg.buffer[i]);
@@ -138,14 +138,14 @@ namespace FsMfdTests
 		{
 			for (unsigned pad : { 0, 1, 2 })
 			{
-				if (trg.length <= pad)				// NOTE: this is asserted by PlaceNumber
+				if (trg.Length <= pad)				// NOTE: this is asserted by PlaceNumber
 					break;
 
 				PaddedAlignment aln { alnDir, pad };
 
 				trg.buffer.assign(fullLen, L'X');
 
-				const bool shouldSucceed = IsPlaceable<N>(expectDigits, trg.length);
+				const bool shouldSucceed = IsPlaceable<N>(expectDigits, trg.Length);
 				Assert::AreEqual(shouldSucceed, PlaceNumber(value, placeExtras..., trg, aln));
 			
 				VERBOSE ('\t', trg.buffer.data(), L"    \tpad: ", aln.pad, L"\n");
@@ -217,7 +217,7 @@ namespace FsMfdTests
 				for (auto& [n, expected] : testNums)
 				{
 					// check overrun by 1, 2 - above that is unnecessary
-					if (expected.length() > sect.length + 2)
+					if (expected.length() > sect.Length + 2)
 						break;
 
 					VERBOSE (expected.data(), '\n');
@@ -396,7 +396,7 @@ namespace FsMfdTests
 			std::wstring target (FullLen, L'X');
 			ForAllSectionsIn(target, [&](StringSection sect)
 			{
-				VERBOSE ("\n--- Target: ", sect.pos, " len ", sect.length, " ---\n");
+				VERBOSE ("\n--- Target: ", sect.Pos, " len ", sect.Length, " ---\n");
 
 				for (auto& [n, expected, precision] : testNums)
 				{

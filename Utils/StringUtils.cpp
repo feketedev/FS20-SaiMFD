@@ -55,8 +55,8 @@ namespace Utils::String
 
 	StringSection::StringSection(std::wstring& buffer, size_t pos, size_t length) :
 		buffer	{ buffer },
-		pos		{ pos },
-		length	{ length }
+		Pos		{ pos },
+		Length	{ length }
 	{
 		LOGIC_ASSERT (pos + length <= buffer.length());		// wstring excludes \0
 	}
@@ -70,48 +70,48 @@ namespace Utils::String
 
 	StringSection StringSection::FollowedBy(size_t nextLength) const
 	{
-		return { buffer, pos + length, nextLength };
+		return { buffer, Pos + Length, nextLength };
 	}
 
 
 	StringSection StringSection::SubSection(size_t offset, size_t length) const
 	{
-		LOGIC_ASSERT (offset + length <= this->length);
+		LOGIC_ASSERT (offset + length <= this->Length);
 
-		return { buffer, pos + offset, length };
+		return { buffer, Pos + offset, length };
 	}
 
 	
 	wchar_t& StringSection::operator[](size_t i) const
 	{
-		DBG_ASSERT (i < length);
-		return buffer[pos + i];
+		DBG_ASSERT (i < Length);
+		return buffer[Pos + i];
 	}
 
 
 	wchar_t* StringSection::GetStart() const
 	{
-		return buffer.data() + pos;
+		return buffer.data() + Pos;
 	}
 
 
 	wchar_t * StringSection::GetLast() const
 	{
-		LOGIC_ASSERT (length > 0);
-		return GetStart() + length - 1;
+		LOGIC_ASSERT (Length > 0);
+		return GetStart() + Length - 1;
 	}
 
 
 	std::wstring_view StringSection::AsStringView() const
 	{
-		return { GetStart(), length };
+		return { GetStart(), Length };
 	}
 
 
 	void StringSection::FillIn(std::wstring_view src)
 	{
-		DBG_ASSERT	   (src.length() == length);
-		LOGIC_ASSERT_M (buffer.size() >= pos + length, "Buffer shortened in meantime?")
+		DBG_ASSERT	   (src.length() == Length);
+		LOGIC_ASSERT_M (buffer.size() >= Pos + Length, "Buffer shortened in meantime?")
 
 		wchar_t* trg = GetStart();
 		for (size_t i = 0; i < src.length(); i++)
@@ -122,7 +122,7 @@ namespace Utils::String
 	void StringSection::FillWith(wchar_t c)
 	{
 		wchar_t* trg = GetStart();
-		for (size_t i = 0; i < length; i++)
+		for (size_t i = 0; i < Length; i++)
 			trg[i] = c;
 	}
 
@@ -177,7 +177,7 @@ namespace Utils::String
 
 	static size_t FillTarget(const std::wstring_view& src, size_t off, size_t maxCount, StringSection target)
 	{
-		DBG_ASSERT (off + maxCount <= target.length);	// expects checked parameters
+		DBG_ASSERT (off + maxCount <= target.Length);	// expects checked parameters
 
 		wchar_t* const trg = target.GetStart();
 
@@ -186,7 +186,7 @@ namespace Utils::String
 
 		const size_t written = src.copy(trg + off, maxCount);
 
-		for (size_t i = off + written; i < target.length; i++)
+		for (size_t i = off + written; i < target.Length; i++)
 			trg[i] = Space;
 
 		return written;
@@ -208,11 +208,11 @@ namespace Utils::String
 
 	bool PlaceText(const std::wstring_view& src, StringSection target, const PaddedAlignment& aln)
 	{
-		if (target.length < src.length())
+		if (target.Length < src.length())
 			return false;
 
-		auto pos = aln.CalcPosition(src.length(), target.length, false);
-		DBG_ASSERT (pos.textStart + src.length() <= target.length);
+		auto pos = aln.CalcPosition(src.length(), target.Length, false);
+		DBG_ASSERT (pos.textStart + src.length() <= target.Length);
 
 		size_t copied = FillTarget(src, pos.textStart, target);
 		DBG_ASSERT (copied == src.length());
@@ -224,9 +224,9 @@ namespace Utils::String
 	// padding takes precedence here
 	size_t PlaceTruncableText(const std::wstring_view& src, StringSection target, const PaddedAlignment& aln)
 	{
-		DBG_ASSERT_M (aln.pad < target.length, "Unintended padding parameter?");		// should run fine though
+		DBG_ASSERT_M (aln.pad < target.Length, "Unintended padding parameter?");		// should run fine though
 
-		auto pos = aln.CalcPosition(src.length(), target.length);
+		auto pos = aln.CalcPosition(src.length(), target.Length);
 		
 		return FillTarget(src, pos.textStart, pos.textLen, target);
 	}
@@ -256,7 +256,7 @@ namespace Utils::String
 		int		len = PrintTo(num, L"%d", value);
 		LOGIC_ASSERT (0 < len);
 
-		if (len <= target.length)
+		if (len <= target.Length)
 		{
 			AlignText({ num, static_cast<size_t> (len) }, aln, target);
 			return true;
@@ -269,24 +269,24 @@ namespace Utils::String
 
 	static bool TryAlignDecimal(const std::wstring_view& num, StringSection target, const PaddedAlignment& aln, bool preferDecimals)
 	{
-		LOGIC_ASSERT (aln.pad < target.length);
+		LOGIC_ASSERT (aln.pad < target.Length);
 		DBG_ASSERT	 (0 < num.length());
 
 		const size_t pointPos  = num.find(DecimalSeparator);
 		const bool	 hasPoint  = pointPos != num.npos;
 		const size_t wholePart = hasPoint ? pointPos : num.length();
-		if (target.length < wholePart)
+		if (target.Length < wholePart)
 			return false;
 
 		const bool letFraction = hasPoint 
-			&& target.length > wholePart + (preferDecimals ? 2 : 1 + aln.pad);
+			&& target.Length > wholePart + (preferDecimals ? 2 : 1 + aln.pad);
 
-		const size_t limit  = target.length - (!preferDecimals * aln.pad);
+		const size_t limit  = target.Length - (!preferDecimals * aln.pad);
 		const size_t cpyLen = letFraction
 			? std::min(num.length(), limit)		// cut fraction to maintain preferred padding / target length
 			: wholePart;						// must fit, that we established
 
-		DBG_ASSERT (cpyLen <= target.length);
+		DBG_ASSERT (cpyLen <= target.Length);
 
 		AlignText(num.substr(0, cpyLen), aln, target);
 		return true;

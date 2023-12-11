@@ -2,6 +2,7 @@
 
 #include "DirectOutputInstance.h"
 #include "DirectOutputError.h"
+#include "InputMessage.h"
 #include "X52Output.h"
 #include "X52Page.h"
 #include "Utils/BasicUtils.h"
@@ -48,13 +49,13 @@ namespace DOHelper
 
 	void*	X52Output::Handle() const noexcept
 	{
-		return inputQueue->deviceHandle;
+		return inputQueue->DeviceHandle;
 	}
 
 
 	DirectOutputInstance&	X52Output::DirectOutput() const noexcept
 	{
-		return inputQueue->source;
+		return inputQueue->Source;
 	}
 
 
@@ -113,7 +114,7 @@ namespace DOHelper
 						break;
 					}
 				}
-				LOGIC_ASSERT (activePage != nullptr && activePage->id == msg.optData);
+				LOGIC_ASSERT (activePage != nullptr && activePage->Id == msg.optData);
 				activePage->OnDeactivate(msg.time);
 				activePage = nullptr;
 				break;
@@ -124,7 +125,7 @@ namespace DOHelper
 
 				// TODO: Maybe we could account for reordered Activate-Deactivate pairs too
 				//		 - which still won't solve some errors I've seen...
-				LOGIC_ASSERT (activePage == nullptr || activePage->id == msg.optData);
+				LOGIC_ASSERT (activePage == nullptr || activePage->Id == msg.optData);
 				if (activePage != nullptr)
 				{
 					Debug::Warning("Received duplicated page Activation!");
@@ -194,13 +195,13 @@ namespace DOHelper
 	void X52Output::AddPage(Page& pg, TimePoint causeStamp, bool activate)
 	{
 		LOGIC_ASSERT_M (!pg.IsAdded(), "Page already in use!");
-		LOGIC_ASSERT_M (!HasPage(pg.id), "Duplicate page id!");
+		LOGIC_ASSERT_M (!HasPage(pg.Id), "Duplicate page id!");
 
 		DWORD flag = activate ? FLAG_SET_AS_ACTIVE : 0;
 		pages.push_back(&pg);
 		pg.device = this;
 
-		SAI_ASSERT (DirectOutput().library->AddPage(Handle(), pg.id, nullptr, flag));
+		SAI_ASSERT (DirectOutput().library->AddPage(Handle(), pg.Id, nullptr, flag));
 
 		// - No Activated event raised by driver using this flag!
 		// - Deactivated is received though later...
@@ -209,7 +210,7 @@ namespace DOHelper
 		{
 			if (activePage != nullptr)
 			{
-				actPageBeforeAdd.push_back(activePage->id);
+				actPageBeforeAdd.push_back(activePage->Id);
 				activePage->OnDeactivate(causeStamp);
 			}
 			activePage = &pg;
@@ -261,7 +262,7 @@ namespace DOHelper
 	{
 		p.device = nullptr;
 		if (IsConnected())
-			SAI_ASSERT(DirectOutput().library->RemovePage(Handle(), p.id));
+			SAI_ASSERT(DirectOutput().library->RemovePage(Handle(), p.Id));
 	}
 
 
@@ -273,7 +274,7 @@ namespace DOHelper
 
 		if (p.device == this && inputQueue != nullptr && IsConnected())
 		{
-			HRESULT hr = DirectOutput().library->RemovePage(Handle(), p.id);
+			HRESULT hr = DirectOutput().library->RemovePage(Handle(), p.Id);
 			if (FAILED(hr))
 				Debug::Warning("DirectOutput Helper", "Failed to delete page from x52 device.");
 		}
@@ -323,7 +324,7 @@ namespace DOHelper
 	auto X52Output::FindPage(uint32_t id) const noexcept -> Page*
 	{
 		auto it = Utils::FindIf(pages, [=](const Page* p) {
-			return p->id == id;
+			return p->Id == id;
 		});
 
 		return it == pages.end() ? nullptr : *it;
@@ -359,7 +360,7 @@ namespace DOHelper
 			return;
 
 		SAI_ASSERT (
-			DirectOutput().library->SetLed(Handle(), activePage->id, id, on)
+			DirectOutput().library->SetLed(Handle(), activePage->Id, id, on)
 		);
 		ledStates[id] = on;
 	}
@@ -367,7 +368,7 @@ namespace DOHelper
 
 	void  X52Output::RestoreLeds()
 	{
-		const DWORD pgId = activePage->id;
+		const DWORD pgId = activePage->Id;
 
 		for (uint8_t id = 0; id < ledStates.size(); id++)
 		{

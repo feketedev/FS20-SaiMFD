@@ -254,7 +254,7 @@ namespace FSMfd
 				// can just rerun this loop.
 				Utils::FormatFlagScope { std::cerr }
 					<< '\n' << ex.what()
-					<< "\n(Error code: 0x" << std::hex << ex.error
+					<< "\n(Error code: 0x" << std::hex << ex.ErrorCode
 					<< ")\nReconnecting..." << std::endl;
 			}
 		}

@@ -34,14 +34,14 @@ namespace FSMfd::Led
 	/// @tparam D
 	/// 	Gated detector: provides overall result if enabled.
 	template<class G, class D>
-	struct Conditional final : public IStateDetector {
+	class Conditional final : public IStateDetector {
 		G gate;
 		D detector;
 
+	public:
 		static_assert(std::is_convertible_v<G*, IStateDetector*>
 				   && std::is_convertible_v<D*, IStateDetector*>);
 		
-
 		void RegisterVariables(SimClient::DedupSimvarRegister& dp) override
 		{
 			gate.RegisterVariables(dp);
@@ -125,12 +125,12 @@ namespace FSMfd::Led
 
 	// not simple usings to allow deduction...
 	template<class... Detectors>
-	struct Max : Aggregator<Strategies::Max, Strategies::Max, Detectors...> {
+	struct Max final : public Aggregator<Strategies::Max, Strategies::Max, Detectors...> {
 		using Aggregator<Strategies::Max, Strategies::Max, Detectors...>::Aggregator;
 	};
 
 	template<class... Detectors>
-	struct Min : Aggregator<Strategies::Min, Strategies::Min, Detectors...> {
+	struct Min final : public Aggregator<Strategies::Min, Strategies::Min, Detectors...> {
 		using Aggregator<Strategies::Min, Strategies::Min, Detectors...>::Aggregator;
 	};
 
@@ -174,7 +174,8 @@ namespace FSMfd::Led
 	// ==== Numeric detectors ===========================================================
 
 	/// Simple On/Off detector for an integer SimVar. (Anything non-0 yields state 1.)
-	struct SwitchDetector final : public SinglevarDetectorBase<SwitchDetector> {
+	class SwitchDetector final : public SinglevarDetectorBase<SwitchDetector> {
+	public:
 		SwitchDetector(const char* varName, const char* unit = "Bool") :
 			SinglevarDetectorBase<SwitchDetector> { SimVarDef { varName, unit } }
 		{

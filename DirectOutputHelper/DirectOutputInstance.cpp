@@ -84,23 +84,27 @@ namespace DOHelper
 
 	static SaiDevice	DescribeDevice(void *handle, const Saitek::DirectOutput& library)
 	{
-		SaiDevice dev { handle };
-
 		GUID typeId;
 		SAI_ASSERT (library.GetDeviceType(handle, &typeId));
-		dev.type = ToSaiDeviceType(typeId);
 
-		constexpr DWORD maxLen = sizeof(dev.serial) / sizeof(wchar_t);
-		HRESULT sres = library.GetSerialNumber(handle, dev.serial, maxLen);
-		if (FAILED (sres))
+		constexpr DWORD				maxLen = std::tuple_size_v<decltype(SaiDevice::Serial)>;
+		std::array<wchar_t, maxLen> serial;
+		HRESULT sres = library.GetSerialNumber(handle, serial.data(), maxLen);
+		if (FAILED(sres))
 		{
 			DBG_ASSERT (sres == E_NOTIMPL);
-			dev.serial[0] = 0;
+			serial[0] = L'\0';
 		}
 
-		SAI_ASSERT (library.GetDeviceInstance(handle, &dev.directInputId));
+		GUID directInputId;
+		SAI_ASSERT (library.GetDeviceInstance(handle, &directInputId));
 
-		return dev;
+		return {
+			handle,
+			ToSaiDeviceType(typeId),
+			serial,
+			directInputId
+		};
 	}
 
 
@@ -131,7 +135,8 @@ namespace DOHelper
 		std::vector<void*> handles;
 		SAI_ASSERT (library->Enumerate(&OnEnumerateDevice, &handles));
 
-		std::vector<SaiDevice> res (handles.size());
+		std::vector<SaiDevice> res;
+		res.reserve(handles.size());
 
 		std::shared_lock readGuard { connectionListLock };
 
@@ -259,7 +264,7 @@ namespace DOHelper
 #pragma region Initialization
 
 	DirectOutputInstance::DirectOutputInstance(const wchar_t *pluginName) :
-		pluginName { pluginName },
+		PluginName { pluginName },
 		library	   { new Saitek::DirectOutput }
 	{
 		SAI_ASSERT (library->Initialize(pluginName));
@@ -285,25 +290,25 @@ namespace DOHelper
 		DBG_ASSERT (SUCCEEDED(hr));
 		std::this_thread::yield();			// who knows, give the library time
 		ConnectionPromise.reset();
-		SAI_ASSERT (library->Initialize(pluginName));
+		SAI_ASSERT (library->Initialize(PluginName));
 	}
 
 
 	X52Output	DirectOutputInstance::UseX52(const SaiDevice& device)
 	{
-		LOGIC_ASSERT (device.type == SaiDeviceType::X52Pro);
+		LOGIC_ASSERT (device.Type == SaiDeviceType::X52Pro);
 
-		X52Output x52 { device.handle, *this };
+		X52Output x52 { device.Handle, *this };
 		{
 			std::unique_lock guard { connectionListLock };
-			connections.emplace_front(device.handle);
+			connections.emplace_front(device.Handle);
 		}
 
 		// Check connection - DeviceDisconnected events are live from now on.
 		try
 		{
-			SaiDevice d = DescribeDevice(device.handle, *library);
-			if (d.type == SaiDeviceType::X52Pro)
+			SaiDevice d = DescribeDevice(device.Handle, *library);
+			if (d.Type == SaiDeviceType::X52Pro)
 				return x52;
 		}
 		catch(const DirectOutputError&)
@@ -312,7 +317,7 @@ namespace DOHelper
 
 		// otherwise got unplugged during this request
 		std::shared_lock readGuard { connectionListLock };
-		auto it = FindConnection(device.handle);
+		auto it = FindConnection(device.Handle);
 		LOGIC_ASSERT(it != connections.end());
 		it->MarkDisconnected();
 		return x52;
@@ -329,13 +334,6 @@ namespace DOHelper
 		else
 			DBG_BREAK;
 	}
-
-	//void DirectOutputInstance::DeviceMoved(X52Output* from, X52Output* to)
-	//{
-	//	auto it = std::find(inUse.begin(), inUse.end(), from);
-	//	LOGIC_ASSERT (it != inUse.end());
-	//	*it = to;
-	//}
 
 #pragma endregion
 

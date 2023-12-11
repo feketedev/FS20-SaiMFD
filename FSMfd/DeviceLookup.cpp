@@ -25,10 +25,10 @@ namespace FSMfd
 		size_t sel = SIZE_MAX;
 		for (const SaiDevice& dev : devices)
 		{
-			if (dev.type == SaiDeviceType::X52Pro)
+			if (dev.Type == SaiDeviceType::X52Pro)
 				sel = n;
 
-			std::cout << "\t\t" << ++n << ". " << AsString(dev.type);
+			std::cout << "\t\t" << ++n << ". " << AsString(dev.Type);
 		}
 		std::cout << std::endl;
 
@@ -59,7 +59,7 @@ namespace FSMfd
 			}
 
 			const SaiDevice& dev2 = f2.get();
-			if (dev2.type == SaiDeviceType::X52Pro)
+			if (dev2.Type == SaiDeviceType::X52Pro)
 			{
 				std::cout << "  Got it." << std::endl;
 				return dev2;

@@ -65,7 +65,7 @@ namespace FSMfd
 				std::cerr << "\nConnection with device interrupted!\n" << std::endl;
 			else
 				std::cerr << err.what()
-						  << "\n(code: 0x" << std::hex << err.error << ')' << std::endl;
+						  << "\n(code: 0x" << std::hex << err.ErrorCode << ')' << std::endl;
 		}
 		catch (const std::logic_error& ex)
 		{
@@ -116,7 +116,7 @@ int main()
 	{
 		// DirectOutputInstance initialization failure
 		std::cerr << "FAILED\n" << err.what()
-				  << "\n  (code: 0x" << std::hex << err.error << ')'
+				  << "\n  (code: 0x" << std::hex << err.ErrorCode << ')'
 				  << "\nWill now quit." << std::endl;
 
 		std::cin.ignore();

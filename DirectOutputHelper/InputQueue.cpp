@@ -27,26 +27,26 @@ namespace DOHelper
 
 
 	InputQueue::InputQueue(DirectOutputInstance& source, void* device) :
-		source{ source },
-		deviceHandle{ device }
+		Source       { source },
+		DeviceHandle { device }
 	{
-		source.library->RegisterPageCallback	  (device, &CallbackConverter::OnPageChange,  this);
-		source.library->RegisterSoftButtonCallback(device, &CallbackConverter::OnButtonPress, this);
+		Source.library->RegisterPageCallback	  (device, &CallbackConverter::OnPageChange,  this);
+		Source.library->RegisterSoftButtonCallback(device, &CallbackConverter::OnButtonPress, this);
 	}
 
 
 	InputQueue::~InputQueue()
 	{
 		// Unregister
-		source.library->RegisterPageCallback(deviceHandle, nullptr, nullptr);
-		source.library->RegisterSoftButtonCallback(deviceHandle, nullptr, nullptr);
+		Source.library->RegisterPageCallback(DeviceHandle, nullptr, nullptr);
+		Source.library->RegisterSoftButtonCallback(DeviceHandle, nullptr, nullptr);
 	}
 
 
 	/*static*/ void InputQueue::OnPageChange(void* device, uint32_t pageId, bool activated, void *pCtxt)
 	{
 		auto& self = *reinterpret_cast<InputQueue*> (pCtxt);
-		LOGIC_ASSERT (self.deviceHandle == device);
+		LOGIC_ASSERT (self.DeviceHandle == device);
 
 		MessageKind kind = activated ? MessageKind::PageActivated : MessageKind::PageDeactivated;
 
@@ -57,7 +57,7 @@ namespace DOHelper
 	/*static*/ void InputQueue::OnButtonPress(void* device, uint32_t buttonId, void *pCtxt)
 	{
 		auto& self = *reinterpret_cast<InputQueue*> (pCtxt);
-		LOGIC_ASSERT (self.deviceHandle == device);
+		LOGIC_ASSERT (self.DeviceHandle == device);
 
 		self.Push(MessageKind::ButtonPress, buttonId);
 	}

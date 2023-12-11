@@ -60,8 +60,8 @@ namespace Utils::String
 	/// Modifiable part of a wstring buffer. Usually target of string operations.
 	struct StringSection {
 		std::wstring&	buffer;
-		const size_t	pos;
-		const size_t	length;
+		const size_t	Pos;
+		const size_t	Length;
 
 		StringSection(std::wstring& buffer, size_t pos, size_t length);
 		StringSection(std::wstring& buffer, size_t pos = 0);			// pos -> buffer end
@@ -148,9 +148,9 @@ namespace Utils::String
 
 
 	inline wchar_t*			begin(StringSection& s)			{ return s.GetStart(); }
-	inline wchar_t*			end(StringSection& s)			{ return s.GetStart() + s.length; }
+	inline wchar_t*			end(StringSection& s)			{ return s.GetStart() + s.Length; }
 	inline const wchar_t*	begin(const StringSection& s)	{ return s.GetStart(); }
-	inline const wchar_t*	end(const StringSection& s)		{ return s.GetStart() + s.length; }
+	inline const wchar_t*	end(const StringSection& s)		{ return s.GetStart() + s.Length; }
 
 
 }	// namespace Utils::String

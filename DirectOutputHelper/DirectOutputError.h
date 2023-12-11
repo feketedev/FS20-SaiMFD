@@ -14,7 +14,7 @@ namespace DOHelper
 
 	class  DirectOutputError : public std::runtime_error {
 	public:
-		const HRESULT error;
+		const HRESULT ErrorCode;
 
 		DirectOutputError(HRESULT error, const char* msg);
 		DirectOutputError(HRESULT error);

@@ -9,7 +9,7 @@
 namespace DOHelper
 {
 
-	X52Output::Page::Page(uint32_t id) : id { id }
+	X52Output::Page::Page(uint32_t id) : Id { id }
 	{
 	}
 
@@ -67,7 +67,7 @@ namespace DOHelper
             DWORD        len = static_cast<DWORD>(lines[i].length());
 			// NOTE: very theoretic overflow if 8GB of text -> would cause weird truncation
 
-            SAI_ASSERT (lib.SetString(device->Handle(), id, i, len, s));
+            SAI_ASSERT (lib.SetString(device->Handle(), Id, i, len, s));
         }
 	}
 

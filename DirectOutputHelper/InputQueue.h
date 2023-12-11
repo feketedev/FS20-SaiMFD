@@ -13,8 +13,8 @@ namespace DOHelper
 	/// Synchronized buffer for input events of 1 device, to be processed by the thread handling outputs.
 	class InputQueue {
 	public:
-		DirectOutputInstance&				source;
-		void* const		 					deviceHandle;
+		DirectOutputInstance&				Source;
+		void* const		 					DeviceHandle;
 
 	private:
 		mutable std::mutex					mutex;

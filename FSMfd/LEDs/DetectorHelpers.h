@@ -28,22 +28,22 @@ namespace FSMfd::Led
 
 	template<class T>
 	struct Boundary {
-		const T		val;
-		const bool	includedAbove;
+		const T		Value;
+		const bool	IncludedAbove;
 
-		Boundary (T v, bool ab = true) : val { v }, includedAbove { ab } {}
+		Boundary (T v, bool ab = true) : Value { v }, IncludedAbove { ab } {}
 
 		// Note: templated to avoid narrowing conversions
 		template <class P>
 		bool MetBy(const P& p) const
 		{
-			return p < val || !includedAbove && p == val;
+			return p < Value || !IncludedAbove && p == Value;
 		}
 
 		template <class P>
 		bool ExceededBy(const P& p) const
 		{
-			return val < p || includedAbove && p == val;
+			return Value < p || IncludedAbove && p == Value;
 		}
 	};
 
