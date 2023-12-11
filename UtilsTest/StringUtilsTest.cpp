@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "CppUnitTest.h"
 
  #define  VERBOSE_TESTS

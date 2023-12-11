@@ -5,7 +5,6 @@
 	 *  Released under GPLv3.		   */
 
 
-#include "pch.h"
 #include "CppUnitTest.h"
 
 #include "Utils/LiteSharedLock.h"
