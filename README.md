@@ -12,18 +12,19 @@ Soon...
 
 ## Known issues
 
-I experience some serious bouncing with the MFD's scrollwheels, which is mostly mitigated by code for the custom (right) scrollwheel - which is currently used only to scroll within pages -, but not for the paging wheel (left), which has a handling more entangled with its API.
+I experience some serious bouncing with the MFD's scrollwheels, which is mostly mitigated by code for the custom (right) scrollwheel -  
+which is currently used only to scroll within pages -, but not for the paging wheel (left), which has a handling more entangled with its API.
 
-These ambiguous input events cause errors during paging, which currently triggers a simple restart in this plugin.
+These ambiguous input events cause errors during paging, which currently triggers a simple restart in this plugin.  
 (This can be a problem in my hardware/driver, since even the Saitek example app behaves unstable.)
 
 ## Copyrights
 
-This software is released under GPLv3. See [LICENSE.txt](LICENSE.txt).
+This software is released under GPLv3. See [LICENSE.txt](LICENSE.txt).  
 Copyright 2023 Norbert Fekete.
 
-Headers and provided utilities for DirectOutput API are located under [DirectOutputHelper/Saitek](DirectOutputHelper/Saitek/DirectOutput.h).
+Headers and provided utilities for DirectOutput API are located under [DirectOutputHelper/Saitek](DirectOutputHelper/Saitek/DirectOutput.h).  
 Copyright 2008 Saitek
 
-Connection to Microsoft Flight Simulator 2020 is obtained via the SimConnect API, the
+Connection to Microsoft Flight Simulator 2020 is obtained via the SimConnect API, the  
 headers of which are provided by its installed SDK and do not form part of this source tree.
