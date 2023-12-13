@@ -12,7 +12,7 @@ namespace FSMfd::Pages
 {
 	using namespace Utils::String;
 
-	constexpr unsigned short SignificantDigits = std::numeric_limits<double>::digits10;
+	constexpr uint8_t SignificantDigits = std::numeric_limits<double>::digits10;
 
 
 	static unsigned CountLeadingSpaces(const std::wstring& s)
@@ -44,7 +44,7 @@ namespace FSMfd::Pages
 
 
 	CompactGauge::CompactGauge(unsigned displayLength, const SimVarDef& simvar) :
-		CompactGauge { displayLength, DisplayVar { L"", simvar, L"", std::min<unsigned short>(displayLength - 2, SignificantDigits) }}
+		CompactGauge { displayLength, DisplayVar { L"", simvar, L"", std::min<uint8_t>(displayLength - 2, SignificantDigits) }}
 	{
 	}
 

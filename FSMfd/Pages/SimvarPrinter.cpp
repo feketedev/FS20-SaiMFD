@@ -10,15 +10,17 @@ namespace FSMfd::Pages
 	using SimClient::SimvarValue;
 
 
-    SimvarPrinter CreatePrinterFor(RequestType type, DecimalLimit decimalLimit, bool truncableText)
+    SimvarPrinter CreatePrinterFor(RequestType type, DecimalUsage options, bool truncableText)
     {
-		// TODO: TypeMapping?
+		// MAYBE: Consider SimClient::FSTypeMapping? Currently a single signed/unsigned/fp. type can be chosen.
+		//		  FSMfd is fixed to use 32 bit integers and double.
+		//		  For strings, width can be configured freely - reading their value is independent of buffer length.
 		switch (type)
 		{
 			case RequestType::Real:
 				return [=](SimvarValue val, StringSection target, PaddedAlignment aln)
 				{
-					return PlaceNumber(val.AsDouble(), decimalLimit, target, aln);
+					return PlaceNumber(val.AsDouble(), options, target, aln);
 				};
 
 			case RequestType::UnsignedInt:
@@ -28,10 +30,9 @@ namespace FSMfd::Pages
 				};
 
 			case RequestType::SignedInt:
-				return [](SimvarValue val, StringSection target, PaddedAlignment aln)
+				return [sign{options.sign}](SimvarValue val, StringSection target, PaddedAlignment aln)
 				{
-					DBG_BREAK_M ("NO PLACENUMBER OVERLOAD YET!");	// TODO PlaceNumber(long long)
-					return PlaceNumber(val.AsInt64(), target, aln);
+					return PlaceNumber(val.AsInt32(), sign, target, aln);
 				};
 
 			case RequestType::String:
@@ -58,8 +59,8 @@ namespace FSMfd::Pages
 
 	SimvarPrinter CreateValuePrinterFor(const DisplayVar& dv, bool paddingCutsDecimals, bool truncable)
 	{
-		DecimalLimit dlim { dv.decimalCount, !paddingCutsDecimals };
-		return CreatePrinterFor(dv.definition.typeReqd, dlim, truncable);
+		DecimalUsage options { dv.decimalCount, !paddingCutsDecimals };
+		return CreatePrinterFor(dv.definition.typeReqd, options, truncable);
 	}
 
 

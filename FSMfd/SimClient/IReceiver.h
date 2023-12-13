@@ -61,9 +61,11 @@ namespace FSMfd::SimClient
 		const uint32_t* const	myEnd;
 
 		uint32_t	AsUnsigned32()	const;
+		uint64_t	AsUnsigned64()	const;
+		int32_t		AsInt32()		const;
 		int64_t		AsInt64()		const;
-		double		AsDouble()		const;
 		float		AsSingle()		const;
+		double		AsDouble()		const;
 
 		pair<const char*, size_t>	AsStringBuffer() const;
 		std::string_view			AsString()		 const;

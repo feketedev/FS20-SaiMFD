@@ -64,9 +64,23 @@ namespace FSMfd::SimClient
 	}
 
 
+
 	uint32_t SimvarValue::AsUnsigned32() const
 	{
 		return Checked<uint32_t>(myData, myEnd);
+	}
+
+
+	uint64_t SimvarValue::AsUnsigned64() const
+	{
+		return Checked<uint64_t>(myData, myEnd);
+	}
+
+
+
+	int32_t SimvarValue::AsInt32() const
+	{
+		return Checked<int32_t>(myData, myEnd);
 	}
 
 
@@ -76,16 +90,18 @@ namespace FSMfd::SimClient
 	}
 
 
-	double SimvarValue::AsDouble() const
-	{
-		return Checked<double>(myData, myEnd);
-	}
-
 
 	float SimvarValue::AsSingle() const
 	{
 		return Checked<float>(myData, myEnd);
 	}
+
+
+	double SimvarValue::AsDouble() const
+	{
+		return Checked<double>(myData, myEnd);
+	}
+
 
 
 	pair<const char*, size_t>	SimvarValue::AsStringBuffer() const

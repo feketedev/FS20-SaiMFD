@@ -21,7 +21,7 @@ namespace FSMfd
 	}
 
 
-	DisplayVar::DisplayVar(std::wstring text, const SimVarDef& def, unsigned short decimalCount) :
+	DisplayVar::DisplayVar(std::wstring text, const SimVarDef& def, uint8_t decimalCount) :
 		definition   { def },
 		text         { std::move(text) },
 		unitText     { DefaultUnitText(def) },
@@ -30,8 +30,8 @@ namespace FSMfd
 	}
 
 
-	DisplayVar::DisplayVar(std::wstring text, const SimVarDef& def,
-						   std::wstring unitText, unsigned short decimalCount) :
+	DisplayVar::DisplayVar(std::wstring text,     const SimVarDef& def,
+						   std::wstring unitText, uint8_t decimalCount) :
 		definition   { def },
 		text         { std::move(text) },
 		unitText     { std::move(unitText) },

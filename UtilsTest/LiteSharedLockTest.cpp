@@ -21,7 +21,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std::chrono_literals;
 
 
-namespace FsMfdTests
+namespace FSMfdTests
 {
 
 #pragma region Helpers

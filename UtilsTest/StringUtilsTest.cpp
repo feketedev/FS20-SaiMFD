@@ -1,6 +1,6 @@
 #include "CppUnitTest.h"
 
- #define  VERBOSE_TESTS
+// #define  VERBOSE_TESTS
 #include "TestUtils.h"
 
 #include "Utils/StringUtils.h"
@@ -11,7 +11,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace Utils::String;
 
 
-namespace FsMfdTests
+namespace FSMfdTests
 {
 #pragma region Exhaustive-test Helpers
 
@@ -404,6 +404,74 @@ namespace FsMfdTests
 					AssertPlaceNum(n, sect, expected, precision);
 				}
 			});
+		}
+
+
+		TEST_METHOD (PlaceNumber_SignOptions)
+		{
+			std::wstring  buff(5, L' ');
+			StringSection trg { buff, 0 };
+
+			Assert::IsTrue(PlaceNumber(1, trg));
+			Assert::AreEqual(L"    1", buff.c_str());
+			Assert::IsTrue(PlaceNumber(1, SignUsage::PrependPlus, trg));
+			Assert::AreEqual(L"   +1", buff.c_str());
+			Assert::IsTrue(PlaceNumber(1, SignUsage::PrependPlus | SignUsage::ForbidNegativeValues, trg));
+			Assert::AreEqual(L"   +1", buff.c_str());
+			Assert::IsTrue(PlaceNumber(1, SignUsage::ForbidNegativeValues, trg));
+			Assert::AreEqual(L"    1", buff.c_str());
+
+
+			Assert::IsTrue(PlaceNumber(5123, trg));
+			Assert::AreEqual(L" 5123", buff.c_str());
+			Assert::IsTrue(PlaceNumber(5123, SignUsage::PrependPlus, trg));
+			Assert::AreEqual(L"+5123", buff.c_str());
+
+			Assert::IsTrue(PlaceNumber(51234, trg));
+			Assert::AreEqual(L"51234", buff.c_str());
+			Assert::IsFalse(PlaceNumber(51234, SignUsage::PrependPlus, trg, Align::Right, L"n/a"));
+			Assert::AreEqual(L"  n/a", buff.c_str());
+			Assert::IsFalse(PlaceNumber(51234, SignUsage::PrependPlus | SignUsage::ForbidNegativeValues, trg, Align::Right, L"n/a"));
+			Assert::AreEqual(L"  n/a", buff.c_str());
+			Assert::IsTrue(PlaceNumber(51234, SignUsage::ForbidNegativeValues, trg));
+			Assert::AreEqual(L"51234", buff.c_str());
+
+			Assert::IsTrue(PlaceNumber(-1, trg));
+			Assert::AreEqual(L"   -1", buff.c_str());
+			Assert::IsTrue(PlaceNumber(1, SignUsage::PrependPlus, trg));
+			Assert::AreEqual(L"   +1", buff.c_str());
+			Assert::IsFalse(PlaceNumber(-1, SignUsage::PrependPlus | SignUsage::ForbidNegativeValues, trg, Align::Right, L"n/a"));
+			Assert::AreEqual(L"  n/a", buff.c_str());
+			Assert::IsFalse(PlaceNumber(-1, SignUsage::ForbidNegativeValues, trg, Align::Right, L"n/a"));
+			Assert::AreEqual(L"  n/a", buff.c_str());
+
+
+			// --- Decimals ---
+
+			Assert::IsTrue(PlaceNumber(1.0, 2, trg));
+			Assert::AreEqual(L" 1.00", buff.c_str());
+
+			for (SignUsage negOption : { SignUsage::Default, SignUsage::ForbidNegativeValues })
+			{
+				Assert::IsTrue(PlaceNumber(1.0, { 2, SignUsage::PrependPlus | negOption }, trg));
+				Assert::AreEqual(L"+1.00", buff.c_str());
+
+				Assert::IsTrue(PlaceNumber(12.0, { 2, negOption }, trg));
+				Assert::AreEqual(L"12.00", buff.c_str());
+				Assert::IsTrue(PlaceNumber(12.0, { 2, SignUsage::PrependPlus | negOption }, trg));
+				Assert::AreEqual(L"+12.0", buff.c_str());
+				Assert::IsTrue(PlaceNumber(123.0, { 2, SignUsage::PrependPlus | negOption }, trg));
+				Assert::AreEqual(L" +123", buff.c_str());
+
+				Assert::IsTrue(PlaceNumber(0.0, { 2, negOption }, trg));
+				Assert::AreEqual(L" 0.00", buff.c_str());
+			}
+
+			Assert::IsTrue(PlaceNumber(0.0, { 2, SignUsage::PrependPlus }, trg));
+			Assert::AreEqual(L"+0.00", buff.c_str());
+
+			Assert::IsFalse(PlaceNumber(-0.0, { 2, SignUsage::ForbidNegativeValues }, trg, Align::Right, L"n/a"));
+			Assert::AreEqual(L"  n/a", buff.c_str());
 		}
 	};
 }

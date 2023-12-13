@@ -107,7 +107,7 @@ namespace FSMfd::Led
 		template <class TT>
 		static constexpr auto GetAccessor(std::enable_if_t<std::is_integral_v<TT> && std::is_signed_v<TT>>* = nullptr)
 		{
-			return &SimvarValue::AsInt64;
+			return &SimvarValue::AsInt32;
 		}
 
 		template <class TT>
@@ -117,12 +117,14 @@ namespace FSMfd::Led
 		}
 
 
-		// TODO: Pointer? std::string?
+		using StringResult = decltype(std::declval<SimvarValue>().AsString());
+
 		template <class TT>
-		static constexpr auto GetAccessor(std::enable_if_t<std::is_pointer_v<TT>>* = nullptr)
+		static constexpr auto GetAccessor(std::enable_if_t<std::is_convertible_v<StringResult, TT>>* = nullptr)
 		{
 			return &SimvarValue::AsString;
 		}
+
 	public:
 		static constexpr auto accessor = GetAccessor<T>();
 

@@ -1,14 +1,14 @@
 #pragma once
 
 #ifdef VERBOSE_TESTS
-#	define VERBOSE(...)		::FsMfdTests::Print(__VA_ARGS__)
+#	define VERBOSE(...)		::FSMfdTests::Print(__VA_ARGS__)
 #else
 #	define VERBOSE(...)
 #endif
 
 
 
-namespace FsMfdTests
+namespace FSMfdTests
 {
 	void PrintVar(const wchar_t* s)	{ Microsoft::VisualStudio::CppUnitTestFramework::Logger::WriteMessage(s); }
 	void PrintVar(const char*	  s)	{ Microsoft::VisualStudio::CppUnitTestFramework::Logger::WriteMessage(s); }

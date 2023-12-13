@@ -174,9 +174,7 @@ namespace FSMfd
 			std::make_unique<CompactGauge>(3, DisplayVar { L".", { "AUTOPILOT MACH HOLD VAR", "percent" }, L"" })
 		}}, 0);
 		panel.Add(SwitchGauge  { L"VS", "AUTOPILOT VERTICAL HOLD", dotRight });
-		panel.Add(CompactGauge { 5, DisplayVar { L"", { "AUTOPILOT VERTICAL HOLD VAR", "ft/min", RequestType::UnsignedInt }, L"", 0 }}, 0);
-	 // panel.Add(CompactGauge { 5, DisplayVar { L"", { "AUTOPILOT VERTICAL HOLD VAR", "ft/min", RequestType::SignedInt }, L"" }}, 0);
-	 // TODO received DWORD can be signed or unsigned - int64 not really needed
+		panel.Add(CompactGauge { 5, DisplayVar { L"", { "AUTOPILOT VERTICAL HOLD VAR", "ft/min", RequestType::SignedInt }, L"" }}, 0);
  
 		// 3rd row
 		panel.Add(SwitchGauge  { L"HDG", "AUTOPILOT HEADING LOCK",	dotRight });
@@ -200,10 +198,10 @@ namespace FSMfd
 			engStack.Add(CompactGauge { 7, DisplayVar { L"OiP ",   { "ENG OIL PRESSURE:1",			   "psi" },							L"" } });
 			engStack.Add(CompactGauge { 8, DisplayVar { L"Mix ",   { "RECIP MIXTURE RATIO:1",		   "percent", RequestType::Real }} });
 			engStack.Add(CompactGauge { 7, DisplayVar { L"OiT",	   { "ENG OIL TEMPERATURE:1",		   "celsius" },						L"" } });
-			engStack.Add(CompactGauge { 8, DisplayVar { L"Prop ",  { "PROP BETA:1",					   "degrees" }} });
+			engStack.Add(CompactGauge { 8, DisplayVar { L"Prop ",  { "PROP BETA:1",					   "degrees", RequestType::SignedInt }} });
 			engStack.Add(CompactGauge { 7, DisplayVar { L"FF ",	   { "RECIP ENG FUEL FLOW:1",		   "pounds per hour" },				L"" } });
 			engStack.Add(CompactGauge { 8, DisplayVar { L"CARBT ", { "RECIP CARBURETOR TEMPERATURE:1", "celsius" },						L"" } });
-			engStack.Add(CompactGauge { 7, DisplayVar { L"VAC ",   { "SUCTION PRESSURE",			   "inHg", RequestType::Real },		L"", 1 } });
+			engStack.Add(CompactGauge { 7, DisplayVar { L"VAC ",   { "SUCTION PRESSURE",			   "inHg",	  RequestType::Real },	L"", 1 } });
 
 			return;
 		}

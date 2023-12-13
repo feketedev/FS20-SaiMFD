@@ -15,7 +15,7 @@ namespace Utils::String
 
 	constexpr wchar_t  Space = L' ';	 // clear character for alignments
 
-	constexpr unsigned Int32MaxChars	 = std::numeric_limits<int32_t>::digits10 + 1;		// mind the '-'
+	constexpr unsigned Int32MaxChars	 = std::numeric_limits<int32_t>::digits10 + 2;		// counteract round-rown + mind the '-'
 
 	constexpr unsigned SignificantDigits = std::numeric_limits<double>::digits10;
 	constexpr unsigned MaxFractionDigits = SignificantDigits;								// max fraction digits to write
@@ -200,13 +200,13 @@ namespace Utils::String
 
 
 	// Checked helper: must have enough space - preferred padding still can be reduced down to 0
-	static void AlignText(const std::wstring_view& src, const PaddedAlignment& aln, const StringSection& target)
+	static void AlignText(const std::wstring_view& src, const PaddedAlignment& aln, StringSection target)
 	{
 		LOGIC_ASSERT (PlaceText(src, target, aln));
 	}
 
 
-	bool PlaceText(const std::wstring_view& src, StringSection target, const PaddedAlignment& aln)
+	bool PlaceText(std::wstring_view src, StringSection target, PaddedAlignment aln)
 	{
 		if (target.Length < src.length())
 			return false;
@@ -222,7 +222,7 @@ namespace Utils::String
 
 
 	// padding takes precedence here
-	size_t PlaceTruncableText(const std::wstring_view& src, StringSection target, const PaddedAlignment& aln)
+	size_t PlaceTruncableText(std::wstring_view src, StringSection target, PaddedAlignment aln)
 	{
 		DBG_ASSERT_M (aln.pad < target.Length, "Unintended padding parameter?");		// should run fine though
 
@@ -232,7 +232,7 @@ namespace Utils::String
 	}
 
 
-	std::wstring AlignCenter(size_t lineLen, const std::wstring_view& src)
+	std::wstring AlignCenter(size_t lineLen, std::wstring_view src)
 	{
 		LOGIC_ASSERT (src.length() <= lineLen);
 
@@ -250,20 +250,53 @@ namespace Utils::String
 
 #pragma region PlaceNumber
 
-	bool PlaceNumber(int32_t value, StringSection target, const PaddedAlignment& aln, const std::wstring_view& overrunSymb)
+	static bool AlignIntegerChars(const wchar_t* digits, int printed, StringSection target, const PaddedAlignment& aln, const std::wstring_view& overrunSymb)
 	{
-		wchar_t num[Int32MaxChars + 1];
-		int		len = PrintTo(num, L"%d", value);
-		LOGIC_ASSERT (0 < len);
+		LOGIC_ASSERT (printed > 0);
 
-		if (len <= target.Length)
+		if (printed <= target.Length)
 		{
-			AlignText({ num, static_cast<size_t> (len) }, aln, target);
+			AlignText({ digits, static_cast<size_t>(printed) }, aln, target);
 			return true;
 		}
 		PlaceTruncableText(overrunSymb, target, aln);
 		return false;
 	}
+
+
+	bool PlaceNumber(uint32_t value, StringSection target, PaddedAlignment aln, std::wstring_view overrunSymb)
+	{
+		wchar_t num[Int32MaxChars + 1];
+		int		len = PrintTo(num, L"%u", value);
+
+		return AlignIntegerChars(num, len, target, aln, overrunSymb);
+	}
+
+
+	bool PlaceNumber(int32_t value, SignUsage sign, StringSection target, PaddedAlignment aln, std::wstring_view overrunSymb)
+	{
+		if (NonDefault(sign & SignUsage::ForbidNegativeValues) && value < 0)
+		{
+			PlaceTruncableText(overrunSymb, target, aln);
+			return false;
+		};
+
+		const wchar_t* format = NonDefault(sign & SignUsage::PrependPlus)
+			? L"%+d" 
+			: L"%d";
+
+		wchar_t num[Int32MaxChars + 1];
+		int		len = PrintTo(num, format, value);
+
+		return AlignIntegerChars(num, len, target, aln, overrunSymb);
+	}
+
+
+	bool PlaceNumber(int32_t value, StringSection target, PaddedAlignment aln, std::wstring_view overrunSymb)
+	{
+		return PlaceNumber(value, SignUsage {}, target, aln, overrunSymb);
+	}
+
 
 
 
@@ -293,24 +326,34 @@ namespace Utils::String
 	}
 
 
-	bool PlaceNumber(double value, DecimalLimit limit, StringSection target, const PaddedAlignment& aln, const std::wstring_view& overrunSymb)
+	bool PlaceNumber(double value, DecimalUsage opts, StringSection target, PaddedAlignment aln, std::wstring_view overrunSymb)
 	{
-		DBG_ASSERT(limit.maxDecimals <= MaxFractionDigits);
+		DBG_ASSERT(opts.maxDecimals <= MaxFractionDigits);
+
+		if (NonDefault(opts.sign & SignUsage::ForbidNegativeValues) && std::signbit(value))
+		{
+			PlaceTruncableText(overrunSymb, target, aln);
+			return false;
+		};
 
 		// Disable rounding, we want to consistently truncate here. Eg. Mach 0.95 != Mach 1.0
+		// MAYBE: should be controllable via DecimalUsage - doing so would require manual rounding after truncation to stay consistent.
 		struct RoundModeGuard {
 			const int origMode = std::fegetround();
 			RoundModeGuard()   { std::fesetround(FE_TOWARDZERO); }
 			~RoundModeGuard()  { std::fesetround(origMode);	   }
 		} modeGuard;
 
+		const wchar_t* format = NonDefault(opts.sign & SignUsage::PrependPlus) 
+			? L"%+.*f" 
+			: L"%.*f";
 
 		wchar_t num[PlaceDoubleMaxChars + 1];
-		int len = PrintTo(num, L"%.*f", limit.maxDecimals, value);
+		int len = PrintTo(num, format, opts.maxDecimals, value);
 		if (len > 0)
 		{
 			std::wstring_view unrounded { num, static_cast<size_t>(len) };
-			if (TryAlignDecimal(unrounded, target, aln, limit.preferDecimalsOverPadding))
+			if (TryAlignDecimal(unrounded, target, aln, opts.preferDecimalsOverPadding))
 				return true;
 		}
 		PlaceTruncableText(overrunSymb, target, aln);

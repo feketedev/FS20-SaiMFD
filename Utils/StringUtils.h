@@ -12,7 +12,7 @@
 namespace Utils::String
 {
 
-	enum class Align { Left, Right };
+	enum class Align : uint8_t { Left, Right };
 	
 
 	/// Request to align text in a direction but keep a given padding next to it,
@@ -41,16 +41,33 @@ namespace Utils::String
 
 
 
+	/// Flags that control printing of signed numbers.
+	enum class SignUsage : uint8_t {
+		Default				 = 0,
+		PrependPlus			 = 1,
+		ForbidNegativeValues = 2,	// Simple solution to acute problems
+		//AvoidNegativeZero	 = 4	// MAYBE: if needed, more complicated
+	};
+
+
 	/// Controls truncation of decimal numbers.
-	struct DecimalLimit {
+	struct DecimalUsage {
+		SignUsage	sign;
+
 		/// Requested precision, truncated further as needed. Max numeric_limits{double}::digits10.
-		unsigned short maxDecimals;
+		uint8_t		maxDecimals;
 
 		/// When room is scarce, violate padding before cutting decimals.
-		bool preferDecimalsOverPadding;
+		bool		preferDecimalsOverPadding;
 
-		constexpr DecimalLimit(unsigned short max, bool preferDecimals = false) :
-			maxDecimals { max }, preferDecimalsOverPadding { preferDecimals }
+
+		constexpr DecimalUsage(uint8_t max, bool preferDecimals = false) :
+			DecimalUsage { max, SignUsage::Default, preferDecimals }
+		{
+		}
+
+		constexpr DecimalUsage(uint8_t max, SignUsage su, bool preferDecimals = false) :
+			sign { su }, maxDecimals { max }, preferDecimalsOverPadding { preferDecimals }
 		{
 		}
 	};
@@ -95,27 +112,28 @@ namespace Utils::String
 	/// @param target 		Section of buffer to be updated.
 	/// @param overrunSymb 	Put this string (trimmed to target length) to signal if @p target was too short for the required digits.
 	/// @returns 			Had enough space for the digits.
-	bool PlaceNumber(int32_t value, StringSection target, const PaddedAlignment& = Align::Right, const std::wstring_view& overrunSymb = L"##");
+	bool PlaceNumber(uint32_t value, StringSection target, PaddedAlignment = Align::Right, std::wstring_view overrunSymb = L"##");
+	bool PlaceNumber(int32_t  value, StringSection target, PaddedAlignment = Align::Right, std::wstring_view overrunSymb = L"##");
+	bool PlaceNumber(int32_t  value, SignUsage, StringSection target, PaddedAlignment = Align::Right, std::wstring_view overrunSymb = L"##");
 	
 	/// Put space-padded digits (in decimal form) to a field specified as a section of a string buffer.
 	/// @param target 		Section of buffer to be updated.
 	/// @param overrunSymb 	Put this string (trimmed to target length) to signal if @p target was too short for the whole digits.
 	/// @returns 			Had enough space at least for the digits preceeding the decimal point.
-	bool PlaceNumber(double value, DecimalLimit, StringSection target, const PaddedAlignment& = Align::Right, const std::wstring_view& overrunSymb = L"##");
-
+	bool PlaceNumber(double value, DecimalUsage, StringSection target, PaddedAlignment = Align::Right, std::wstring_view overrunSymb = L"##");
 	
 
 	/// Put space-padded text to a field specified as a section of a string buffer.
 	/// @returns 	Number of characters copied from @p src.
-	size_t	PlaceTruncableText(const std::wstring_view& src, StringSection target, const PaddedAlignment&);
+	size_t	PlaceTruncableText(std::wstring_view src, StringSection target, PaddedAlignment);
 
 	/// Put space-padded, non-truncable text to a field specified as a section of a string buffer.
 	/// @returns 	Did copy @src, as @p target had enough room for it.
-	bool	PlaceText(const std::wstring_view& src, StringSection target, const PaddedAlignment&);
+	bool	PlaceText(std::wstring_view src, StringSection target, PaddedAlignment);
 
 
 
-	std::wstring AlignCenter(size_t lineLen, const std::wstring_view& text);
+	std::wstring AlignCenter(size_t lineLen, std::wstring_view text);
 
 
 
@@ -126,6 +144,11 @@ namespace Utils::String
 	{
 		return { str.begin(), str.end() };
 	}
+
+
+	inline SignUsage operator|(SignUsage a, SignUsage b)	{ return static_cast<SignUsage>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b)); }
+	inline SignUsage operator&(SignUsage a, SignUsage b)	{ return static_cast<SignUsage>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b)); }
+	inline bool		 NonDefault(SignUsage u)				{ return u != SignUsage::Default; }
 
 
 	inline wchar_t*			begin(StringSection& s)			{ return s.GetStart(); }
