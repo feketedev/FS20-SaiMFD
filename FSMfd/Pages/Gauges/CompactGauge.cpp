@@ -25,26 +25,37 @@ namespace FSMfd::Pages
 	}
 
 
-	CompactGauge::CompactGauge(const DisplayVar& dv) :
-		CompactGauge { DOHelper::X52Output::Page::DisplayLength, dv }
+	static bool IsStickyUnit(const std::wstring& unitSymbol)
+	{
+		if (unitSymbol.length() > 1)
+			return false;
+
+		return unitSymbol.empty()
+			|| unitSymbol[0] == L'°'
+			|| unitSymbol[0] == L'%';
+	}
+
+
+	CompactGauge::CompactGauge(const DisplayVar& dv, optional<bool> stickyUnit) :
+		CompactGauge { DOHelper::X52Output::Page::DisplayLength, dv, stickyUnit }
 	{
 	}
 
 
-	CompactGauge::CompactGauge(unsigned displayLength, const DisplayVar& dv) :
-		StackableGauge { displayLength, 1, { dv.definition } },
+	CompactGauge::CompactGauge(unsigned length, const DisplayVar& dv, optional<bool> stickyUnit) :
+		StackableGauge { length, 1, { dv.definition } },
 		printValue     { CreateValuePrinterFor(dv) },
-		unitPadding    { CountLeadingSpaces(dv.unitText) },
+		stickyUnit     { stickyUnit.value_or(IsStickyUnit(dv.unitText)) },
 		label          { dv.text },
-		unitSymbol     { dv.unitText.substr(unitPadding) }
+		unitSymbol	   { dv.unitText }
 	{
-		LOGIC_ASSERT_M (label.length() + dv.unitText.length() - unitPadding < displayLength,
-						"Insufficient space for defined texts.");
+		LOGIC_ASSERT_M (label.length() + unitSymbol.length() < length,
+						"Insufficient space for defined texts."		 );
 	}
 
 
-	CompactGauge::CompactGauge(unsigned displayLength, const SimVarDef& simvar) :
-		CompactGauge { displayLength, DisplayVar { L"", simvar, L"", std::min<uint8_t>(displayLength - 2, SignificantDigits) }}
+	CompactGauge::CompactGauge(unsigned length, const SimVarDef& simvar) :
+		CompactGauge { length, DisplayVar { L"", simvar, std::min<uint8_t>(length - 2, SignificantDigits), L"" }}
 	{
 	}
 
@@ -78,9 +89,11 @@ namespace FSMfd::Pages
 		DBG_ASSERT (measurement.VarCount == 1u);
 		DBG_ASSERT (display.size == 1);
 
-		auto [_, valueTrg, __] = DissectLine(display[0]);
+		auto [_, valueTrg, unitLast] = DissectLine(display[0]);
 
-		printValue(measurement[0], valueTrg, { Align::Right, unitPadding });
+		// TODO: support left alignment? (DisplayVar?)
+		unsigned padding = stickyUnit ? 0 : 1;
+		printValue(measurement[0], valueTrg, { Align::Right, padding });
 	}
 
 }	// namespace FSMfd::Pages

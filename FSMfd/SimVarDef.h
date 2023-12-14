@@ -2,6 +2,7 @@
 
 #include "FSMfdTypes.h"
 #include "Utils/BasicUtils.h"
+#include "Utils/StringUtils.h"
 #include <string>
 
 
@@ -37,10 +38,13 @@ namespace FSMfd
 
 	/// A simulation variable with generic presentation info.
 	struct DisplayVar {
+		using DecimalUsage = Utils::String::DecimalUsage;
+		using SignUsage	   = Utils::String::SignUsage;
+
 		SimVarDef		definition;
 		std::wstring	text;
 		std::wstring	unitText;
-		uint8_t			decimalCount = 2;		// discarded for ints
+		DecimalUsage	decimalUsage;
 
 		size_t ValueRoomOn(size_t displayLen) const
 		{
@@ -48,9 +52,9 @@ namespace FSMfd
 			return Utils::SubtractTillZero(displayLen, occup);
 		}
 
-		DisplayVar(std::wstring text, const SimVarDef&, uint8_t decimalCount = 2);
-		DisplayVar(std::wstring text, const SimVarDef&,
-				   std::wstring unitTextOverride,		uint8_t decimalCount = 2);
+		DisplayVar(std::wstring label, SimVarDef, DecimalUsage = 2, optional<std::wstring> unitAbbrev = Nothing);
+		DisplayVar(std::wstring label, SimVarDef, SignUsage,		optional<std::wstring> unitAbbrev = Nothing);
+		DisplayVar(std::wstring label, SimVarDef, std::wstring unitAbbrev);
 
 		static optional<std::wstring_view>  LabelWellknownUnit(const char* simUnit);
 	};

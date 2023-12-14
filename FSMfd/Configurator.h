@@ -51,6 +51,7 @@ namespace FSMfd
 		void AddAutopilotSettings(Pages::FSPageList&)	const;
 		void AddEnginesMonitor(Pages::FSPageList&)		const;
 		void AddRadioFreqSettings(Pages::FSPageList&)	const;
+		void AddRadioNavPage(Pages::FSPageList&)		const;
 
 
 		std::vector<Led::LedController> CreateGenericWarningEffects()	const;

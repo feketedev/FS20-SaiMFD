@@ -57,10 +57,9 @@ namespace FSMfd::Pages
 	}
 
 
-	SimvarPrinter CreateValuePrinterFor(const DisplayVar& dv, bool paddingCutsDecimals, bool truncable)
+	SimvarPrinter CreateValuePrinterFor(const DisplayVar& dv, bool truncable)
 	{
-		DecimalUsage options { dv.decimalCount, !paddingCutsDecimals };
-		return CreatePrinterFor(dv.definition.typeReqd, options, truncable);
+		return CreatePrinterFor(dv.definition.typeReqd, dv.decimalUsage, truncable);
 	}
 
 

@@ -29,6 +29,8 @@ namespace FSMfd
 	using namespace SimClient;
 	using namespace Led;
 	using namespace Pages;
+	using Utils::String::SignUsage;
+	using Utils::String::DecimalUsage;
 
 
 #pragma region Decision SimVars
@@ -121,6 +123,7 @@ namespace FSMfd
 		AddEnginesMonitor(pages);
 		AddAutopilotSettings(pages);
 		AddRadioFreqSettings(pages);
+		AddRadioNavPage(pages);
 
 		return pages;
 	}
@@ -197,11 +200,11 @@ namespace FSMfd
 			engStack.Add(CompactGauge { 8, DisplayVar { L"RPM ",   { "GENERAL ENG RPM:1",			   "RPM" }} });
 			engStack.Add(CompactGauge { 7, DisplayVar { L"OiP ",   { "ENG OIL PRESSURE:1",			   "psi" },							L"" } });
 			engStack.Add(CompactGauge { 8, DisplayVar { L"Mix ",   { "RECIP MIXTURE RATIO:1",		   "percent", RequestType::Real }} });
-			engStack.Add(CompactGauge { 7, DisplayVar { L"OiT",	   { "ENG OIL TEMPERATURE:1",		   "celsius" },						L"" } });
-			engStack.Add(CompactGauge { 8, DisplayVar { L"Prop ",  { "PROP BETA:1",					   "degrees", RequestType::SignedInt }} });
-			engStack.Add(CompactGauge { 7, DisplayVar { L"FF ",	   { "RECIP ENG FUEL FLOW:1",		   "pounds per hour" },				L"" } });
-			engStack.Add(CompactGauge { 8, DisplayVar { L"CARBT ", { "RECIP CARBURETOR TEMPERATURE:1", "celsius" },						L"" } });
-			engStack.Add(CompactGauge { 7, DisplayVar { L"VAC ",   { "SUCTION PRESSURE",			   "inHg",	  RequestType::Real },	L"", 1 } });
+			engStack.Add(CompactGauge { 7, DisplayVar { L"OiT",	   { "ENG OIL TEMPERATURE:1",		   "celsius" },							L"" } });
+			engStack.Add(CompactGauge { 8, DisplayVar { L"Prop",   { "PROP BETA:1",					   "degrees", RequestType::SignedInt }} });
+			engStack.Add(CompactGauge { 7, DisplayVar { L"FF ",	   { "RECIP ENG FUEL FLOW:1",		   "pounds per hour" },					L"" } });
+			engStack.Add(CompactGauge { 8, DisplayVar { L"CARBT ", { "RECIP CARBURETOR TEMPERATURE:1", "celsius", RequestType::SignedInt },	L"" } });
+			engStack.Add(CompactGauge { 7, DisplayVar { L"VAC ",   { "SUCTION PRESSURE",			   "inHg",	  RequestType::Real }, 1,	L"" } });
 
 			return;
 		}
@@ -231,15 +234,40 @@ namespace FSMfd
 		radioStack.Add(Label { L"ACT  -COM-  STBY" });
 		radioStack.Add(RadioGauge { "COM", 1 });
 		radioStack.Add(RadioGauge { "COM", 2 });
+		radioStack.Add(CompactGauge { 5, DisplayVar { L"",  { "COM ACTIVE FREQ IDENT:1", "", RequestType::String }} });
+		radioStack.Add(CompactGauge { 6, DisplayVar { L"/", { "COM ACTIVE FREQ IDENT:2", "", RequestType::String }} }, 0);
+
 		radioStack.Add(Label { L"ACT  -NAV-  STBY" });
 		radioStack.Add(RadioGauge { "NAV", 1 });
 		radioStack.Add(RadioGauge { "NAV", 2 });
-		radioStack.Add(CompactGauge { 8, DisplayVar { L"DME ",	{ "NAV DME:1", "nautical miles", RequestType::Real }, L"" } });
-		radioStack.Add(CompactGauge { 7, DisplayVar { L"",		{ "NAV DME:2", "nautical miles", RequestType::Real }} });
 		radioStack.Add(Label { L"ACT  -ADF-  STBY" });
 		radioStack.Add(RadioGauge { "ADF", 1 });
 		radioStack.Add(RadioGauge { "ADF", 2 });
 		radioStack.Add(CompactGauge { 11, DisplayVar { L"XPDR:", { "TRANSPONDER CODE:1", "Number" }} });
+	}
+
+
+	void Configurator::AddRadioNavPage(Pages::FSPageList& pages) const
+	{
+		GaugeStack& navStack = pages.Add<GaugeStack>();
+		
+		navStack.Add(CompactGauge { 4, DisplayVar { L"",  { "NAV IDENT:1", "",				 RequestType::String }} });
+		navStack.Add(Label { L"-NAV-" });
+		navStack.Add(CompactGauge { 4, DisplayVar { L"",  { "NAV IDENT:2", "",				 RequestType::String	}} });
+		navStack.Add(CompactGauge { 5, DisplayVar { L"»", { "NAV OBS:1",		  "degrees", RequestType::SignedInt }} });
+		navStack.Add(CompactGauge { 5, DisplayVar { L"»", { "NAV OBS:2",		  "degrees", RequestType::SignedInt }} }, 6);
+		navStack.Add(CompactGauge { 5, DisplayVar { L"",  { "NAV RADIAL ERROR:1", "degrees", RequestType::SignedInt }, SignUsage::PrependPlus } });
+		navStack.Add(CompactGauge { 5, DisplayVar { L"",  { "NAV RADIAL ERROR:2", "degrees", RequestType::SignedInt }, SignUsage::PrependPlus } }, 6);
+		navStack.Add(CompactGauge { 7, DisplayVar { L"",  { "NAV DME:1",   "nautical miles", RequestType::Real		}, SignUsage::ForbidNegativeValues } });
+		navStack.Add(CompactGauge { 7, DisplayVar { L"",  { "NAV DME:2",   "nautical miles", RequestType::Real		}, SignUsage::ForbidNegativeValues } }, 2);
+
+		navStack.Add(CompactGauge { 4, DisplayVar { L"", { "ADF IDENT:1", "",		  RequestType::String	 }} });
+		navStack.Add(Label { L"-ADF-" });																	 
+		navStack.Add(CompactGauge { 4, DisplayVar { L"", { "ADF IDENT:2", "",		  RequestType::String	 }} });
+		navStack.Add(CompactGauge { 5, DisplayVar { L"", { "ADF RADIAL:1", "degrees", RequestType::SignedInt }, SignUsage::PrependPlus } });
+		navStack.Add(CompactGauge { 5, DisplayVar { L"", { "ADF RADIAL:2", "degrees", RequestType::SignedInt }, SignUsage::PrependPlus } }, 4);
+		navStack.Add(CompactGauge { 7, DisplayVar { L"", { "ADF SIGNAL:1", "decibel", RequestType::Real		 },	SignUsage::ForbidNegativeValues } });
+		navStack.Add(CompactGauge { 7, DisplayVar { L"", { "ADF SIGNAL:2", "decibel", RequestType::Real		 },	SignUsage::ForbidNegativeValues } }, 2);
 	}
 
 #pragma endregion

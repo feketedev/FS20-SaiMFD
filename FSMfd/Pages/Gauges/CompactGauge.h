@@ -15,20 +15,20 @@ namespace FSMfd::Pages
 	class CompactGauge : public StackableGauge {
 
 		const SimvarPrinter		printValue;
-		const unsigned			unitPadding;
 		const std::wstring		label;
 		const std::wstring		unitSymbol;
+		const bool				stickyUnit;
 
 		std::array<Utils::String::StringSection, 3>		DissectLine(Utils::String::StringSection& display) const;
 
 	public:
 		/// Create a full-line gauge with label and indicated unit.
-		/// @remark Long numbers can extend into the leading spaces of the unitText.
-		CompactGauge(const DisplayVar&);
+		/// @param stickyUnit	false: unit is right justified, 1 padding / true: unit closely follows value / default by unit
+		CompactGauge(const DisplayVar&, optional<bool> stickyUnit = Nothing);
 
 		/// Create a limited length gauge with label and indicated unit.
-		/// @remark Long numbers can extend into the leading spaces of the unitText.
-		CompactGauge(unsigned displayLength, const DisplayVar&);
+		/// @param stickyUnit	false: unit is right justified, 1 padding / true: unit closely follows value / default by unit
+		CompactGauge(unsigned displayLength, const DisplayVar&, optional<bool> stickyUnit = Nothing);
 
 		/// Create a limited length gauge (value only).
 		CompactGauge(unsigned displayLength, const SimVarDef&);

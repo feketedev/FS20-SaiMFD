@@ -22,7 +22,7 @@ namespace FSMfd::SimClient
 		map[AsIndex(RequestType::Real)]        = SIMCONNECT_DATATYPE_FLOAT64;
 		map[AsIndex(RequestType::UnsignedInt)] = SIMCONNECT_DATATYPE_INT32;
 		map[AsIndex(RequestType::SignedInt)]   = SIMCONNECT_DATATYPE_INT64;
-		map[AsIndex(RequestType::String)]      = SIMCONNECT_DATATYPE_STRING256;
+		map[AsIndex(RequestType::String)]      = SIMCONNECT_DATATYPE_STRING32;
 
 		return map;
 	}

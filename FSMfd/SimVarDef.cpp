@@ -1,7 +1,5 @@
 #include "SimVarDef.h"
 
-#include "Utils/StringUtils.h"
-
 
 
 namespace FSMfd 
@@ -21,23 +19,26 @@ namespace FSMfd
 	}
 
 
-	DisplayVar::DisplayVar(std::wstring text, const SimVarDef& def, uint8_t decimalCount) :
-		definition   { def },
-		text         { std::move(text) },
-		unitText     { DefaultUnitText(def) },
-		decimalCount { decimalCount }
+	DisplayVar::DisplayVar(std::wstring label, SimVarDef def, DecimalUsage decimalUsage, optional<std::wstring> unitAbbrev) :
+		definition   { std::move(def) },
+		text         { std::move(label) },
+		unitText     { unitAbbrev.has_value() ? *std::move(unitAbbrev) : DefaultUnitText(definition)},
+		decimalUsage { decimalUsage }
 	{
 	}
 
 
-	DisplayVar::DisplayVar(std::wstring text,     const SimVarDef& def,
-						   std::wstring unitText, uint8_t decimalCount) :
-		definition   { def },
-		text         { std::move(text) },
-		unitText     { std::move(unitText) },
-		decimalCount { decimalCount }
+	DisplayVar::DisplayVar(std::wstring label, SimVarDef def, SignUsage signUsage, optional<std::wstring> unitAbbrev) :
+		DisplayVar { std::move(label), std::move(def), DecimalUsage { 2, signUsage }, std::move(unitAbbrev) }
 	{
 	}
+
+
+	DisplayVar::DisplayVar(std::wstring label, SimVarDef def, std::wstring unitAbbrev) :
+		DisplayVar { std::move(label), std::move(def), DecimalUsage { 2 }, std::move(unitAbbrev) }
+	{
+	}
+
 
 
 	const std::pair<const char*, const std::wstring_view> KnownUnitLabels[] = {
@@ -67,6 +68,8 @@ namespace FSMfd
 		{ "nautical miles",		L"nm" },
 		{ "nmile",				L"nm" },
 		{ "nmiles",				L"nm" },
+		{ "decibel",			L"dB" },
+		{ "decibels",			L"dB" },
 	};
 
 
