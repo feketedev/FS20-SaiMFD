@@ -21,8 +21,8 @@ namespace FSMfd
 
 	DisplayVar::DisplayVar(std::wstring label, SimVarDef def, DecimalUsage decimalUsage, optional<std::wstring> unitAbbrev) :
 		definition   { std::move(def) },
-		text         { std::move(label) },
-		unitText     { unitAbbrev.has_value() ? *std::move(unitAbbrev) : DefaultUnitText(definition)},
+		label        { std::move(label) },
+		unitSymbol   { unitAbbrev.has_value() ? *std::move(unitAbbrev) : DefaultUnitText(definition)},
 		decimalUsage { decimalUsage }
 	{
 	}

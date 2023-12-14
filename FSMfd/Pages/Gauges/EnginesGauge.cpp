@@ -108,7 +108,7 @@ namespace FSMfd::Pages
 		StackableGauge   { DisplayLen,
 						   engineCount <= 2 ? 1u : 2u,
 						   DefineVars(varProto.definition, std::min(4u, engineCount)) },
-		title		     { varProto.text + varProto.unitText },
+		title		     { varProto.label + varProto.unitSymbol },
 		layout           { CreateLayout(engineCount, title.length()) },
 		printValue	     { CreatePrinterFor(varProto.definition.typeReqd, OverriddenDecimalUsage(varProto)) }
 	{

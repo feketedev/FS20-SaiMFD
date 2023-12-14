@@ -14,16 +14,16 @@ namespace FSMfd::Pages
 
 	static StringSection GetTargetField(std::wstring& line, const DisplayVar& var)
 	{
-		return { line, var.text.length(), var.ValueRoomOn(SimPage::DisplayLength) };
+		return { line, var.label.length(), var.ValueRoomOn(SimPage::DisplayLength) };
 	}
 
 	static std::array<StringSection, 3>	DissectLine(std::wstring& line, const DisplayVar& var)
 	{
-		StringSection text { line, 0, var.text.length() };
-		StringSection num  = GetTargetField(line, var);
-		StringSection unit = num.FollowedBy(var.unitText.length());
+		StringSection label { line, 0, var.label.length() };
+		StringSection num   = GetTargetField(line, var);
+		StringSection unit  = num.FollowedBy(var.unitSymbol.length());
 
-		return { text, num, unit };
+		return { label, num, unit };
 	}
 
 
@@ -31,8 +31,8 @@ namespace FSMfd::Pages
 	{
 		auto [textTrg, _, unitTrg] = DissectLine(buffer, var);
 
-		textTrg.FillIn(var.text);
-		unitTrg.FillIn(var.unitText);
+		textTrg.FillIn(var.label);
+		unitTrg.FillIn(var.unitSymbol);
 	}
 
 #pragma endregion

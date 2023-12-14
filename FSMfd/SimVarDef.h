@@ -42,13 +42,13 @@ namespace FSMfd
 		using SignUsage	   = Utils::String::SignUsage;
 
 		SimVarDef		definition;
-		std::wstring	text;
-		std::wstring	unitText;
+		std::wstring	label;
+		std::wstring	unitSymbol;
 		DecimalUsage	decimalUsage;
 
 		size_t ValueRoomOn(size_t displayLen) const
 		{
-			size_t occup = text.length() + unitText.length();
+			size_t occup = label.length() + unitSymbol.length();
 			return Utils::SubtractTillZero(displayLen, occup);
 		}
 

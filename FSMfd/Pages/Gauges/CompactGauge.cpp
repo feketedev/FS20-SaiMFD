@@ -45,9 +45,9 @@ namespace FSMfd::Pages
 	CompactGauge::CompactGauge(unsigned length, const DisplayVar& dv, optional<bool> stickyUnit) :
 		StackableGauge { length, 1, { dv.definition } },
 		printValue     { CreateValuePrinterFor(dv) },
-		stickyUnit     { stickyUnit.value_or(IsStickyUnit(dv.unitText)) },
-		label          { dv.text },
-		unitSymbol	   { dv.unitText }
+		stickyUnit     { stickyUnit.value_or(IsStickyUnit(dv.unitSymbol)) },
+		label          { dv.label },
+		unitSymbol	   { dv.unitSymbol }
 	{
 		LOGIC_ASSERT_M (label.length() + unitSymbol.length() < length,
 						"Insufficient space for defined texts."		 );
