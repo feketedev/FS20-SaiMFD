@@ -9,7 +9,7 @@
 namespace FSMfd::Pages
 {
 
-	class ConditionalGauge : public StackableGauge {
+	class ConditionalGauge final : public StackableGauge {
 
 		/*const*/ std::array<std::unique_ptr<StackableGauge>, 2>	gauges;
 		const std::array<std::string, 2>							triggerVarNames;

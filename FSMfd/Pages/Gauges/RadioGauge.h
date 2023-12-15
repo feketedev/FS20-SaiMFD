@@ -6,7 +6,7 @@
 
 namespace FSMfd::Pages
 {
-	class RadioGauge : public StackableGauge {
+	class RadioGauge final : public StackableGauge {
 
 		void (&printFreq) (unsigned, Utils::String::StringSection);
 
@@ -15,7 +15,6 @@ namespace FSMfd::Pages
 
 		void Clean(DisplayArea&)						override;
 		void Update(const SimvarSublist&, DisplayArea&)	override;
-
 	};
 
 

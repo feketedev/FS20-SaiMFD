@@ -9,7 +9,7 @@
 namespace FSMfd::Pages
 {
 
-	class ReadoutScrollList : public SimPage {
+	class ReadoutScrollList final : public SimPage {
 		
 		std::vector<std::pair<DisplayVar, SimvarPrinter>>	variables;
 		

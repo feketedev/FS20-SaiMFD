@@ -1,8 +1,6 @@
 #include "CompactGauge.h"
 
-#include "SimVarDef.h"
 #include "DirectOutputHelper/X52Page.h"		// DisplayLen
-#include "Pages/SimvarPrinter.h"
 #include "Utils/StringUtils.h"
 #include "Utils/Debug.h"
 
@@ -14,15 +12,6 @@ namespace FSMfd::Pages
 
 	constexpr uint8_t SignificantDigits = std::numeric_limits<double>::digits10;
 
-
-	static unsigned CountLeadingSpaces(const std::wstring& s)
-	{
-		unsigned i = 0;
-		while (i < s.length() && s[i] == L' ')
-			++i;
-
-		return i;
-	}
 
 
 	static bool IsStickyUnit(const std::wstring& unitSymbol)
@@ -95,5 +84,6 @@ namespace FSMfd::Pages
 		unsigned padding = stickyUnit ? 0 : 1;
 		printValue(measurement[0], valueTrg, { Align::Right, padding });
 	}
+
 
 }	// namespace FSMfd::Pages

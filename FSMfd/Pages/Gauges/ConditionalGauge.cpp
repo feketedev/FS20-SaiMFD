@@ -1,5 +1,4 @@
 #include "ConditionalGauge.h"
-#include "SimVarDef.h"
 #include "SimClient/IReceiver.h"
 #include "Utils/Debug.h"
 

@@ -7,7 +7,7 @@
 namespace FSMfd::Pages
 {
 
-	class Label : public StackableGauge {
+	class Label final : public StackableGauge {
 		std::wstring text;
 
 	public:

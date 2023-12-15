@@ -16,7 +16,7 @@ namespace FSMfd::Pages
 	///		each row's height is defined by the first gauge in it,
 	///		which can be followed only by smaller or same height gauges.
 	///	  *	Scrolling is multiplied around taller gauges.
-	class GaugeStack : public SimPage {
+	class GaugeStack final : public SimPage {
 
 		struct ActiveGauge {
 			std::unique_ptr<StackableGauge>	alg;

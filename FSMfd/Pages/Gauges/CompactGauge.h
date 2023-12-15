@@ -12,7 +12,7 @@ namespace FSMfd::Pages
 {
 
 	/// Simplistic gauge with optional label and unit around the measured value.
-	class CompactGauge : public StackableGauge {
+	class CompactGauge final : public StackableGauge {
 
 		const SimvarPrinter		printValue;
 		const std::wstring		label;
