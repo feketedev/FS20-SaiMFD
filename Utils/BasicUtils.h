@@ -83,18 +83,6 @@ namespace Utils
 
 
 
-	// ----- For Enums ------------------------------------------------------------------
-
-	/// Friendlier cast of enum classes to array index.
-	template <class E>
-	constexpr std::underlying_type_t<E>	AsIndex(E e) noexcept
-	{
-		static_assert(std::is_unsigned_v<std::underlying_type_t<E>>, "This enum can be negative!");
-		return static_cast<std::underlying_type_t<E>>(e);
-	}
-
-
-
 	// ---- For Containers --------------------------------------------------------------
 
 	template<class Trg, class Src>

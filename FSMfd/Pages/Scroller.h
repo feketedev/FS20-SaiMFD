@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DirectOutputHelper/X52Page.h"
+#include "Utils/CastUtils.h"
 
 
 
@@ -42,7 +43,7 @@ namespace FSMfd::Pages
 
 	inline unsigned Scroller::LineCount() const
 	{
-		return static_cast<unsigned>(unseenLines.size())
+		return Utils::Cast::Practically<unsigned>(unseenLines.size())
 			 + (useEmptyGuards ? 1u : 3u);
 	}
 

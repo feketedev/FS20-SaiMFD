@@ -13,9 +13,6 @@
 namespace FSMfd::SimClient
 {
 
-	using Utils::AsIndex;
-
-
 	FSTypeMapping GetDefaultTypeMapping()
 	{
 		FSTypeMapping map;

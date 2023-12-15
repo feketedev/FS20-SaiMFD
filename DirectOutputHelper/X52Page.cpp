@@ -2,12 +2,15 @@
 #include "DirectOutputInstance.h"
 #include "DirectOutputError.h"
 #include "Saitek/DirectOutputImpl.h"
+#include "Utils/CastUtils.h"
 #include "Utils/Debug.h"
 
 
 
 namespace DOHelper
 {
+	using namespace Utils::Cast;
+
 
 	X52Output::Page::Page(uint32_t id) : Id { id }
 	{
@@ -71,8 +74,7 @@ namespace DOHelper
                 continue;
 
             const wchar_t* s = lines[i].data();
-            DWORD        len = static_cast<DWORD>(lines[i].length());
-			// NOTE: very theoretic overflow if 8GB of text -> would cause weird truncation
+            DWORD        len = Practically<DWORD>(lines[i].length());
 
             SAI_ASSERT (lib.SetString(device->Handle(), Id, i, len, s));
         }

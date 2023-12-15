@@ -20,8 +20,8 @@ namespace FSMfd::Pages
 
 
 	ColumnGauge::ColumnGauge(std::wstring header, std::vector<SimVarDef> vars, DecimalUsage decimals) :
-		StackableGauge { static_cast<unsigned>(header.length()),
-						 static_cast<unsigned>(vars.size() + 1),
+		StackableGauge { Practically<unsigned>(header.length()),
+						 Practically<unsigned>(vars.size() + 1),
 						 std::move(vars)						},
 		header		   { std::move(header) },
 		printers	   { CreatePrinters(this->Variables, decimals) }
@@ -38,7 +38,7 @@ namespace FSMfd::Pages
 
 
 	ColumnGauge::ColumnGauge(unsigned width, std::vector<SimVarDef> vars, DecimalUsage decimals) :
-		StackableGauge { width, static_cast<unsigned>(vars.size()), std::move(vars) },
+		StackableGauge { width, Practically<unsigned>(vars.size()), std::move(vars) },
 		printers	   { CreatePrinters(this->Variables, decimals) }
 	{
 		LOGIC_ASSERT (!this->Variables.empty());
@@ -71,7 +71,7 @@ namespace FSMfd::Pages
 		DBG_ASSERT (display.size == Variables.size() + HasHeader());
 		DBG_ASSERT (measurement.VarCount == Variables.size());
 
-		for (size_t i = 0; i < Variables.size(); i++)
+		for (SimClient::VarIdx i = 0; i < Variables.size(); i++)
 		{
 			const SimvarPrinter& print = printers[i];
 			print(measurement[i], display[i + HasHeader()], Align::Right);

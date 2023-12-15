@@ -16,7 +16,7 @@ namespace FSMfd::Pages
 		const std::vector<Field>	layout;
 		const SimvarPrinter			printValue;
 		
-		unsigned EngCount() const	{ return Variables.size(); }
+		unsigned EngCount() const	{ return Practically<unsigned>(Variables.size()); }
 
 		static std::vector<Field>	CreateLayout(unsigned engCount, unsigned titleLen);
 

@@ -7,7 +7,7 @@ namespace FSMfd::Pages
 {
 
 	Label::Label(std::wstring text) :
-		StackableGauge { static_cast<unsigned>(text.length()), 1, {} },
+		StackableGauge { Practically<unsigned>(text.length()), 1, {} },
 		text		   { std::move(text) }
 	{
 	}

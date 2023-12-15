@@ -20,10 +20,6 @@
 
 namespace FSMfd::SimClient 
 {
-	using Utils::AsIndex;
-
-
-
 
 #pragma region Connection
 
@@ -102,7 +98,7 @@ namespace FSMfd::SimClient
 	{
 		DBG_ASSERT (!varPositions.empty());
 
-		return varPositions.size() - 1;
+		return Implied<VarIdx>(varPositions.size()) - 1;
 	}
 
 
@@ -198,13 +194,13 @@ namespace FSMfd::SimClient
 	{
 		if (life == GroupLifetime::Resettable)
 		{
-			GroupId next = MaxPermanentGroups + varGroups.size();
+			GroupId next = MaxPermanentGroups + Practically<GroupId>(varGroups.size());
 			varGroups.emplace_back();
 			return next;
 		}
 		DBG_ASSERT (life == GroupLifetime::Permanent);
 
-		GroupId next = varGroupsPermanent.size();
+		GroupId next = Implied<GroupId>(varGroupsPermanent.size());
 		LOGIC_ASSERT_M (next < MaxPermanentGroups, "Permanent Simvar groups exhausted.");
 		varGroupsPermanent.emplace_back();
 		return next;
@@ -337,7 +333,7 @@ namespace FSMfd::SimClient
 				ClearVarGroup(id);
 			id++;
 		}
-		exhaustedGroupIdCount += varGroups.size();
+		exhaustedGroupIdCount += Practically<GroupId>(varGroups.size());
 	}
 
 #pragma endregion
@@ -746,7 +742,7 @@ namespace FSMfd::SimClient
 			return true;
 		}
 
-		unsigned short addition = std::chrono::duration_cast<std::chrono::seconds>(now - firstTime).count();
+		auto addition = static_cast<unsigned>(std::chrono::duration_cast<std::chrono::seconds>(now - firstTime).count());
 
 		auto pushMockData = [this, addition, now](GroupId gid)
 		{
@@ -772,7 +768,7 @@ namespace FSMfd::SimClient
 		for (GroupId gid = 0; gid < varGroupsPermanent.size(); gid++)
 			pushMockData(gid);
 
-		for (unsigned i = 0; i < varGroups.size(); i++)
+		for (GroupId i = 0; i < varGroups.size(); i++)
 			pushMockData(i + MaxPermanentGroups);
 
 		bool duringConfig = varGroups.empty();

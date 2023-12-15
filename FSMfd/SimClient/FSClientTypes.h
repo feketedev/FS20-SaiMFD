@@ -12,6 +12,5 @@ namespace FSMfd::SimClient
 {
 	class FSClient;
 
-	using FSTypeMapping = std::array< SIMCONNECT_DATATYPE, 
-									  static_cast<size_t>(RequestType::COUNT) >;
+	using FSTypeMapping = std::array<SIMCONNECT_DATATYPE, AsIndex(RequestType::COUNT)>;
 }

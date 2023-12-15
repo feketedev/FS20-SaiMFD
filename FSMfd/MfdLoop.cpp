@@ -31,7 +31,7 @@ namespace FSMfd
 	{
 		unsigned ticksPassed = (now < tick)
 			? 0
-			: 1 + (now - tick) / ival;
+			: 1 + Practically<unsigned>((now - tick) / ival);
 
 		tick += ival * ticksPassed;
 		return ticksPassed;
@@ -42,7 +42,7 @@ namespace FSMfd
 	{
 		DBG_ASSERT (tick <= now);
 
-		unsigned ticksPassed = (now - tick) / ival;
+		unsigned ticksPassed = Practically<unsigned>((now - tick) / ival);
 
 		tick += ival * ticksPassed;
 		return ticksPassed;
@@ -305,8 +305,8 @@ namespace FSMfd
 				Debug::Warning("SimConnect queue filling up!");
 		};
 		
-		const unsigned  syncingPollCycles  = (nextUpdate.Interval - HotReceiveDelay) / HotReceiveDelay;
-		const unsigned  responsePollCycles = 0.35 * nextReceive.Interval / HotReceiveDelay;
+		const unsigned  syncingPollCycles  = Practically<unsigned>((nextUpdate.Interval - HotReceiveDelay) / HotReceiveDelay);
+		const unsigned  responsePollCycles = Practically<unsigned>(nextReceive.Interval / HotReceiveDelay / 3);
 		const SimPage*	hotPollingPage = nullptr;
 		unsigned		hotPollsRemain = 0;
 
@@ -355,7 +355,7 @@ namespace FSMfd
 					// TODO: No LED update on failed sync. Try to refactor this anyway.
 					leds.ApplyUpdate();
 					auto delayed = std::chrono::duration_cast<std::chrono::milliseconds>((syncingPollCycles - hotPollsRemain) * HotReceiveDelay);
-					Debug::Info("MfdLoop", "Synced polling with FS. Delayed [ms]:", delayed.count());
+					Debug::Info("MfdLoop", "Synced polling with FS. Delayed [ms]:", Practically<int>(delayed.count()));
 					nextReceive.Reset(now, true);		// just done
 					nextAnimation.Reset(now, true);		// don't animate immediately
 					nextUpdate.Reset(now);

@@ -1,6 +1,7 @@
 #include "StringUtils.h"
 
 #include "BasicUtils.h"
+#include "CastUtils.h"
 #include "Debug.h"
 
 #include <cfenv>
@@ -256,7 +257,7 @@ namespace Utils::String
 
 		if (printed <= target.Length)
 		{
-			AlignText({ digits, static_cast<size_t>(printed) }, aln, target);
+			AlignText({ digits, Cast::Implied<unsigned>(printed) }, aln, target);
 			return true;
 		}
 		PlaceTruncableText(overrunSymb, target, aln);
@@ -352,7 +353,7 @@ namespace Utils::String
 		int len = PrintTo(num, format, opts.maxDecimals, value);
 		if (len > 0)
 		{
-			std::wstring_view unrounded { num, static_cast<size_t>(len) };
+			std::wstring_view unrounded { num, Cast::Implied<unsigned>(len) };
 			if (TryAlignDecimal(unrounded, target, aln, opts.preferDecimalsOverPadding))
 				return true;
 		}

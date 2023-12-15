@@ -36,6 +36,9 @@
     <ClInclude Include="IoUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CastUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Debug.cpp">

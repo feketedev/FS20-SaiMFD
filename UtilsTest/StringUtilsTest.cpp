@@ -348,7 +348,7 @@ namespace FSMfdTests
 
 		TEST_METHOD (PlaceNumber_Extremes)
 		{
-			constexpr double signif = std::numeric_limits<double>::digits10;
+			constexpr uint8_t signif = std::numeric_limits<double>::digits10;
 
 			const double minGuaranteed = std::nextafter(PlaceDoubleLowerLimit, +Inf);
 			const double maxGuaranteed = std::nextafter(PlaceDoubleUpperLimit, -Inf);

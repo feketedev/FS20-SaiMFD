@@ -23,13 +23,13 @@ namespace FSMfd::SimClient
 
 
 	// according to SimConnect SDK
-	static constexpr unsigned MaxVarsPerGroup = 1000;
+	static constexpr VarIdx		MaxVarsPerGroup = 1000;
 
 	// SimConnect_ClearClientDataDefinition workaround:
 	// "Cleared" groups cannot be reused with FS for some reason
 	// -> split GroupId-space to Permanent-Resettable parts
 	// -> internally every Reset shifts Resettable Id-space
-	static constexpr unsigned MaxPermanentGroups = 256;
+	static constexpr GroupId	MaxPermanentGroups = 256;
 
 
 

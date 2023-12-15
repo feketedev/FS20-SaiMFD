@@ -29,8 +29,8 @@ namespace FSMfd::Led
 		/// Define a static color.
 		BlinkPattern(optional<Color>);
 
-		bool				IsStatic()	   const	{ return elements.size() == 1; }
-		unsigned			StepCount()	   const	{ return elements.size(); }
+		bool				IsStatic()	   const	{ return StepCount() == 1; }
+		unsigned			StepCount()	   const	{ return Practically<unsigned>(elements.size()); }
 		unsigned			CurrentStep()  const	{ return current; }
 		optional<Color>		CurrentColor() const	{ return elements[current].Color; }
 		Duration			HoldTime()	   const	{ return elements[current].Length - elapsed; }

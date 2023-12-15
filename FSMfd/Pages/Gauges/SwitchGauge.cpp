@@ -9,7 +9,7 @@ namespace FSMfd::Pages
 {
 	static unsigned SumWidth(const std::wstring title, const SwitchGauge::SideSymbols& symbs)
 	{
-		return static_cast<unsigned>(title.size())
+		return Practically<unsigned>(title.length())
 			 + symbs.first.has_value()
 			 + symbs.second.has_value();
 	}

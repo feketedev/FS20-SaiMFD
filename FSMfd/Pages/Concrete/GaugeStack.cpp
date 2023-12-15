@@ -113,7 +113,7 @@ namespace FSMfd::Pages
 		unsigned y = last.posY;
 		if (newRow)
 		{
-			unsigned iHead = gauges.size();
+			unsigned iHead = Practically<unsigned>(gauges.size());
 			while (0 < iHead && gauges[iHead - 1].posY == last.posY)
 				--iHead;
 
@@ -140,7 +140,7 @@ namespace FSMfd::Pages
 
 	unsigned GaugeStack::RowCount() const
 	{
-		return static_cast<unsigned>(byRow.size()) - 1;
+		return Practically<unsigned>(byRow.size()) - 1;
 	}
 
 

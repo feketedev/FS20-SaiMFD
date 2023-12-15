@@ -57,7 +57,7 @@ namespace FSMfd::Led
 
 		optional<unsigned>	DetectState(const SimClient::SimvarList& vars) const override
 		{
-			if (0 < gate.DetectState(vars))
+			if (0u < gate.DetectState(vars))
 				return detector.DetectState(vars);
 
 			return Nothing;

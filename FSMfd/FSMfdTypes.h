@@ -1,12 +1,14 @@
 #pragma once
 
 #include "DirectOutputHelper/DOHelperTypes.h"
+#include "Utils/CastUtils.h"
 #include <optional>
 
 
 
 namespace FSMfd
 {
+	using namespace Utils::Cast;
 	using namespace std::chrono_literals;
 
 	using TimePoint = DOHelper::TimePoint;

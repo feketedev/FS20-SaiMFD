@@ -1,6 +1,7 @@
 #include "ConditionalGauge.h"
 #include "SimClient/IReceiver.h"
 #include "Utils/Debug.h"
+#include <type_traits>
 
 
 
@@ -37,8 +38,10 @@ namespace FSMfd::Pages
 	}
 
 
-	static ChoiceList<SimClient::VarIdx>  CalcVarPositions(SimClient::VarIdx triggerCount, const ChoiceList<std::unique_ptr<StackableGauge>>& gauges)
+	static ChoiceList<SimClient::VarIdx>  CalcVarPositions(const ChoiceList<std::unique_ptr<StackableGauge>>& gauges)
 	{
+		constexpr SimClient::VarIdx triggerCount = std::tuple_size_v<std::decay_t<decltype(gauges)>>;
+
 		ChoiceList<SimClient::VarIdx> res;
 
 		SimClient::VarIdx pos = triggerCount;
@@ -55,7 +58,7 @@ namespace FSMfd::Pages
 		StackableGauge  { MaxWidth(gauges), MaxHeight(gauges), { SummarizeSimvars(triggerVarNames, gauges) } },
 		gauges          { std::move(gauges) },
 		triggerVarNames { std::move(triggerVarNames) },
-		varPositions	{ CalcVarPositions(triggerVarNames.size(), this->gauges)}
+		varPositions	{ CalcVarPositions(this->gauges) }
 	{
 	}
 

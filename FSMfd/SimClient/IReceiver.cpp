@@ -16,13 +16,13 @@ namespace FSMfd::SimClient
 #pragma region SimvarList
 
 	SimvarList::SimvarList(const std::vector<size_t>& poss, const uint32_t* data) :
-		SimvarList { poss.size() - 1, poss.data(), data }
+		SimvarList { Implied<VarIdx>(poss.size()) - 1, poss.data(), data }
 	{
 		DBG_ASSERT (!poss.empty());
 	}
 
 
-	SimvarList::SimvarList(size_t count, const size_t* poss, const uint32_t* data) :
+	SimvarList::SimvarList(VarIdx count, const size_t* poss, const uint32_t* data) :
 		varCount  { count },
 		positions { poss },
 		data      { data }

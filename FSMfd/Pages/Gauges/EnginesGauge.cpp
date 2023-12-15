@@ -109,7 +109,7 @@ namespace FSMfd::Pages
 						   engineCount <= 2 ? 1u : 2u,
 						   DefineVars(varProto.definition, std::min(4u, engineCount)) },
 		title		     { varProto.label + varProto.unitSymbol },
-		layout           { CreateLayout(engineCount, title.length()) },
+		layout           { CreateLayout(engineCount, Practically<unsigned>(title.length())) },
 		printValue	     { CreatePrinterFor(varProto.definition.typeReqd, OverriddenDecimalUsage(varProto)) }
 	{
 		LOGIC_ASSERT_M (varProto.definition.name.back() == ':', "EnginesGauge expects an indexable engine variable!");

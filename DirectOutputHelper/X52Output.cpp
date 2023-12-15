@@ -6,6 +6,7 @@
 #include "X52Output.h"
 #include "X52Page.h"
 #include "Utils/BasicUtils.h"
+#include "Utils/CastUtils.h"
 
 #include "Saitek/DirectOutputImpl.h"
 #include <algorithm>
@@ -15,7 +16,7 @@
 
 namespace DOHelper
 {
-	using Utils::AsIndex;
+	using Utils::Cast::AsIndex;
 
 
 

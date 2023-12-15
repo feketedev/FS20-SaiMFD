@@ -33,7 +33,7 @@ namespace FSMfd::SimClient
 	/// A variable group as received from SimConnect. 
 	/// Valid under Receive call. Use @a CopyValues to store.
 	class SimvarList {
-		const size_t			varCount;
+		const VarIdx			varCount;
 		const size_t*	const	positions;		// last denotes end of data
 		const uint32_t*	const	data;
 
@@ -50,7 +50,7 @@ namespace FSMfd::SimClient
 		SimvarList [[nodiscard]] CopyValues(uint32_t* buffer) const;
 
 		SimvarList(const std::vector<size_t>&, const uint32_t*);
-		SimvarList(size_t, const size_t*, const uint32_t*);
+		SimvarList(VarIdx, const size_t*,      const uint32_t*);
 	};
 
 

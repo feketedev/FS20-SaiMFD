@@ -58,7 +58,7 @@ namespace FSMfd::Pages
 	ReadoutScrollList::ReadoutScrollList(uint32_t id, const Dependencies& deps, std::vector<DisplayVar> dvars) :
 		SimPage   { id, deps },
 		variables { ToPrintableVariables(std::move(dvars)) },
-		scroller  { *this, std::max<unsigned>(3, variables.size()) }
+		scroller  { *this, std::max(3u, Practically<unsigned>(variables.size())) }
 	{
 		uint32_t i = 0;
 		for (const auto& [var, _] : variables)
@@ -91,7 +91,7 @@ namespace FSMfd::Pages
 		LOGIC_ASSERT (values.VarCount() == variables.size());
 		using namespace Utils::String;
 
-		for (size_t i = 0; i < values.VarCount(); i++)
+		for (VarIdx i = 0; i < values.VarCount(); i++)
 		{
 			const auto& [var, print] = variables[i];
 

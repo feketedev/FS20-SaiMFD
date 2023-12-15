@@ -36,7 +36,7 @@ namespace FSMfd::Pages
 		const unsigned					DisplayHeight;
 		const std::vector<SimVarDef>	Variables;
 
-		auto VarCount() const	{ return static_cast<SimClient::VarIdx>(Variables.size()); }
+		auto VarCount() const	{ return Practically<SimClient::VarIdx>(Variables.size()); }
 
 		virtual void Clean(DisplayArea&)						= 0;
 		virtual void Update(const SimvarSublist&, DisplayArea&) = 0;

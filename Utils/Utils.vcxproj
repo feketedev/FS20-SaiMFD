@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicUtils.h" />
+    <ClInclude Include="CastUtils.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="DoubleShorthands.h" />
     <ClInclude Include="IoUtils.h" />
