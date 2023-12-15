@@ -15,6 +15,7 @@
 #include "Pages/Concrete/ReadoutScrollList.h"
 #include "Pages/Gauges/EnginesGauge.h"
 #include "Pages/Gauges/CompactGauge.h"
+#include "Pages/Gauges/ColumnGauge.h"
 #include "Pages/Gauges/ConditionalGauge.h"
 #include "Pages/Gauges/RadioGauge.h"
 #include "Pages/Gauges/SwitchGauge.h"
@@ -46,6 +47,8 @@ namespace FSMfd
 		client.AddVar(configVars.Group, { "NUMBER OF ENGINES",	 "Number" });
 		client.AddVar(configVars.Group, { "ENGINE TYPE",		 "Enum" });
 		client.AddVar(configVars.Group, { "SPOILER AVAILABLE",	 "Bool" });
+		client.AddVar(configVars.Group, { "FLAPS AVAILABLE",	 "Bool" });
+		client.AddVar(configVars.Group, { "AUTOPILOT AVAILABLE", "Bool" });
 	}
 
 
@@ -104,6 +107,18 @@ namespace FSMfd
 		return configVars.Get()[4].AsUnsigned32() > 0;
 	}
 
+
+	bool Configurator::HasFlaps() const
+	{
+		return configVars.Get()[5].AsUnsigned32() > 0;
+	}
+
+
+	bool Configurator::HasAutopilot() const
+	{
+		return configVars.Get()[6].AsUnsigned32() > 0;
+	}
+
 #pragma endregion
 
 
@@ -121,7 +136,8 @@ namespace FSMfd
 		AddBaseInstruments(pages);
 		AddConfigInstruments(pages);
 		AddEnginesMonitor(pages);
-		AddAutopilotSettings(pages);
+		if (HasAutopilot())
+			AddAutopilotSettings(pages);
 		AddRadioFreqSettings(pages);
 		AddRadioNavPage(pages);
 
@@ -144,14 +160,29 @@ namespace FSMfd
 
 	void Configurator::AddConfigInstruments(FSPageList& pages) const
 	{
-		std::vector<DisplayVar> configVars {
-			// TODO: Left-Right, trim etc.
-			{ L"SPOIL:",	SimVarDef { "SPOILERS LEFT POSITION",	"Percent", RequestType::Real } },
-			{ L"AT ARM:",	SimVarDef { "AUTOPILOT THROTTLE ARM",	"Bool" } },
-			{ L"AT SPEED:",	SimVarDef { "AUTOPILOT AIRSPEED HOLD",	"Bool" } },
-		};
+		GaugeStack& page = pages.Add<GaugeStack>();
 
-		pages.Add<ReadoutScrollList>(std::move(configVars));
+		if (HasSpoilers())
+		{
+			// MAYBE: allow for Align::Left
+			page.Add(CompactGauge { 10, { L"Spoil ",{ "SPOILERS LEFT POSITION",  "percent" } }});
+			page.Add(CompactGauge { 5,  { L"-",		{ "SPOILERS RIGHT POSITION", "percent" } }, false });
+		}
+
+		if (HasFlaps())
+		{
+			page.Add(CompactGauge { 10, { L"Slats",	{ "LEADING EDGE FLAPS LEFT ANGLE",  "degrees" }} });
+			page.Add(CompactGauge { 5,  { L"-",		{ "LEADING EDGE FLAPS RIGHT ANGLE", "degrees" }} });
+
+			page.Add(CompactGauge { 10, { L"Flaps",	{ "TRAILING EDGE FLAPS LEFT ANGLE",  "degrees" }} });
+			page.Add(CompactGauge { 5,  { L"-",		{ "TRAILING EDGE FLAPS RIGHT ANGLE", "degrees" }} });
+			page.Add(CompactGauge { 11, { L"",		{ "FLAPS HANDLE INDEX",  "number" }} });
+			page.Add(CompactGauge { 2,  { L"/",		{ "FLAPS NUM HANDLE POSITIONS",  "number" }} }, 0);
+		}
+
+		page.Add(ColumnGauge { L"Stab%", {{ "ELEVATOR TRIM PCT", "percent", RequestType::Real }},		SignUsage::PrependPlus });
+		page.Add(ColumnGauge { L" Ail%", {{ "AILERON TRIM PCT",  "percent", RequestType::SignedInt }},	SignUsage::PrependPlus });
+		page.Add(ColumnGauge { L"Rud%",	 {{ "RUDDER TRIM PCT",   "percent", RequestType::Real }},		{ 1, SignUsage::PrependPlus }});
 	}
 
 
@@ -194,36 +225,97 @@ namespace FSMfd
 
 		GaugeStack& engStack = pages.Add<GaugeStack>();
 
-		// TODO: turboprop
-		if (EngineCount() == 1 && IsPiston())
+		if (EngineCount() == 1 && !IsJet())
 		{
-			engStack.Add(CompactGauge { 8, DisplayVar { L"RPM ",   { "GENERAL ENG RPM:1",			   "RPM" }} });
-			engStack.Add(CompactGauge { 7, DisplayVar { L"OiP ",   { "ENG OIL PRESSURE:1",			   "psi" },							L"" } });
-			engStack.Add(CompactGauge { 8, DisplayVar { L"Mix ",   { "RECIP MIXTURE RATIO:1",		   "percent", RequestType::Real }} });
-			engStack.Add(CompactGauge { 7, DisplayVar { L"OiT",	   { "ENG OIL TEMPERATURE:1",		   "celsius" },							L"" } });
-			engStack.Add(CompactGauge { 8, DisplayVar { L"Prop",   { "PROP BETA:1",					   "degrees", RequestType::SignedInt }} });
-			engStack.Add(CompactGauge { 7, DisplayVar { L"FF ",	   { "RECIP ENG FUEL FLOW:1",		   "pounds per hour" },					L"" } });
-			engStack.Add(CompactGauge { 8, DisplayVar { L"CARBT ", { "RECIP CARBURETOR TEMPERATURE:1", "celsius", RequestType::SignedInt },	L"" } });
-			engStack.Add(CompactGauge { 7, DisplayVar { L"VAC ",   { "SUCTION PRESSURE",			   "inHg",	  RequestType::Real }, 1,	L"" } });
+			engStack.Add(CompactGauge { 9, DisplayVar { L"Prop", { "PROP BETA:1",			"degrees",	RequestType::SignedInt }} });
+			engStack.Add(CompactGauge { 7, DisplayVar { L"OiP ", { "ENG OIL PRESSURE:1",	"psi" },								L"" } }, 0);
+			engStack.Add(CompactGauge { 8, DisplayVar { L"RPM ", { "PROP RPM:1",			"RPM" }} });
+			engStack.Add(CompactGauge { 7, DisplayVar { L"OiT",	 { "ENG OIL TEMPERATURE:1",	"celsius" },							L"" } });
+			if (IsPiston())
+			{
+				engStack.Add(CompactGauge { 8, DisplayVar { L"Mix ",	{ "RECIP MIXTURE RATIO:1",			"percent", RequestType::Real }} });
+				engStack.Add(CompactGauge { 7, DisplayVar { L"FF ",		{ "ENG FUEL FLOW GPH:1",			"gallons per hour" },				 L"" } });
+				engStack.Add(CompactGauge { 8, DisplayVar { L"CarbT ",	{ "RECIP CARBURETOR TEMPERATURE:1",	"celsius", RequestType::SignedInt }, L"" } });
+			}
+			else
+			{
+				engStack.Add(CompactGauge { 8, DisplayVar { L"N1",		{ "TURB ENG N1:1",					"percent" }} });
+				engStack.Add(CompactGauge { 7, DisplayVar { L"FF ",		{ "RECIP ENG FUEL FLOW:1",			"pounds per hour" }, L"" } });
+				engStack.Add(CompactGauge { 8, DisplayVar { L"TQ ",		{ "ENG TORQUE:1",					"Foot pounds" },	 L"" } });
+			}
+			engStack.Add(CompactGauge { 7, DisplayVar { L"Vac ", { "SUCTION PRESSURE",		"inHg",		RequestType::Real }, 1,	L"" } });
+			if (IsTurboprop())
+				engStack.Add(CompactGauge { 9, DisplayVar { L"ITT",		{ "TURB ENG ITT:1",					"celsius" }}, true });
+
+			engStack.Add(SwitchGauge { L" Pump", "GENERAL ENG FUEL PUMP ON:1", { Nothing, L'*' }});
 
 			return;
 		}
 
-		// TODO: prop/turboprop
-		const std::vector<DisplayVar> engVars {
-			{ L"REV",	{ "TURB ENG REVERSE NOZZLE PERCENT:",	"percent",			RequestType::Real }},
-			{ L"EGT ",	{ "ENG EXHAUST GAS TEMPERATURE:",		"celsius" }},
-			{ L"N1 ",	{ "TURB ENG N1:",						"percent",			RequestType::Real }, 1 },
-			{ L"N2 ",	{ "TURB ENG N2:",						"percent",			RequestType::Real }, 1 },
-			{ L"RPM",	{ "GENERAL ENG RPM:",					"RPM" }},
-			{ L"FF",	{ "ENG FUEL FLOW PPH:",					"pounds per hour" },					 L" lbs" },
-			{ L"OIL",	{ "ENG OIL PRESSURE:",					"psi",				RequestType::Real }, 1 },
-			{ L"OIL ",	{ "ENG OIL TEMPERATURE:",				"celsius",			RequestType::Real }, 1 },
-		//	{ L"OIL%",	{ "ENG OIL QUANTITY:",					"percent",			RequestType::Real }, 1 },	// always 100%
+		// -- Jet or Multi-engine --
+
+		std::vector<DisplayVar> engVars;
+		if (IsJet())
+		{
+			engVars.insert(engVars.end(), {
+				{ L"REV",	{ "TURB ENG REVERSE NOZZLE PERCENT:",	"percent",		RequestType::Real }},
+				{ L"EGT ",	{ "ENG EXHAUST GAS TEMPERATURE:",		"celsius"		}},
+				{ L"N1 ",	{ "TURB ENG N1:",						"percent",		RequestType::Real }, 1 },
+				{ L"N2 ",	{ "TURB ENG N2:",						"percent",		RequestType::Real }, 1 },
+				{ L"RPM",	{ "GENERAL ENG RPM:",					"RPM"			}},
+			});
+		}
+		if (IsTurboprop() || IsPiston())
+		{
+			engVars.insert(engVars.end(), {
+				{ L"EGT ",	{ "ENG EXHAUST GAS TEMPERATURE:",		"celsius"		}},
+				{ L"Prop",	{ "PROP BETA:",							"degrees",		RequestType::SignedInt }},
+				{ L"PrRPM",	{ "PROP RPM:",							"RPM"			}},
+				{ L"EnRPM",	{ "GENERAL ENG RPM:",					"RPM"			}},
+			});
+		}
+		if (IsTurboprop())
+		{
+			engVars.insert(engVars.end(), {
+				{ L"TQ ",	{ "ENG TORQUE:",						"foot pounds"	}},
+				{ L"N1 ",	{ "TURB ENG N1:",						"percent",		RequestType::Real }, 1 },
+				{ L"N2 ",	{ "TURB ENG N2:",						"percent",		RequestType::Real }, 1 },
+				{ L"ITT ",	{ "TURB ENG ITT:",						"celsius"		}},
+			});
 		};
+		if (IsPiston())
+		{
+			engVars.insert(engVars.end(), {
+				{ L"Mix ",	{ "RECIP MIXTURE RATIO:",				"percent",		RequestType::Real }},
+				{ L"MAP ",	{ "RECIP ENG MANIFOLD PRESSURE:",		"inHg",			RequestType::Real }, L"inH" },
+				{ L"Cowl ",	{ "RECIP ENG COWL FLAP POSITION:",			"percent"		}},
+				{ L"Carb",	{ "RECIP CARBURETOR TEMPERATURE:",		"celsius",		RequestType::SignedInt }},
+				{ L"Cyl ",	{ "RECIP ENG CYLINDER HEAD TEMPERATURE:", "celsius",		RequestType::SignedInt }},
+			});
+		}
+
+		SimVarDef fuelFlow = IsPiston()
+			? SimVarDef { "ENG FUEL FLOW GPH:", "gallons per hour" }
+			: SimVarDef { "ENG FUEL FLOW PPH:",	"pounds per hour"  };
+
+		// common for multi-engine
+		engVars.insert(engVars.end(), {
+			{ L"FF ",	fuelFlow },
+			{ L"OIL ",	{ "ENG OIL PRESSURE:",					"psi",				  RequestType::Real }, 1 },
+			{ L"OIL ",	{ "ENG OIL TEMPERATURE:",				"celsius",			  RequestType::Real }, 1 },
+		//	{ L"OIL%",	{ "ENG OIL QUANTITY:",					"percent",			  RequestType::Real }, 1 },	// always 100%
+		});
 
 		for (const DisplayVar& dv : engVars)
 			engStack.Add(EnginesGauge { EngineCount(), dv });
+
+		// extra on/off indicators
+		if (IsPiston() || IsTurboprop())
+		{
+			// MAYBE: This is hacky -> SwitchGauge to support 2 vars? Magnetos?
+			engStack.Add(SwitchGauge { L"    ", "GENERAL ENG FUEL PUMP ON:1", { Nothing, L'*' }});
+			engStack.Add(SwitchGauge { L"Pump", "GENERAL ENG FUEL PUMP ON:2", { Nothing, L'*' }}, 0);
+		}
 	}
 
 
@@ -235,7 +327,7 @@ namespace FSMfd
 		radioStack.Add(RadioGauge { "COM", 1 });
 		radioStack.Add(RadioGauge { "COM", 2 });
 		radioStack.Add(CompactGauge { 5, DisplayVar { L"",  { "COM ACTIVE FREQ IDENT:1", "", RequestType::String }} });
-		radioStack.Add(CompactGauge { 6, DisplayVar { L"/", { "COM ACTIVE FREQ IDENT:2", "", RequestType::String }} }, 0);
+		radioStack.Add(CompactGauge { 5, DisplayVar { L"/", { "COM ACTIVE FREQ IDENT:2", "", RequestType::String }} }, 0);
 
 		radioStack.Add(Label { L"ACT  -NAV-  STBY" });
 		radioStack.Add(RadioGauge { "NAV", 1 });

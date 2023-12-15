@@ -111,6 +111,7 @@
     <ClCompile Include="Pages\Gauges\RadioGauge.cpp">
       <Filter>Pages\Gauges</Filter>
     </ClCompile>
+    <ClCompile Include="Pages\Gauges\ColumnGauge.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pages\SimPage.h">
@@ -209,5 +210,6 @@
     <ClInclude Include="SimVarDef.h">
       <Filter>Main</Filter>
     </ClInclude>
+    <ClInclude Include="Pages\Gauges\ColumnGauge.h" />
   </ItemGroup>
 </Project>

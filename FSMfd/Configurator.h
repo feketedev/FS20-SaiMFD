@@ -21,7 +21,7 @@ namespace FSMfd
 		SimClient::FSClient&			client;
 		SimClient::UniqueReceiveBuffer	configVars;
 
-		// these are simly hardcoded for Page/LedControl creation decisions
+		// these are simply hardcoded for Page/LedControl creation decisions
 		bool		HasRetractableGears() const;	// var 0
 		bool		IsTaildragger()		  const;	// var 1
 
@@ -33,6 +33,8 @@ namespace FSMfd
 		bool		IsHeli()		const;			// 
 
 		bool		HasSpoilers()	const;			// var 4
+		bool		HasFlaps()		const;			// var 5
+		bool		HasAutopilot()	const;			// var 6
 
 	public:
 		Configurator(SimClient::FSClient&);

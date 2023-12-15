@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClCompile Include="Configurator.cpp" />
     <ClCompile Include="DeviceLookup.cpp" />
+    <ClCompile Include="Pages\Gauges\ColumnGauge.cpp" />
     <ClCompile Include="Pages\Gauges\ConditionalGauge.cpp" />
     <ClCompile Include="Pages\Gauges\EnginesGauge.cpp" />
     <ClCompile Include="LEDs\BlinkPattern.cpp" />
@@ -166,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Configurator.h" />
+    <ClInclude Include="Pages\Gauges\ColumnGauge.h" />
     <ClInclude Include="Pages\Gauges\ConditionalGauge.h" />
     <ClInclude Include="Pages\Gauges\EnginesGauge.h" />
     <ClInclude Include="LEDs\BlinkPattern.h" />
