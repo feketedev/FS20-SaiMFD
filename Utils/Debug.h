@@ -5,7 +5,12 @@
 
 
 
-#define REPORT_PRINT(lvl, ...)		_RPT_BASE(lvl, __FILE__, __LINE__, NULL, __VA_ARGS__)
+#ifdef _DEBUG
+#	define REPORT_PRINT(lvl, ...)		_RPT_BASE(lvl, __FILE__, __LINE__, NULL, __VA_ARGS__)
+#else
+#	define REPORT_PRINT(...) 
+#endif
+
 
 #define REPORT_FAIL(x)				REPORT_PRINT(_CRT_ASSERT, #x)
 #define REPORT_FAIL_M(x, msg)		REPORT_PRINT(_CRT_ASSERT, "%s\nMessage: %s", #x, msg)
@@ -44,6 +49,10 @@
 
 namespace Debug 
 {
+
+	extern bool EnableVerboseInfo;
+
+
 	// affects assert() macro only
 	void UseIgnorableAssertMessages();
 
