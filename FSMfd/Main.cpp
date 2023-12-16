@@ -38,6 +38,23 @@ namespace FSMfd
 	}
 
 
+	static bool		ProcessArgs(int argc, char* argv[])
+	{
+		if (argc == 1)
+			return true;
+
+		if (argc == 2 && _stricmp(argv[1], "/V") == 0)
+		{
+			Debug::EnableVerboseInfo = true;
+			return true;
+		}
+
+		std::cout << "Unknown arguments. Available options:\n"
+					 "  /V  -  Verbose output." << std::endl;
+		return false;
+	}
+
+
 	static void		Run(DOHelper::DirectOutputInstance& directOutput)
 	{
 		const SimClient::FSTypeMapping typeMapping = SimClient::GetDefaultTypeMapping();
@@ -78,12 +95,14 @@ namespace FSMfd
 
 
 
-int main()
+int main(int argc, char* argv[])
 {
-	using namespace std::chrono_literals;
+	if (!FSMfd::ProcessArgs(argc, argv))
+		return 2;
 
 	std::cout << "  *-------------------------------------------------------------------*\n"
 				 "  | FS2020 <--> Saitek X52 MFD   Copyright 2023 Norbert Fekete        |\n"
+				 "  | v0.8                                                              |\n"
 				 "  | Utilizing DirectOutput SDK   Copyright 2008 Saitek                |\n"
 				 "  | Released under GPLv3. See:   https://www.gnu.org/licenses/gpl-3.0 |\n"
 				 "  *-------------------------------------------------------------------*\n"
@@ -107,7 +126,7 @@ int main()
 				return 0;
 
 			// cought recoverable error
-			std::this_thread::sleep_for(1s);
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 			std::cout << "Reconnecting..." << std::endl;
 			output.Reset();
 		}

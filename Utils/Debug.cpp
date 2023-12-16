@@ -22,6 +22,10 @@ namespace Debug
 
 
 
+	bool EnableVerboseInfo = false;
+
+
+
 	static bool WasInline = false;
 
 	static void CleanLine()
@@ -55,24 +59,36 @@ namespace Debug
 
 	void Info(const char* msg)
 	{
+		if (!EnableVerboseInfo)
+			return;
+
 		CleanLine();
 		std::cout << "Debug:\t\t" << msg << '\n';
 	}
 
 	void Info(const char* source, const char* msg)
 	{
+		if (!EnableVerboseInfo)
+			return;
+
 		CleanLine();
 		std::cout << source << ":\t" << msg << '\n';
 	}
 
 	void Info(const char* source, const char* msg, int param)
 	{
+		if (!EnableVerboseInfo)
+			return;
+
 		CleanLine();
 		std::cout << source << ":\t" << msg << ' ' << param << '\n';
 	}
 
 	void InlineInfo(const char* source, const char* msg)
 	{
+		if (!EnableVerboseInfo)
+			return;
+
 		if (!WasInline)
 			std::cout << source << ":\t" << msg;
 		else

@@ -148,10 +148,15 @@ namespace FSMfd
 	void Configurator::AddBaseInstruments(FSPageList& pages) const
 	{
 		std::vector<DisplayVar> baseVars {
-			{ L"IAS:",	SimVarDef { "AIRSPEED INDICATED",	"knots"					  }, L"kts"	},
-			{ L"TAS:",	SimVarDef { "AIRSPEED TRUE",		"knots"					  }, L"kts"	},
-			{ L"Mach:",	SimVarDef { "AIRSPEED MACH",		"mach", RequestType::Real }, L""	},
-			{ L"Alt:",	SimVarDef { "PLANE ALTITUDE",		"ft"					  }, L"ft"	},
+			{ L"Accelr: ",	SimVarDef { "G FORCE",					"number",			RequestType::Real }, L"g  " },
+			{ L"IAS:",		SimVarDef { "AIRSPEED INDICATED",		"knots"				}},
+			{ L"TAS:",		SimVarDef { "AIRSPEED TRUE",			"knots"				}},
+			{ L"Mach:",		SimVarDef { "AIRSPEED MACH",			"mach",				RequestType::Real }, L"   "	},
+			{ L"VSpd:",		SimVarDef { "VERTICAL SPEED",			"feet per minute",	RequestType::SignedInt }, SignUsage::PrependPlus },
+			{ L"Alt:",		SimVarDef { "PLANE ALTITUDE",			"feet"				},					 L"ft " },
+			{ L"Outside:",	SimVarDef { "AMBIENT TEMPERATURE",		"celsius",			RequestType::Real }, DecimalUsage { 1 } },
+			{ L"Press: ",	SimVarDef { "AMBIENT PRESSURE",			"millibar",			RequestType::Real }, L"mB" },
+			{ L"Dyn.P: ",	SimVarDef { "DYNAMIC PRESSURE",			"millibar",			RequestType::Real }, L"mB" },
 		};
 
 		pages.Add<ReadoutScrollList>(std::move(baseVars));
@@ -165,13 +170,13 @@ namespace FSMfd
 		if (HasSpoilers())
 		{
 			// MAYBE: allow for Align::Left
-			page.Add(CompactGauge { 10, { L"Spoil ",{ "SPOILERS LEFT POSITION",  "percent" } }});
+			page.Add(CompactGauge { 10, { L"SPOIL ",{ "SPOILERS LEFT POSITION",  "percent" } }});
 			page.Add(CompactGauge { 5,  { L"-",		{ "SPOILERS RIGHT POSITION", "percent" } }, false });
 		}
 
 		if (HasFlaps())
 		{
-			page.Add(CompactGauge { 10, { L"Slats",	{ "LEADING EDGE FLAPS LEFT ANGLE",  "degrees" }} });
+			page.Add(CompactGauge { 10, { L" LEFs",	{ "LEADING EDGE FLAPS LEFT ANGLE",  "degrees" }} });
 			page.Add(CompactGauge { 5,  { L"-",		{ "LEADING EDGE FLAPS RIGHT ANGLE", "degrees" }} });
 
 			page.Add(CompactGauge { 10, { L"Flaps",	{ "TRAILING EDGE FLAPS LEFT ANGLE",  "degrees" }} });
@@ -227,7 +232,7 @@ namespace FSMfd
 
 		if (EngineCount() == 1 && !IsJet())
 		{
-			engStack.Add(CompactGauge { 9, DisplayVar { L"Prop", { "PROP BETA:1",			"degrees",	RequestType::SignedInt }} });
+			engStack.Add(CompactGauge { 9, DisplayVar { L"Prop", { "PROP BETA:1",			"degrees",	RequestType::SignedInt }}, false });
 			engStack.Add(CompactGauge { 7, DisplayVar { L"OiP ", { "ENG OIL PRESSURE:1",	"psi" },								L"" } }, 0);
 			engStack.Add(CompactGauge { 8, DisplayVar { L"RPM ", { "PROP RPM:1",			"RPM" }} });
 			engStack.Add(CompactGauge { 7, DisplayVar { L"OiT",	 { "ENG OIL TEMPERATURE:1",	"celsius" },							L"" } });
@@ -268,10 +273,10 @@ namespace FSMfd
 		if (IsTurboprop() || IsPiston())
 		{
 			engVars.insert(engVars.end(), {
-				{ L"EGT ",	{ "ENG EXHAUST GAS TEMPERATURE:",		"celsius"		}},
-				{ L"Prop",	{ "PROP BETA:",							"degrees",		RequestType::SignedInt }},
-				{ L"PrRPM",	{ "PROP RPM:",							"RPM"			}},
-				{ L"EnRPM",	{ "GENERAL ENG RPM:",					"RPM"			}},
+				{ L"EGT ",	 { "ENG EXHAUST GAS TEMPERATURE:",		"celsius"		}},
+				{ L"Prop",	 { "PROP BETA:",						"degrees",		RequestType::SignedInt }},
+				{ L"PrpRPM", { "PROP RPM:",							"RPM"			}},
+				{ L"EngRPM", { "GENERAL ENG RPM:",					"RPM"			}},
 			});
 		}
 		if (IsTurboprop())

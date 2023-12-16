@@ -67,6 +67,8 @@ namespace FSMfd
 		{ "gallon per hour",	L"gph" },
 		{ "gallons per hour",	L"gph" },
 		{ "knots",				L"kts" },
+		{ "feet per minute",	L"fpm" },
+		{ "feet",				L"ft" },
 		{ "nautical mile",		L"nm" },
 		{ "nautical miles",		L"nm" },
 		{ "nmile",				L"nm" },
