@@ -82,14 +82,14 @@ Should you be in doubt whether DirectOutput is working, check out its provided T
 ## Customization
 
 Currently the only way of customization is by code - but it's aimed to be mostly readable and easily extensible with new simulation variables. 
-The whole configuration of Page contents and LED effets is contained within the single file [FSMfd\Configurator.cpp](FSMfd\Configurator.cpp). 
+The whole configuration of Page contents and LED effets is contained within the single file [FSMfd/Configurator.cpp](FSMfd/Configurator.cpp). 
 I think it's manageable with very minimal experience in any kind of programming just by following existing patterns -  
 albiet the text alignments on MFD are not fully straitforward; and the process requires recompiling this plugin.
 
 To do so you'll need to install the MSFS SDK, accessible from the dev menu in the game.
 After that, either re-import their build properties
 "\<Your-SDK-Location\>\SimConnect SDK\VS\SimConnectClient.props"  
-into the FSMfd project using Visual Studio, or just update its path in [FSMfd\FSMfd.vcxproj](FSMfd\FSMfd.vcxproj) manually.
+into the FSMfd project using Visual Studio, or just update its path in [FSMfd/FSMfd.vcxproj](FSMfd/FSMfd.vcxproj) manually.
 (For details see their instructions at https://docs.flightsimulator.com)
 
 DirectOutput headers are included in the source-tree, so the driver just needs to be installed on the computer.
