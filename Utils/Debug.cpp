@@ -26,15 +26,18 @@ namespace Debug
 
 
 
-	static bool WasInline = false;
+	static const char* CurrentInlineSource = nullptr;
 
-	static void CleanLine()
+	/// Ensure separate line for message if previous wasn't Inline from the same source.
+	/// @returns:	at start of new line.
+	static bool CleanLine(const char* forSource = nullptr)
 	{
-		if (WasInline)
-		{
+		bool change = CurrentInlineSource != forSource;
+		if (change && CurrentInlineSource != nullptr)
 			std::cout << '\n';
-			WasInline = false;
-		}
+			
+		CurrentInlineSource = forSource;
+		return change;
 	}
 
 
@@ -89,13 +92,19 @@ namespace Debug
 		if (!EnableVerboseInfo)
 			return;
 
-		if (!WasInline)
+		if (CleanLine(source))
 			std::cout << source << ":\t" << msg;
 		else
 			std::cout << msg;	
-		// no checking for different source, this thing is just 1-time eye-candy :)
+	}
 
-		WasInline = true;
+	void InlineInfo(const char* source, const char* msg, int param)
+	{
+		if (!EnableVerboseInfo)
+			return;
+
+		InlineInfo(source, msg);
+		std::cout << ' ' << param;
 	}
 
 

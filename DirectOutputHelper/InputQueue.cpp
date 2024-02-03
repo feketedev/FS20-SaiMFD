@@ -77,6 +77,14 @@ namespace DOHelper
 	}
 
 
+	const InputMessage* InputQueue::PeekNext() const
+	{
+		std::unique_lock lock { mutex };
+
+		return messages.empty() ? nullptr : &messages.front();
+	}
+
+
 	const InputMessage* InputQueue::PeekNext(const TimePoint& waitEnd) const
 	{
 		std::unique_lock lock { mutex };
@@ -118,5 +126,13 @@ namespace DOHelper
 
 		return res;
 	}
+
+
+	void InputQueue::Clear()
+	{
+		std::unique_lock lock { mutex };
+		messages.clear();
+	}
+
 
 }	// namespace DOHelper

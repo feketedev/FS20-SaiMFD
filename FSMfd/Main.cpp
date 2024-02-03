@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
 
 	std::cout << "  *-------------------------------------------------------------------*\n"
 				 "  | FS2020 <--> Saitek X52 MFD   Copyright 2023 Norbert Fekete        |\n"
-				 "  | v0.8                                                              |\n"
+				 "  | v0.85                                                             |\n"
 				 "  | Utilizing DirectOutput SDK   Copyright 2008 Saitek                |\n"
 				 "  | Released under GPLv3. See:   https://www.gnu.org/licenses/gpl-3.0 |\n"
 				 "  *-------------------------------------------------------------------*\n"

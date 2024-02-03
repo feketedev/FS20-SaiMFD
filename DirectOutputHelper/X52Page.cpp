@@ -24,10 +24,10 @@ namespace DOHelper
     };
 
 
-	void X52Output::Page::Remove()
+	void X52Output::Page::Remove(bool activateNeighbor)
 	{
         if (IsAdded ())
-			device->RemovePage(*this);
+			device->RemovePage(*this, activateNeighbor);
         DBG_ASSERT (!IsAdded());
 	}
 
@@ -62,22 +62,38 @@ namespace DOHelper
 	}
 
 
-	void X52Output::Page::DrawLines() const
+	void X52Output::Page::DrawLines()
 	{
         LOGIC_ASSERT (IsActive());
 
-        Saitek::DirectOutput& lib = *device->DirectOutput().library;
-
-        for (DWORD i = 0; i < 3; i++)
+		bool stillActive = true;
+        for (DWORD i = 0; i < 3 && stillActive; i++)
         {
             if (!isDirty[i])
                 continue;
 
             const wchar_t* s = lines[i].data();
             DWORD        len = Practically<DWORD>(lines[i].length());
-
-            SAI_ASSERT (lib.SetString(device->Handle(), Id, i, len, s));
+			stillActive		 = device->TrySetActivePageLine(i, len, s);
+			isDirty[i] = !stillActive;
         }
+	}
+
+
+	bool X52Output::Page::ProbeActive() const
+	{
+        Saitek::DirectOutput& lib = *device->DirectOutput().library;
+
+        DWORD   len = Practically<DWORD>(lines[0].length());
+        HRESULT hr  = lib.SetString(device->Handle(), Id, 0, len, lines[0].data());
+
+		if (hr == NotActiveError)
+			return false;
+
+		SAI_ASSERT_M (hr, "Failed to recover active page id.");
+
+		DBG_ASSERT (SUCCEEDED(hr));
+		return true;
 	}
 
 

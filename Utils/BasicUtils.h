@@ -27,6 +27,22 @@ namespace Utils
 
 
 
+	template <class T>
+	struct OnExitAssignment {
+		T&	data;
+		T	finalValue;
+		
+		~OnExitAssignment()	noexcept(std::is_nothrow_move_assignable_v<T>)
+		{ 
+			data = std::move(finalValue); 
+		}
+	};
+
+	template<class T, class Q>
+	OnExitAssignment(T&, Q) -> OnExitAssignment<T>;
+
+
+
 
 	// ---- Arithmetics -----------------------------------------------------------------
 
@@ -136,6 +152,23 @@ namespace Utils
 		-> std::enable_if_t<IsBoolEvaluable<decltype(predicate(*container.begin()))>, bool>
 	{
 		return FindIf(container, [&](auto& e) { return !predicate(e); }) == container.end();
+	}
+
+
+	/// @returns   Found any element to delete.
+	template<class C, class E>
+	auto EraseAllEqual(C& container, const E& elem)
+		-> std::enable_if_t<IsBoolEvaluable<decltype(*container.begin() == elem)>, bool>
+	{
+		bool any = false;
+		auto it = container.begin();
+		while (it != container.end())
+			if (any = (*it == elem))
+				it = container.erase(it);
+			else
+				++it;
+		
+		return any;
 	}
 
 }

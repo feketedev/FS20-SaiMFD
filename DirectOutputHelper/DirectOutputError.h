@@ -4,8 +4,8 @@
 #include <winerror.h>
 
 
-#define SAI_ASSERT(hr)			HRESULT_ASSERT_BASE (DirectOutputError, hr)
-#define SAI_ASSERT_M(hr, msg)	HRESULT_ASSERT_BASE (DirectOutputError, hr, msg)
+#define SAI_ASSERT(hr)			HRESULT_ASSERT_BASE	  (DirectOutputError, hr)
+#define SAI_ASSERT_M(hr, msg)	HRESULT_ASSERT_BASE_M (DirectOutputError, hr, msg)
 
 
 

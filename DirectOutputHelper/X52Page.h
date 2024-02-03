@@ -39,6 +39,9 @@ namespace DOHelper
 
 		/// Is the currently displayed page on CurrentDevice
 		bool 					IsActive()		const	{ return IsAdded() && device->activePage == this; }
+		
+		/// Changed content or re-Activated since last DrawLines. (No sense while inactive.)
+		bool 					IsDirty()		const	{ return isDirty[0] || isDirty[1] || isDirty[2];  }
 
 		// i < 3
 		const std::wstring& 	GetLine(char i) const	{ return lines[i]; }
@@ -46,15 +49,24 @@ namespace DOHelper
 		std::wstring&			SetLine(char i, std::wstring text, bool allowMarquee = false);
 
 		/// Send buffered contents to X52 device.
-		void DrawLines() const;
+		void DrawLines();
 
 		/// Remove page from device. Can be re-added later.
-		void Remove();
+		/// @param activateNeighbor: if IsActive, put the previous [or next as applicable] Page on screen
+		///							 instead of default DirectOutput behaviour of throwing out to profile page.
+		void Remove(bool activateNeighbor = false);
 
 	private:
 		friend class X52Output;
 
+		static constexpr unsigned NotActiveError = 0xff040001;
+
+
 		void Activate(TimePoint);
+
+		/// Workaround. Try to draw a single line. Throw only for unknown error codes.
+		/// @returns	true on Success, false on Failure due to Page is not being Active.
+		bool ProbeActive() const;
 
 
 		// ---- Event handlers for descendants ----
@@ -64,5 +76,6 @@ namespace DOHelper
 		virtual void OnButtonPress(TimePoint)		{}
 		virtual void OnScroll(bool up, TimePoint)	{}
 	};
+
 
 }	// namespace DOHelper

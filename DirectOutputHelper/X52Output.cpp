@@ -18,6 +18,8 @@ namespace DOHelper
 {
 	using Utils::Cast::AsIndex;
 
+	constexpr const char* LogSource = "DirectOutput Helper";
+
 
 
 #pragma region BasicQuery+Special
@@ -26,7 +28,7 @@ namespace DOHelper
 	X52Output::X52Output(X52Output&&) noexcept = default;
 
 
-	X52Output::X52Output(void* const handle, DirectOutputInstance& owner) :
+	X52Output::X52Output(void* handle, DirectOutputInstance& owner) :
 		inputQueue	  { new InputQueue { owner, handle } },
 		wheelDebounce { SoftButton_Up, SoftButton_Down, SoftButton_Select }
 	{
@@ -81,9 +83,18 @@ namespace DOHelper
 	{
 		optional<InputMessage> msg = wheelDebounce.Receive(*inputQueue, waitUntil);
 		if (msg.has_value())
+		{
 			Dispatch(*msg);
+			return true;
+		}
+		
+		// Rare but existing case: No PageActivated received at all --> need to trigger activePage recovery!
+		//   Timing of this recovery is rather arbitrary - idle timeout of input message processing seems appropriate.
+		//   A further late PageActivated message (missed bc of recovery) should be handled gracefully.
+		if (activePageLagsBehind && inputQueue->PeekNext() == nullptr)
+			RecoverActivePage(waitUntil);
 
-		return msg.has_value();
+		return false;
 	}
 
 
@@ -92,58 +103,66 @@ namespace DOHelper
 		switch (msg.kind)
 		{
 			case MessageKind::PageDeactivated:
-				Debug::Info("DirectOutput Helper", "Page OFF ", msg.optData);
-				if (activePage == nullptr)
+			{
+				Debug::Info("DirectOutput", "\tDeactivatePage\t", msg.optData);
+
+				// Just a warning-avoidance workaround for reordered events. (Activate messages drive paging.)
+				if (msg.optData == expectedPageDeactivation)
 				{
-					Debug::Warning("Received duplicated page Deactivation!");
+					expectedPageDeactivation.reset();
 					break;
 				}
-				else
-				{
-					// workaround: Deactivation after adding a new top page is already handled!
-					auto it = Utils::Find(actPageBeforeAdd, msg.optData);
-					if (it != actPageBeforeAdd.end())
-					{
-						actPageBeforeAdd.erase(it);
-						break;
-					}
-				}
-				LOGIC_ASSERT (activePage != nullptr && activePage->Id == msg.optData);
-				activePage->OnDeactivate(msg.time);
-				activePage = nullptr;
-				break;
 
+				if (activePage == nullptr || activePage->Id != msg.optData)
+				{
+					Debug::Warning(LogSource, "Duplicated or invalid page Deactivation! Ignoring.");
+					break;
+				}
+
+				DeactivateCurrentPage(msg.time);
+				activePageLagsBehind = false;
+				break;
+			}
+
+			// Trying to tolerate reordered or unbalanced Activate-Deactivate messages
+			// -> Activation messages drive our state, Deactivation is secondary
+			// -> still can get out-of-sync with DirectOutput (due to missed messages),
+			//    aim is to be able to catch up at repeated scroll inputs
 			case MessageKind::PageActivated:
 			{
-				Debug::Info("DirectOutput Helper", "Page ON  ",  msg.optData);
+				Debug::Info("DirectOutput", "\tActivatePage\t", msg.optData);
 
-				// TODO: Maybe we could account for reordered Activate-Deactivate pairs too
-				//		 - which still won't solve some errors I've seen...
-				LOGIC_ASSERT (activePage == nullptr || activePage->Id == msg.optData);
-				if (activePage != nullptr)
+				if (activePage != nullptr && activePage->Id == msg.optData)
 				{
-					Debug::Warning("Received duplicated page Activation!");
+					Debug::Warning("Received duplicated page Activation! Ignoring.");
 					break;
 				}
 
-				activePage = FindPage(msg.optData);
-				LOGIC_ASSERT(activePage != nullptr);
+				if (Page* deact = DeactivateCurrentPage(msg.time))
+					expectedPageDeactivation = deact->Id;
 				
-				RestoreLeds();
-				activePage->Activate(msg.time);
+				TryActivatePage(FindPage(msg.optData), msg.time);
 				break;
 			}
 
 			case MessageKind::ButtonPress:
 			{
-				Debug::Info("DirectOutput Helper", "Button    ", msg.optData);
+				Debug::Info(LogSource, "Button    ", msg.optData);
 
-				LOGIC_ASSERT (activePage != nullptr);	// filtered by driver
+				if (activePage == nullptr)
+				{
+					// Not even just lagging behind DirectOutput - state got messed up!
+					Debug::Warning(LogSource, "Keypress with no active Page.");
+					DBG_BREAK;
+					inputQueue->Clear();
+					RecoverActivePage(msg.time);
+					break;
+				}
 
 				if (msg.optData & SoftButton_Select)
 					activePage->OnButtonPress(msg.time);
 
-				bool up = (msg.optData & SoftButton_Up);
+				bool up   = (msg.optData & SoftButton_Up);
 				bool down = (msg.optData & SoftButton_Down);
 
 				DBG_ASSERT (!up || !down);
@@ -161,12 +180,22 @@ namespace DOHelper
 				DBG_BREAK;
 		}
 	}
-
+	
 #pragma endregion
 
 
 
 #pragma region Pages
+
+	// To avoid interpreting pending inputs addressed to an already removed Page.
+	// NOTE 1: No guarantee on theoretic level, as we can't synch with DirectOutput's internal state. Yield can help in practice.
+	// NOTE 2: Locking in InputQueue is not noexcept, but should throw only in case of program error, in which case we abort.
+	static void ClearForPageRemoved(InputQueue& queue) noexcept
+	{
+		std::this_thread::yield();
+		queue.Clear();
+	}
+
 
 	bool X52Output::HasPage(uint32_t id) const
 	{
@@ -197,20 +226,17 @@ namespace DOHelper
 
 		SAI_ASSERT (DirectOutput().library->AddPage(Handle(), pg.Id, nullptr, flag));
 
-		// - No Activated event raised by driver using this flag!
-		// - Deactivated is received though later...
-		// - backlight gets unstable without that yield! :o
+		// - No Activated event raised by driver using this flag -> handle page change in place!
+		// - Deactivated gets posted though asynchronously, provided that any page was active
 		if (activate)
 		{
-			if (activePage != nullptr)
-			{
-				actPageBeforeAdd.push_back(activePage->Id);
-				activePage->OnDeactivate(causeStamp);
-			}
-			activePage = &pg;
-			std::this_thread::yield();
-			RestoreLeds();
-			pg.Activate(causeStamp);
+			DeactivateCurrentPage(causeStamp);
+			TryActivatePage(&pg, causeStamp);
+			
+			// NOTE: We have no perfect means to sync with the driver (e.g. if a user page-turn is just underway).
+			// Clearing unserved events (+ the potentially posted Deactivated message) is the simplest solution in practice.
+			inputQueue->Clear();
+			expectedPageDeactivation.reset();
 		}
 	}
 
@@ -218,36 +244,70 @@ namespace DOHelper
 	void X52Output::ClearPages()
 	{
 		// won't receive Deactivate from DirectOutput
-		if (activePage != nullptr)
-			activePage->OnDeactivate(TimePoint::clock::now());
-		activePage = nullptr;
+		DeactivateCurrentPage(TimePoint::clock::now());
 
 		for (Page* p : pages)
 			OrphanPage(*p);
 
 		pages.clear();
+		ClearForPageRemoved(*inputQueue);
+		expectedPageDeactivation.reset();
 	}
 
 
-	void X52Output::RemovePage(Page& p)
+	void X52Output::RemovePage(Page& p, bool activateNeighbor)
 	{
-		RemovePage(p, TimePoint::clock::now());
+		RemovePage(p, TimePoint::clock::now(), activateNeighbor);
 	}
 
 
-	void X52Output::RemovePage(Page& p, TimePoint causeStamp)
+	void X52Output::RemovePage(Page& p, TimePoint causeStamp, bool activateNeighbor)
 	{
 		LOGIC_ASSERT (p.CurrentDevice() == this);
 
 		const bool wasActive = &p == activePage;
+		Page*      next      = nullptr;
+		if (wasActive && activateNeighbor && pages.size() > 1)
+		{
+			auto it = Utils::Find(pages, &p);
+			next = (it == pages.begin()) ? *(it + 1) : *(it - 1);
+		}
+
 		
 		// won't receive Deactivate from DirectOutput
 		if (wasActive)
-			p.OnDeactivate(causeStamp);
+			DeactivateCurrentPage(causeStamp);
 
-		LOGIC_ASSERT (BookRemovedPage(p));
 		OrphanPage(p);
+		LOGIC_ASSERT (BookRemovedPage(p));
+		DBG_ASSERT (!wasActive || activePage == nullptr);
 
+		if (next != nullptr)
+		{
+			// nice li'l hack to set active page manually
+			SAI_ASSERT (DirectOutput().library->RemovePage(Handle(), next->Id));
+			SAI_ASSERT (DirectOutput().library->AddPage(Handle(), next->Id, nullptr, FLAG_SET_AS_ACTIVE));
+			TryActivatePage(next, causeStamp);
+		}
+	}
+
+	
+	void X52Output::PageDestroys(Page& p) noexcept
+	{
+		DBG_ASSERT (p.CurrentDevice() == this);
+		
+		const bool wasActive = &p == activePage;
+
+		// NOTE: A swallowed failure here would mean the Page might not have
+		//		 been deleted from the X52 device. Fully correct solution
+		//		 could be flagging erroneous state to throw on next public call
+		//		 which could lead to Reset the library.
+		//		 As long as this is just game equipment, waiting to encounter
+		//		 the next SAI_ASSERT seems good enough.
+		OrphanPageNoEx(p);
+
+		bool found = BookRemovedPage(p);
+		DBG_ASSERT_M (found, "Hard-to-beleive internal error.");
 		DBG_ASSERT (!wasActive || activePage == nullptr);
 	}
 
@@ -256,7 +316,7 @@ namespace DOHelper
 	{
 		p.device = nullptr;
 		if (IsConnected())
-			SAI_ASSERT(DirectOutput().library->RemovePage(Handle(), p.Id));
+			SAI_ASSERT (DirectOutput().library->RemovePage(Handle(), p.Id));
 	}
 
 
@@ -270,7 +330,7 @@ namespace DOHelper
 		{
 			HRESULT hr = DirectOutput().library->RemovePage(Handle(), p.Id);
 			if (FAILED(hr))
-				Debug::Warning("DirectOutput Helper", "Failed to delete page from x52 device.");
+				Debug::Warning(LogSource, "Failed to delete page from x52 device.");
 		}
 		p.device = nullptr;
 	}
@@ -286,32 +346,30 @@ namespace DOHelper
 
 		// Seems that DirectOutput just throws to built-in profile page.
 		// - at least an Activate won't be necessary...
-		// Also: Deleting a background Page seems to be unreliable :(
 		if (activePage == &p)
+		{
+			Debug::Info(LogSource, "Page OFF without OnDeactivate [noexcept mode]", p.Id);
 			activePage = nullptr;
+			expectedPageDeactivation.reset();						// won't be received
+		}
 
 		pages.erase(it);
+		ClearForPageRemoved(*inputQueue);
 		return true;
 	}
 
-
-	void X52Output::PageDestroys(Page& p) noexcept
+	
+	auto X52Output::DeactivateCurrentPage(TimePoint stamp) -> Page*
 	{
-		DBG_ASSERT (p.CurrentDevice() == this);
-		
-		const bool wasActive = &p == activePage;
+		if (activePage != nullptr)
+		{
+			Utils::OnExitAssignment revertAnyway { activePage, nullptr };
 
-		bool found = BookRemovedPage(p);
-		DBG_ASSERT_M (found, "Hard to beleive internal error.");
-		DBG_ASSERT (!wasActive || activePage == nullptr);
-
-		// NOTE: A swallowed failure here would meen the Page might not have
-		//		 been deleted from the X52 device. Fully correct solution
-		//		 could be flagging erroneous state to throw on next public call
-		//		 which could lead to Reset the library.
-		//		 As long as this is just game equipment, waiting to encounter
-		//		 the next SAI_ASSERT seems good enough.
-		OrphanPageNoEx(p);
+			Debug::Info(LogSource, "Page OFF\t", activePage->Id);
+			activePage->OnDeactivate(stamp);
+			return activePage;
+		}
+		return nullptr;
 	}
 
 
@@ -323,6 +381,157 @@ namespace DOHelper
 
 		return it == pages.end() ? nullptr : *it;
 	}
+
+
+
+#pragma region Recovery
+
+	/// Run any DirectOutput command that requires current page ID.
+	template<class SaiActionPtr, class... Args>
+	bool X52Output::TryWithActivePage(const SaiActionPtr& act, const Args&... args)
+	{
+		DBG_ASSERT (activePage != nullptr);
+
+		if (activePageLagsBehind)
+			return false;
+
+		Saitek::DirectOutput& lib = *DirectOutput().library;
+		DWORD   id = activePage->Id;
+		HRESULT hr = (lib.*act)(Handle(), id, args...);
+
+		if (SUCCEEDED(hr))
+			return true;
+
+		if (hr == Page::NotActiveError)
+		{
+			activePageLagsBehind = true;
+			return false;
+		}
+
+		throw DirectOutputError { hr, "Operation failed with unknown error." };
+	}
+
+
+	/// Virtually transactional, except the extra OnActivate-OnDeactivate pair getting called on failure.
+	/// @returns false              if @p page is not currently active according to DirectOutput
+	/// @throws DirectOutputError:  on unexpected errors during page activation
+	/// @throws unkown exeptions:   encountered during OnActivate/OnDeactivate
+	bool X52Output::TryActivatePage(Page* page, TimePoint stamp)
+	{
+		LOGIC_ASSERT (activePage == nullptr && page != nullptr);
+		
+		Debug::Info(LogSource, "Page ON \t", page->Id);
+
+		bool activateCalled = false;
+		try
+		{
+			activePage = page;
+			RestoreLeds();
+			activateCalled = true;
+			activePage->Activate(stamp);
+			if (expectedPageDeactivation == page->Id)
+				expectedPageDeactivation.reset();
+
+			activePageLagsBehind = false;
+			return true;
+		}
+		catch (const DirectOutputError& err)
+		{
+			Utils::OnExitAssignment revertAnyway { activePage, nullptr };
+			activePageLagsBehind = true;
+
+			Debug::Warning(LogSource, "Failed to activate page. Error:", err.ErrorCode);
+
+			// driver state ignored - ours restored
+			if (activateCalled)
+				activePage->OnDeactivate(stamp);	// may throw on its own
+
+			if (err.ErrorCode == Page::NotActiveError)
+				return false;
+			
+			throw;									// unexpected D.O. error
+		}
+		catch (...)
+		{
+			activePage = nullptr;
+			activePageLagsBehind = true;
+			
+			Debug::Warning(LogSource, "Failed to activate page due to external error.");
+			throw;
+		}
+	}
+
+
+	bool X52Output::RecoverActivePage(TimePoint stamp)
+	{
+		DBG_ASSERT (activePageLagsBehind);
+
+		Debug::Warning(LogSource, "Attempting to recover active page...   ");
+		
+		Page* const found = FindActivePageByProbing();
+
+		if (found == activePage)
+		{
+			// probably missed a back-and-forth paging
+			inputQueue->Clear();
+			expectedPageDeactivation.reset();
+			Debug::Warning(LogSource, "Current is correct!");
+			activePageLagsBehind = false;
+			return true;
+		}
+
+		DeactivateCurrentPage(stamp);
+		if (found == nullptr)
+		{
+			Debug::Warning(LogSource, "Neither is active.");
+			activePageLagsBehind = false;
+			return true;
+		}
+
+		Debug::Warning(LogSource, "Found:", found->Id);
+		if (TryActivatePage(found, stamp))
+		{
+			inputQueue->Clear();
+			expectedPageDeactivation.reset();
+			return true;
+		}
+		return false;
+	}
+
+
+	auto X52Output::FindActivePageByProbing() const -> Page*
+	{
+		const size_t count = pages.size();
+
+		size_t origo = count;
+		if (activePage != nullptr)
+		{
+			origo = 0;
+			while (origo < count && pages[origo]->Id != activePage->Id)
+				++origo;
+
+			DBG_ASSERT (origo < count);
+		}
+
+		for (size_t i = 0; i + 1 < count; i++)
+		{
+			size_t dist = i / 2 + 1;
+			int		dir = (i % 2) ? -1 : +1;
+
+			Page* pg = pages[(origo + dir * dist + count) % count];
+			if (pg->ProbeActive())
+				return pg;
+		}
+		return nullptr;
+	}
+
+
+	bool X52Output::TrySetActivePageLine(uint32_t i, uint32_t len, const wchar_t* text)
+	{
+		return TryWithActivePage(&Saitek::DirectOutput::SetString, i, len, text);
+	}
+
+#pragma endregion
 
 #pragma endregion
 
@@ -350,28 +559,24 @@ namespace DOHelper
 
 	void  X52Output::SetLedComponent(uint8_t id, bool on)
 	{
-		if (ledStates[id] == on)
-			return;
-
-		SAI_ASSERT (
-			DirectOutput().library->SetLed(Handle(), activePage->Id, id, on)
-		);
+		bool doSwitch = (ledStates[id] != on) && (activePage != nullptr);
 		ledStates[id] = on;
+		if (doSwitch)
+			TryWithActivePage(&Saitek::DirectOutput::SetLed, id, on);
 	}
 
 
 	void  X52Output::RestoreLeds()
 	{
-		const DWORD pgId = activePage->Id;
+		DBG_ASSERT (activePage != nullptr);
 
-		for (uint8_t id = 0; id < ledStates.size(); id++)
+		bool actUnchanged = true;
+		for (uint8_t id = 0; id < ledStates.size() && actUnchanged; id++)
 		{
 			if (ledStates[id].has_value())
 			{
-				bool on = *ledStates[id];
-				SAI_ASSERT (
-					DirectOutput().library->SetLed(Handle(), pgId, id, on)
-				);
+				bool      on = *ledStates[id];
+				actUnchanged = TryWithActivePage(&Saitek::DirectOutput::SetLed, id, on);
 			}
 		}
 	}

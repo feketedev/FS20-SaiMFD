@@ -68,15 +68,17 @@ namespace DOHelper
 		std::unique_ptr<InputQueue> 	inputQueue;
 		ScrollwheelDebounce				wheelDebounce;
 		std::vector<Page*>				pages;
-		Page*							activePage		 = nullptr;
-		std::vector<uint32_t>			actPageBeforeAdd;  // asymmetry workaround
+		Page*							activePage				= nullptr;
+		bool							activePageLagsBehind	= false;	// processing lags behind DirectOutput state
+		optional<uint32_t>				expectedPageDeactivation;			// message reorder workaround
 
 		// Treating LED colors globally within plugin
 		// - unknown+untouched LEDs cannot be queried
+		// - this is targeted plugin state, set before commanding the device!
 		std::array<optional<bool>, 20>	ledStates;
 
 	public:
-		X52Output(void* const handle, DirectOutputInstance&);
+		X52Output(void* handle, DirectOutputInstance&);
 		X52Output(X52Output&&) noexcept;
 		~X52Output();
 
@@ -114,17 +116,19 @@ namespace DOHelper
 		bool HasPages()				const;
 	
 		void ClearPages();
-		void AddPage(Page&, bool activate = true);
+		void AddPage(Page&,						  bool activate = true);
 		void AddPage(Page&, TimePoint causeStamp, bool activate = true);
-		void RemovePage(Page&);
-		void RemovePage(Page&, TimePoint causeStamp);
+		void RemovePage(Page&,						 bool activateNeighbor = false);
+		void RemovePage(Page&, TimePoint causeStamp, bool activateNeighbor = false);
 
 
 		// NOTE: Would it make sense to utilize this capability?
 		//bool SetProfile(const wchar_t* path);
 
 	private:
-		void Dispatch(const InputMessage&);
+		void  Dispatch(const InputMessage&);
+		bool  TryActivatePage(Page*, TimePoint);
+		Page* DeactivateCurrentPage(TimePoint stamp);
 
 		Page* FindPage(uint32_t id)			 const noexcept;
 
@@ -135,6 +139,16 @@ namespace DOHelper
 
 		void  RestoreLeds();
 		void  SetLedComponent(uint8_t id, bool on);
+
+		bool  RecoverActivePage(TimePoint);
+		Page* FindActivePageByProbing() const;
+		
+		template<class SaiActionPtr, class... Args>
+		bool  TryWithActivePage(const SaiActionPtr&, const Args&...);
+
+		// for Page (hide types instead of explicit instantiation)
+		bool  TrySetActivePageLine(uint32_t i, uint32_t len, const wchar_t* text);
 	};
+
 
 }	// namespace DOHelper

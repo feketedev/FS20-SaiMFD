@@ -36,8 +36,8 @@
 #define THROWING_ASSERT_BASE_M(Ex, x, msg)	if (!(x)) { REPORT_FAIL_M(x, msg);	throw Ex { msg }; }
 
 // NOTE: include winerror.h to use
-#define HRESULT_ASSERT_BASE(Ex, hr)			if (FAILED(hr)) { REPORT_HRESULT(hr);		throw Ex { hr }; }
-#define HRESULT_ASSERT_BASE_M(Ex, hr, msg)	if (FAILED(hr)) { REPORT_HRESULT_M(x, msg);	throw Ex { hr, msg }; }
+#define HRESULT_ASSERT_BASE(Ex, hr)			if (FAILED(hr)) { REPORT_HRESULT(hr);		 throw Ex { hr }; }
+#define HRESULT_ASSERT_BASE_M(Ex, hr, msg)	if (FAILED(hr)) { REPORT_HRESULT_M(hr, msg); throw Ex { hr, msg }; }
 
 
 
@@ -70,5 +70,6 @@ namespace Debug
 
 	// for minimal eye-candy progress indication
 	void InlineInfo(const char* source, const char* msg);
+	void InlineInfo(const char* source, const char* msg, int param);
 
 }

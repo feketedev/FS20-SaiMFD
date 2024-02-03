@@ -28,9 +28,11 @@ namespace DOHelper
 		void Push(MessageKind kind, uint32_t data);
 
 	public:
-		const InputMessage* 		PeekNext(const TimePoint& waitEnd) const;
+		const InputMessage* 		PeekNext()							const;
+		const InputMessage* 		PeekNext(const TimePoint& waitEnd)	const;
 		optional<InputMessage>		PopNext(const TimePoint& waitEnd);
 		InputMessage				PopNext();
+		void						Clear();
 
 		InputQueue(DirectOutputInstance& source, void* deviceHandle);
 		~InputQueue();
