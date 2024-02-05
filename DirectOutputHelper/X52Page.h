@@ -59,8 +59,6 @@ namespace DOHelper
 	private:
 		friend class X52Output;
 
-		static constexpr unsigned NotActiveError = 0xff040001;
-
 
 		void Activate(TimePoint);
 

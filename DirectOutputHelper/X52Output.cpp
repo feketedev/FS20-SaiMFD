@@ -402,7 +402,7 @@ namespace DOHelper
 		if (SUCCEEDED(hr))
 			return true;
 
-		if (hr == Page::NotActiveError)
+		if (hr == E_PAGENOTACTIVE)
 		{
 			activePageLagsBehind = true;
 			return false;
@@ -446,7 +446,7 @@ namespace DOHelper
 			if (activateCalled)
 				activePage->OnDeactivate(stamp);	// may throw on its own
 
-			if (err.ErrorCode == Page::NotActiveError)
+			if (err.ErrorCode == E_PAGENOTACTIVE)
 				return false;
 			
 			throw;									// unexpected D.O. error

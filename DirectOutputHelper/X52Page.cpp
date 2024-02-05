@@ -87,7 +87,7 @@ namespace DOHelper
         DWORD   len = Practically<DWORD>(lines[0].length());
         HRESULT hr  = lib.SetString(device->Handle(), Id, 0, len, lines[0].data());
 
-		if (hr == NotActiveError)
+		if (hr == E_PAGENOTACTIVE)
 			return false;
 
 		SAI_ASSERT_M (hr, "Failed to recover active page id.");
