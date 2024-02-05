@@ -171,7 +171,7 @@ namespace FSMfd
 		{
 			// MAYBE: allow for Align::Left
 			page.Add(CompactGauge { 10, { L"SPOIL ",{ "SPOILERS LEFT POSITION",  "percent" } }});
-			page.Add(CompactGauge { 5,  { L"-",		{ "SPOILERS RIGHT POSITION", "percent" } }, false });
+			page.Add(CompactGauge { 5,  { L"-",		{ "SPOILERS RIGHT POSITION", "percent" } }});
 		}
 
 		if (HasFlaps())
@@ -263,7 +263,7 @@ namespace FSMfd
 		if (IsJet())
 		{
 			engVars.insert(engVars.end(), {
-				{ L"REV",	{ "TURB ENG REVERSE NOZZLE PERCENT:",	"percent",		RequestType::Real }},
+				{ L"REVR ",	{ "TURB ENG REVERSE NOZZLE PERCENT:",	"percent",		RequestType::Real }},
 				{ L"EGT ",	{ "ENG EXHAUST GAS TEMPERATURE:",		"celsius"		}},
 				{ L"N1 ",	{ "TURB ENG N1:",						"percent",		RequestType::Real }, 1 },
 				{ L"N2 ",	{ "TURB ENG N2:",						"percent",		RequestType::Real }, 1 },
