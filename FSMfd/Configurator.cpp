@@ -204,13 +204,13 @@ namespace FSMfd
 
 		// 2nd row
 		// NOTE: Would be nice to utilize DedupSimvarRegister here, but it's not worth the effort for this only use case.
-		panel.Add(ConditionalGauge {{ "AUTOPILOT AIRSPEED HOLD", "AUTOPILOT MACH HOLD" }, {
-			std::make_unique<SwitchGauge>(L"IAS", "AUTOPILOT AIRSPEED HOLD", dotRight),
-			std::make_unique<SwitchGauge>(L"Mch", "AUTOPILOT MACH HOLD",	 dotRight)
+		panel.Add(ConditionalGauge { "AUTOPILOT MANAGED SPEED IN MACH", {
+			std::make_unique<SwitchGauge>(L"Mch", "AUTOPILOT MACH HOLD",	 dotRight),
+			std::make_unique<SwitchGauge>(L"IAS", "AUTOPILOT AIRSPEED HOLD", dotRight)
 		}});
-		panel.Add(ConditionalGauge {{ "AUTOPILOT AIRSPEED HOLD", "AUTOPILOT MACH HOLD" }, {
-			std::make_unique<CompactGauge>(3, SimVarDef  { "AUTOPILOT AIRSPEED HOLD VAR", "knots" }),
-			std::make_unique<CompactGauge>(3, DisplayVar { L".", { "AUTOPILOT MACH HOLD VAR", "percent" }, L"" })
+		panel.Add(ConditionalGauge { "AUTOPILOT MANAGED SPEED IN MACH", {
+			std::make_unique<CompactGauge>(3, DisplayVar { L".", { "AUTOPILOT MACH HOLD VAR", "percent" }, L"" }),
+			std::make_unique<CompactGauge>(3, SimVarDef  { "AUTOPILOT AIRSPEED HOLD VAR", "knots" })
 		}}, 0);
 		panel.Add(SwitchGauge  { L"VS", "AUTOPILOT VERTICAL HOLD", dotRight });
 		panel.Add(CompactGauge { 5, DisplayVar { L"", { "AUTOPILOT VERTICAL HOLD VAR", "ft/min", RequestType::SignedInt }, L"" }}, 0);

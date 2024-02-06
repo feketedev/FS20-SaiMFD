@@ -23,14 +23,21 @@ namespace FSMfd::Pages
 	}
 
 
-	static std::vector<SimVarDef> SummarizeSimvars(const ChoiceList<std::string>&						triggers,
+	static std::vector<SimVarDef> SummarizeSimvars(const ChoiceList<std::string_view>&					triggers,
 												   const ChoiceList<std::unique_ptr<StackableGauge>>&	gauges)
 	{
 		std::vector<SimVarDef> vars;
 		vars.reserve(triggers.size() + gauges.size());
 
 		for (const auto& name : triggers)
-			vars.push_back({ name, "Bool" });
+		{
+			if (name.empty())
+			{
+				LOGIC_ASSERT_M (&name == &triggers.back(), "Only the default option can be empty.");
+				break;
+			}
+			vars.push_back({ std::string { name }, "Bool" });
+		}
 		for (const auto& g : gauges)
 			Utils::Append(vars, g->Variables);
 
@@ -38,13 +45,11 @@ namespace FSMfd::Pages
 	}
 
 
-	static ChoiceList<SimClient::VarIdx>  CalcVarPositions(const ChoiceList<std::unique_ptr<StackableGauge>>& gauges)
+	static ChoiceList<SimClient::VarIdx>  CalcVarPositions(unsigned triggerVarCount, const ChoiceList<std::unique_ptr<StackableGauge>>& gauges)
 	{
-		constexpr SimClient::VarIdx triggerCount = std::tuple_size_v<std::decay_t<decltype(gauges)>>;
-
 		ChoiceList<SimClient::VarIdx> res;
 
-		SimClient::VarIdx pos = triggerCount;
+		SimClient::VarIdx pos = triggerVarCount;
 		for (unsigned i = 0; i < gauges.size(); i++)
 		{
 			res[i] = pos;
@@ -54,22 +59,44 @@ namespace FSMfd::Pages
 	}
 
 
-	ConditionalGauge::ConditionalGauge(ChoiceList<std::string> triggerVarNames, ChoiceList<std::unique_ptr<StackableGauge>> gauges) :
+	// no conversion ctor?? :/
+	static ChoiceList<std::string>	CopyToStrings(const ChoiceList<std::string_view>& list)
+	{
+		ChoiceList<std::string> res;
+		for (unsigned i = 0; i < res.size(); i++)
+			res[i] = list[i];
+		return res;
+	}
+
+
+	ConditionalGauge::ConditionalGauge(ChoiceList<std::string_view> triggerVarNames, ChoiceList<std::unique_ptr<StackableGauge>> gauges) :
 		StackableGauge  { MaxWidth(gauges), MaxHeight(gauges), { SummarizeSimvars(triggerVarNames, gauges) } },
 		gauges          { std::move(gauges) },
-		triggerVarNames { std::move(triggerVarNames) },
-		varPositions	{ CalcVarPositions(this->gauges) }
+		triggerVarNames { CopyToStrings(triggerVarNames) },
+		varPositions	{ CalcVarPositions(triggerVarNames.size(), this->gauges) }
+	{
+	}
+
+
+	ConditionalGauge::ConditionalGauge(std::string_view conditionVarName, ChoiceList<std::unique_ptr<StackableGauge>> gauges) :
+		StackableGauge  { MaxWidth(gauges), MaxHeight(gauges), { SummarizeSimvars({ conditionVarName }, gauges)}},
+		gauges          { std::move(gauges) },
+		triggerVarNames { std::string { conditionVarName }, "" },
+		varPositions	{ CalcVarPositions(1, this->gauges) }
 	{
 	}
 
 
 	bool ConditionalGauge::SelectActive(const SimvarSublist& state)
 	{
+		constexpr unsigned choices  = std::tuple_size_v<decltype(triggerVarNames)>;
+		const	  unsigned triggers = choices - HasDefaultChoice();
+
 		unsigned i = 0;
-		while (i < triggerVarNames.size() && !state[i].AsUnsigned32())
+		while (i < triggers && !state[i].AsUnsigned32())
 			i++;
 
-		if (i == active || i >= triggerVarNames.size())
+		if (i == active || i >= choices)
 			return false;
 
 		active = i;
