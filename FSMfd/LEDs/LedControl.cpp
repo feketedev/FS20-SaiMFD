@@ -63,7 +63,7 @@ namespace FSMfd::Led
 	{
 		if (!enabled)
 		{
-			client.EnableVarGroup(simvars.Group, simvars, /*fastUpdate:*/ true);
+			client.EnableVarGroup(simvars.Group, simvars, UpdateFrequency::FrameDriven);
 			enabled = true;
 		}
 	}

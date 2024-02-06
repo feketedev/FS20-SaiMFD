@@ -193,7 +193,7 @@ namespace FSMfd
 
 	void Configurator::AddAutopilotSettings(Pages::FSPageList& pages) const
 	{
-		GaugeStack& panel = pages.Add<GaugeStack>();
+		GaugeStack& panel = pages.Add<GaugeStack>(UpdateFrequency::OnValueChange);
 
 		const SwitchGauge::SideSymbols dotRight   { Nothing, L'·' };
 		const SwitchGauge::SideSymbols dotsAround { L'·', L'·' };
@@ -326,7 +326,7 @@ namespace FSMfd
 
 	void Configurator::AddRadioFreqSettings(Pages::FSPageList& pages) const
 	{
-		GaugeStack& radioStack = pages.Add<GaugeStack>();
+		GaugeStack& radioStack = pages.Add<GaugeStack>(UpdateFrequency::OnValueChange);
 
 		radioStack.Add(Label { L"ACT  -COM-  STBY" });
 		radioStack.Add(RadioGauge { "COM", 1 });

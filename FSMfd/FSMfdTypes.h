@@ -24,10 +24,6 @@ namespace FSMfd
 
 	namespace SimClient 
 	{
-		using GroupId          = uint32_t;
-		using VarIdx           = uint32_t;
-		using NotificationCode = uint32_t;
-
 		class  DedupSimvarRegister;
 		class  SimvarList;
 		struct SimvarValue;

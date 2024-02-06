@@ -37,10 +37,14 @@ namespace FSMfd::Pages
 	}
 
 
-	GaugeStack::GaugeStack(uint32_t id, const Dependencies& deps, std::vector<std::unique_ptr<StackableGauge>>&& algs) :
+	GaugeStack::GaugeStack(uint32_t id, const Dependencies& deps, SimClient::UpdateFrequency freq, std::vector<std::unique_ptr<StackableGauge>>&& algs) :
 		SimPage  { id, deps },
 		scroller { *this }
 	{
+		SetUpdateFrequency(freq);
+		if (freq == SimClient::UpdateFrequency::OnValueChange)
+			BackgroundReceiveEnabled = true;
+
 		gauges.reserve(algs.size());
 		for (std::unique_ptr<StackableGauge>& a : algs)
 			AddTo(gauges, std::move(a), 1u);

@@ -18,10 +18,6 @@
 namespace FSMfd::SimClient
 {
 
-	/// Wether ResetVarGroups will affect the Group or not.
-	enum class GroupLifetime { Resettable, Permanent };
-
-
 	// according to SimConnect SDK
 	static constexpr VarIdx		MaxVarsPerGroup = 1000;
 
@@ -109,8 +105,7 @@ namespace FSMfd::SimClient
 		void RequestOnetimeUpdate(GroupId, IDataReceiver&);
 
 		/// Register receiver for notifications about the given variable group.
-		/// @param fastUpdate:	apprx. 5Hz depending on FPS, instead of PER_SECOND.
-		void EnableVarGroup(GroupId, IDataReceiver&, bool fastUpdate = false);
+		void EnableVarGroup(GroupId, IDataReceiver&, UpdateFrequency = UpdateFrequency::PerSecond);
 
 		/// Disable notifications about variable group and unregister its receiver.
 		void DisableVarGroup(GroupId);

@@ -464,8 +464,6 @@ namespace DOHelper
 
 	bool X52Output::RecoverActivePage(TimePoint stamp)
 	{
-		DBG_ASSERT (activePageLagsBehind);
-
 		Debug::Warning(LogSource, "Attempting to recover active page...   ");
 		
 		Page* const found = FindActivePageByProbing();

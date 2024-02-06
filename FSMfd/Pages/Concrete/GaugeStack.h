@@ -35,7 +35,9 @@ namespace FSMfd::Pages
 		Scroller					scroller;
 
 	public:
-		GaugeStack(uint32_t id, const Dependencies&, std::vector<std::unique_ptr<StackableGauge>>&& algs = {});
+		GaugeStack(uint32_t id, const Dependencies&,
+				   SimClient::UpdateFrequency = SimClient::UpdateFrequency::PerSecond,
+				   std::vector<std::unique_ptr<StackableGauge>>&&			algs = {});
 
 
 		/// Add a gauge to the bottom.

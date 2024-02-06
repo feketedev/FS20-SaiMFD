@@ -1,7 +1,6 @@
 #pragma once
 
-#include "FSMfdTypes.h"
-#include "SimVarDef.h"
+#include "SimClient/FSClientTypes.h"
 #include "Utils/BasicUtils.h"
 #include "Utils/StringUtils.h"
 #include <vector>
@@ -38,7 +37,10 @@ namespace FSMfd::Pages
 
 		auto VarCount() const	{ return Practically<SimClient::VarIdx>(Variables.size()); }
 
+		/// Set constant parts of layout & clear/default the values.
 		virtual void Clean(DisplayArea&)						= 0;
+
+		/// Update the displayed values.
 		virtual void Update(const SimvarSublist&, DisplayArea&) = 0;
 
 		virtual ~StackableGauge();

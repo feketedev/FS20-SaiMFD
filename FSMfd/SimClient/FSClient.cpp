@@ -236,23 +236,27 @@ namespace FSMfd::SimClient
 	}
 
 
-	void FSClient::EnableVarGroup(GroupId gid, IDataReceiver& reciever, bool fastUpdate)
+	void FSClient::EnableVarGroup(GroupId gid, IDataReceiver& reciever, UpdateFrequency freq)
 	{
 		VarGroup& group = AccessGroup(gid);
 
 		LOGIC_ASSERT_M (group.dataReceiver == nullptr, "Already subscribed to group!");
 
-		SIMCONNECT_PERIOD update = fastUpdate
-			? SIMCONNECT_PERIOD_VISUAL_FRAME 
-			: SIMCONNECT_PERIOD_SECOND;
-		
-		DWORD interval = fastUpdate ? 6 : 0;		// fast: ~30 FPS / 6 --> 4..5Hz
+		SIMCONNECT_PERIOD update = (freq == UpdateFrequency::PerSecond)
+			? SIMCONNECT_PERIOD_SECOND
+			: SIMCONNECT_PERIOD_VISUAL_FRAME;
+
+		SIMCONNECT_DATA_REQUEST_FLAG flags = (freq == UpdateFrequency::OnValueChange) 
+			? SIMCONNECT_DATA_REQUEST_FLAG_CHANGED
+			: 0;
+
+		DWORD interval = (freq == UpdateFrequency::FrameDriven) ? 6 : 0;		// ~30 FPS / 6 --> 4..5Hz
 		DWORD	 simId = ToSimId(gid);
 
 		FS_REQUEST (
 			SimConnect_RequestDataOnSimObject(hSimConnect, simId, simId,
 											  SIMCONNECT_OBJECT_ID_USER,
-											  update, 0, 0, interval   )
+											  update, flags, 0, interval)
 		);
 		group.dataReceiver = &reciever;
 		++subscriptionCount;

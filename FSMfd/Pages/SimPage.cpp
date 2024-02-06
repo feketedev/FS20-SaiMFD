@@ -33,17 +33,32 @@ namespace FSMfd::Pages
 	}
 
 
+	void SimPage::SetUpdateFrequency(SimClient::UpdateFrequency freq)
+	{
+		updateFreq = freq;
+		if (vargroupEnabled)
+		{
+			// MAYBE: SimConnect could set frequency without disabling first
+			SimClient.DisableVarGroup(simValues.Group);
+			SimClient.EnableVarGroup(simValues.Group, *this, freq);
+		}
+	}
+
+
 	void SimPage::OnActivate(TimePoint t)
 	{
-		if (HasOutdatedData(t))
-		{
+		const bool outdated = HasOutdatedData(t);
+		
+		if (outdated || !vargroupEnabled)
 			CleanContent();
+
+		if (outdated)
 			simValues.Invalidate();
-		}
+
 		if (!vargroupEnabled)
 		{
 			DBG_ASSERT (simvarCount);
-			SimClient.EnableVarGroup(simValues.Group, *this);
+			SimClient.EnableVarGroup(simValues.Group, *this, updateFreq);
 			vargroupEnabled = true;
 		}
 		// NOTE: no DrawLines yet, immediate Update can follow!
@@ -81,7 +96,9 @@ namespace FSMfd::Pages
 
 	bool SimPage::HasOutdatedData(TimePoint at) const
 	{
-		return simValues.LastReceived() + ContentAgeLimit < at; 
+		return updateFreq != UpdateFrequency::OnValueChange 
+			&& simValues.HasData()
+			&& simValues.LastReceived() + ContentAgeLimit < at;
 	}
 
 

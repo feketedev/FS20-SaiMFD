@@ -45,7 +45,8 @@ namespace FSMfd::Pages
 
 	private:
 		SimClient::UniqueReceiveBuffer	simValues;
-		TimePoint						lastUpdate;
+		SimClient::UpdateFrequency		updateFreq		 = SimClient::UpdateFrequency::PerSecond;
+		TimePoint						lastUpdate		 = TimePoint::min();
 		size_t							simvarCount		 = 0;
 		bool							vargroupEnabled	 = false;
 		bool							awaitingResponse = false;
@@ -81,6 +82,9 @@ namespace FSMfd::Pages
 		
 		/// To register a SimConnect variables before the page is activated.
 		void RegisterSimVar(const SimVarDef&);
+
+		/// Set the frequency to receive updates for @a simValues.
+		void SetUpdateFrequency(SimClient::UpdateFrequency);
 
 		/// Signal that a SimConnect variable has been changed, and relevant response is imminent.
 		void AwaitSimResponse()	{ awaitingResponse = true; }
