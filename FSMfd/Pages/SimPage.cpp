@@ -113,7 +113,7 @@ namespace FSMfd::Pages
 		DBG_ASSERT_M (gid == simValues.Group, "Currently a single group per Page is expected.");
 
 		simValues.Receive(gid, data, stamp);
-		if (IsAwaitingResponse())
+		if (BackgroundReceiveEnabled || IsAwaitingResponse())
 		{
 			UpdateContent(data);
 			lastUpdate = stamp;
