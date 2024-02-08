@@ -73,7 +73,7 @@ namespace FSMfd::Pages
 		StackableGauge  { MaxWidth(gauges), MaxHeight(gauges), { SummarizeSimvars(triggerVarNames, gauges) } },
 		gauges          { std::move(gauges) },
 		triggerVarNames { CopyToStrings(triggerVarNames) },
-		varPositions	{ CalcVarPositions(triggerVarNames.size(), this->gauges) }
+		varPositions	{ CalcVarPositions(Implied<unsigned>(triggerVarNames.size()), this->gauges) }
 	{
 	}
 
