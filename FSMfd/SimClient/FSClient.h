@@ -38,7 +38,8 @@ namespace FSMfd::SimClient
 	///	   [STATUS_REMOTE_DISCONNECT, ...?], not being done currently.)
 	class FSClient {
 
-		void*	hSimConnect;
+		void*					hSimConnect;
+		optional<VersionNumber> simConnectVer;
 
 
 		// Each group represents a SimConnect DataDefinition, as well as a DataRequest.
@@ -136,6 +137,10 @@ namespace FSMfd::SimClient
 
 		bool TryConnect();
 		bool IsConnected() const;
+
+		/// SimConnect version as received after opening connection.
+		optional<VersionNumber> SimconnectVersion() const	{ return simConnectVer; }
+
 
 		/// Request FS to dispatch new values in Enabled variable groups and notify Receivers.
 		/// 

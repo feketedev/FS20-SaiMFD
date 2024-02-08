@@ -276,6 +276,26 @@ namespace FSMfd
 			device.ProcessMessages(nextCheck);
 			welcomePage.DrawAnimation();
 		}
+
+		optional<VersionNumber> scVer;
+		while (CanUse(device) && !scVer.has_value())
+		{
+			AdvanceToUpcomingTick(nextCheck, WelcomeAnimationIval, TimePoint::clock::now());
+			std::ignore	= client.Receive(nextCheck);
+			scVer		= client.SimconnectVersion();
+			welcomePage.DrawAnimation();
+			device.ProcessMessages(nextCheck);
+		}
+
+		if (scVer.has_value())
+		{
+			std::cout << "\nSimConnect version: \t"
+					  << scVer->version[0] << '.' 
+					  << scVer->version[1] << '.'
+					  << scVer->build[0]   << '.'
+					  << scVer->build[1]
+					  << "\nConnection established.\n\n";
+		}
 		return client;
 	}
 

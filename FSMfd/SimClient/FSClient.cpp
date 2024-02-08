@@ -20,6 +20,9 @@
 
 namespace FSMfd::SimClient 
 {
+	constexpr char LogSource[] = "FSCLient";
+
+
 
 #pragma region Connection
 
@@ -559,12 +562,13 @@ namespace FSMfd::SimClient
 	// Context for SimConnect CALLBACK
 	// + performs basic message validations involving VarGroup data
 	struct FSClient::ReceiveContext {
-		FSClient&	self;
-		TimePoint	stamp;
-		bool		received = false;		// to signal "correct" nothing without error
-		bool		quit	 = false;		// explicit quit signal received
-		const char* error    = nullptr;
-		const char* warning  = nullptr;
+		FSClient&		self;
+		TimePoint		stamp;
+		bool			received = false;		// to signal "correct" nothing without error
+		bool			quit	 = false;		// explicit quit signal received
+		const char*		error    = nullptr;
+		const char*		warning  = nullptr;
+		optional<DWORD>	receivedException;
 
 
 		template <class Fun, class... Args>
@@ -593,7 +597,7 @@ namespace FSMfd::SimClient
 						   simId < self.exhaustedGroupIdCount + MaxPermanentGroups;
 			if (lateMsg)
 			{
-				Debug::Info("FSClient", "Received late message for now obsolete group.");
+				Debug::Info(LogSource, "Received late message for now obsolete group.");
 				return;
 			}
 
@@ -659,11 +663,50 @@ namespace FSMfd::SimClient
 		};
 
 
+		void HandleOpen(const SIMCONNECT_RECV_OPEN& ack)
+		{
+			if (self.simConnectVer.has_value())
+				warning = "Received duplicated Open packet.";
+
+			self.simConnectVer = VersionNumber {
+				{ ack.dwSimConnectVersionMajor, ack.dwSimConnectVersionMinor },
+				{ ack.dwSimConnectBuildMajor,   ack.dwSimConnectBuildMinor }  
+			};
+		}
+
+
+		void HandleReceivedException(const SIMCONNECT_RECV_EXCEPTION& exData)
+		{
+			receivedException = exData.dwException;
+
+			// friendly message for errors commonly caused by wrong configuration
+			switch (exData.dwException)
+			{
+				case SIMCONNECT_EXCEPTION_UNRECOGNIZED_ID:
+					warning = "SimConnect exception: \tUnrecognized ID!";
+					break;
+				case SIMCONNECT_EXCEPTION_NAME_UNRECOGNIZED:
+					warning = "SimConnect exception: \tUnrecognized parameter name!";
+					break;
+				case SIMCONNECT_EXCEPTION_INVALID_ENUM:
+					warning = "SimConnect exception: \tInvalid Enum!";
+					break;
+				case SIMCONNECT_EXCEPTION_INVALID_DATA_TYPE:
+					warning = "SimConnect exception: \tInvalid Type!";
+					break;
+			}
+		}
+
+		// no mixing with other warnings currently
+		bool HasInterpretedException() const	{ return receivedException.has_value(); }
+
+
 		void FSQuit()
 		{
 			quit = true;
 			self.hSimConnect = nullptr;
-			Debug::Warning("SimClient", "FS Exiting.");
+			self.simConnectVer.reset();
+			Debug::Warning(LogSource, "FS Exiting.");
 		}
 	};
 
@@ -681,8 +724,9 @@ namespace FSMfd::SimClient
 		switch (pData->dwID)
 		{
 			case SIMCONNECT_RECV_ID_OPEN:
+				context->HandleOpen(*static_cast<const SIMCONNECT_RECV_OPEN*>(pData));
 				return;
-
+			
 			case SIMCONNECT_RECV_ID_QUIT:
 				context->FSQuit();
 				return;
@@ -691,30 +735,24 @@ namespace FSMfd::SimClient
 			case SIMCONNECT_RECV_ID_EVENT_FRAME:
 			case SIMCONNECT_RECV_ID_EVENT_OBJECT_ADDREMOVE:
 			{
-				auto* pEvntData = static_cast<SIMCONNECT_RECV_EVENT*> (pData);
-
-				context->HandleEvent(*pEvntData, byteCount);
+				context->HandleEvent(*static_cast<SIMCONNECT_RECV_EVENT*> (pData), byteCount);
 				return;
 			}
 			case SIMCONNECT_RECV_ID_EVENT_FILENAME:
 			{
-				auto* pEvntData = static_cast<SIMCONNECT_RECV_EVENT_FILENAME*> (pData);
-				context->HandleEvent(*pEvntData, byteCount);
+				context->HandleEvent(*static_cast<SIMCONNECT_RECV_EVENT_FILENAME*> (pData), byteCount);
 				return;
 			}
 
 			case SIMCONNECT_RECV_ID_SIMOBJECT_DATA:
 			{
-				auto* pObjData = static_cast<SIMCONNECT_RECV_SIMOBJECT_DATA*> (pData);
-
-				context->HandleData(*pObjData, byteCount);
+				context->HandleData(*static_cast<SIMCONNECT_RECV_SIMOBJECT_DATA*> (pData), byteCount);
 				return;
 			}
 
 			case SIMCONNECT_RECV_ID_EXCEPTION:
 			{
-				auto* pExData = static_cast<SIMCONNECT_RECV_EXCEPTION*> (pData);
-				Debug::Warning("FSClient", "SimConnect exception: ", pExData->dwException);
+				context->HandleReceivedException(*static_cast<SIMCONNECT_RECV_EXCEPTION*> (pData));
 				return;
 			}
 
@@ -792,8 +830,11 @@ namespace FSMfd::SimClient
 		//					 error = 0xc000014b : Broken pipe 
 		HRESULT hr = SimConnect_CallDispatch(hSimConnect, &ProcessSimMessage, &context);
 		if (context.warning)
-			Debug::Warning("FSCLient", context.warning);
+			Debug::Warning(LogSource, context.warning);
 		
+		if (context.receivedException && !context.HasInterpretedException())
+			Debug::Warning(LogSource, "SimConnect exception: ", *context.receivedException);
+
 		LOGIC_ASSERT_M (context.error == nullptr, context.error);
 		
 		if (!context.quit)
@@ -814,7 +855,4 @@ namespace FSMfd::SimClient
 #pragma endregion
 
 
-
 }	// namespace FSMfd
-
-

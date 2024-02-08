@@ -18,7 +18,7 @@ namespace DOHelper
 {
 	using Utils::Cast::AsIndex;
 
-	constexpr const char* LogSource = "DirectOutput Helper";
+	constexpr char LogSource[] = "DirectOutput Helper";
 
 
 

@@ -31,4 +31,10 @@ namespace FSMfd::SimClient
 		OnValueChange
 	};
 
+
+
+	struct VersionNumber {
+		uint32_t version[2];
+		uint32_t build[2];
+	};
 }
