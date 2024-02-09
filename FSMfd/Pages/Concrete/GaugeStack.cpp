@@ -70,7 +70,7 @@ namespace FSMfd::Pages
 	}
 	
 
-	void GaugeStack::Add(std::unique_ptr<StackableGauge> next, unsigned margin)
+	GaugeStack&  GaugeStack::Add(std::unique_ptr<StackableGauge> next, unsigned margin)
 	{
 		DBG_ASSERT (byRow.back() == gauges.size());
 
@@ -95,8 +95,10 @@ namespace FSMfd::Pages
 		{
 			byRow.back() = gauges.size();
 		}
-		LOGIC_ASSERT (scroller.LineCount() == std::max(3u, TotalHeight()));
+		LOGIC_ASSERT (scroller.LineCount() == TotalHeight());
 		AllocRowBuffer(RowCount() - 1);
+
+		return *this;
 	}
 
 
@@ -231,6 +233,9 @@ namespace FSMfd::Pages
 
 	void GaugeStack::OnScroll(bool up, TimePoint)
 	{
+		if (gauges.empty())
+			return;
+
 		// NOTE: inverted scrolling - although for interactions probably normal scrolling will be better
 		// NOTE: scrolling to reach top/bottom of next gauge, as long as no lines get skipped
 		if (up)

@@ -7,13 +7,20 @@
 namespace FSMfd::Pages
 {
 
-	Scroller::Scroller(DOHelper::X52Output::Page& target, unsigned size, bool useEmptyGuardLines) :
+	Scroller::Scroller(DOHelper::X52Output::Page& target, bool useEmptyGuardLines, unsigned size) :
 		target         { target },
+		lineCount      { 0 },
 		useEmptyGuards { useEmptyGuardLines },
-		displayPos     { useEmptyGuardLines ? 1u : 0u }
+		displayPos     { useEmptyGuardLines && 2 <= size ? 1u : 0u }
 	{
-		LOGIC_ASSERT_M (size >= 3, "Narrowing the screen is not supported.");
-		unseenLines.resize(size - 3 + 2 * useEmptyGuards);
+		LOGIC_ASSERT_M (size >= 1, "Empty screen is not supported.");
+		AddLines(size);
+	}
+
+
+	Scroller::Scroller(DOHelper::X52Output::Page& target, unsigned initialSize)
+		: Scroller { target, true, initialSize }
+	{
 	}
 
 
@@ -34,14 +41,16 @@ namespace FSMfd::Pages
 	unsigned Scroller::LastDisplayedLine() const
 	{
 		unsigned mid = PubMidIdx(displayPos, useEmptyGuards);
-		return std::min(mid + 1, LineCount() - 1);
+		return std::min(mid + 1, lineCount - 1);
 	}
 
 
 	bool Scroller::IsDisplayed(unsigned line) const
 	{
-		return displayPos <= line + useEmptyGuards
-			&& displayPos + 3 > line + useEmptyGuards;
+		LOGIC_ASSERT (line < LineCount());
+
+		return line + useEmptyGuards >= displayPos
+			&& line + useEmptyGuards < displayPos + 3;
 	}
 
 
@@ -139,18 +148,24 @@ namespace FSMfd::Pages
 	}
 
 
-	void Scroller::AddLines(unsigned count)
+	void Scroller::AddLines(unsigned add)
 	{
-		unseenLines.resize(unseenLines.size() + count);
+		unsigned occup = lineCount + add + 2 * useEmptyGuards;
+		if (3 < occup)
+			unseenLines.resize(occup - 3);
+
+		lineCount += add;
 		// NOTE: No need to move the bottom empty guard - as it's just a regular empty line.
+		
+		if (useEmptyGuards && displayPos == 0 && lineCount > 1)
+			ScrollDown();
 	}
 
 
 	void Scroller::EnsureLineCount(unsigned count)
 	{
-		unsigned current = LineCount();
-		if (current < count)
-			AddLines(count - current);
+		if (lineCount < count)
+			AddLines(count - lineCount);
 	}
 
 

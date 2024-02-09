@@ -58,7 +58,7 @@ namespace FSMfd::Pages
 	ReadoutScrollList::ReadoutScrollList(uint32_t id, const Dependencies& deps, std::vector<DisplayVar> dvars) :
 		SimPage   { id, deps },
 		variables { ToPrintableVariables(std::move(dvars)) },
-		scroller  { *this, std::max(3u, Practically<unsigned>(variables.size())) }
+		scroller  { *this, std::max(1u, Practically<unsigned>(variables.size())) }
 	{
 		uint32_t i = 0;
 		for (const auto& [var, _] : variables)

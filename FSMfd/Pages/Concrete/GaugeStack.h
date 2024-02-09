@@ -42,13 +42,13 @@ namespace FSMfd::Pages
 
 		/// Add a gauge to the bottom.
 		/// @param margin: number of blank characters to leave after the previous gauge.
-		void Add(std::unique_ptr<StackableGauge>, unsigned margin = 1);
+		GaugeStack& Add(std::unique_ptr<StackableGauge>, unsigned margin = 1);
 
 		template<class Gauge>
-		void Add(Gauge&&,						  unsigned margin = 1);
+		GaugeStack& Add(Gauge&&,						 unsigned margin = 1);
 		
 		template<class ConcreteGauge>
-		void Add(std::unique_ptr<ConcreteGauge>,  unsigned margin = 1);		// just in case, disambiguates overload resol.
+		GaugeStack& Add(std::unique_ptr<ConcreteGauge>,  unsigned margin = 1);		// just in case, disambiguates overload resol.
 
 
 		void CleanContent()					  override;
@@ -75,16 +75,16 @@ namespace FSMfd::Pages
 
 
 	template<class Gauge>
-	void GaugeStack::Add(Gauge&& next, unsigned margin)
+	GaugeStack&  GaugeStack::Add(Gauge&& next, unsigned margin)
 	{
-		Add(std::make_unique<std::remove_reference_t<Gauge>>(std::forward<Gauge>(next)), margin);
+		return Add(std::make_unique<std::remove_reference_t<Gauge>>(std::forward<Gauge>(next)), margin);
 	}
 
 
 	template<class ConcreteGauge>
-	void GaugeStack::Add(std::unique_ptr<ConcreteGauge> next, unsigned margin)
+	GaugeStack&  GaugeStack::Add(std::unique_ptr<ConcreteGauge> next, unsigned margin)
 	{
-		Add(std::unique_ptr<StackableGauge> { next.release() }, margin);
+		return Add(std::unique_ptr<StackableGauge> { next.release() }, margin);
 	}
 
 

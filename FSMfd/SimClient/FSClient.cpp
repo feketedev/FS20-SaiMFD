@@ -774,6 +774,11 @@ namespace FSMfd::SimClient
 			return false;
 
 		// Simulate connection
+		if (!simConnectVer.has_value())
+		{
+			simConnectVer = VersionNumber {{1, 1}, {1, 1}};
+			return true;
+		} 
 		if (!connected && firstTime + Wait <= now)
 		{
 			PushEvent(now, inflightDetector->DetectionEvent, 1u);
