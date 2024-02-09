@@ -141,6 +141,8 @@ namespace FSMfd
 		AddRadioFreqSettings(pages);
 		AddRadioNavPage(pages);
 
+		pages.SetInitialActive(2);
+
 		return pages;
 	}
 
@@ -213,7 +215,7 @@ namespace FSMfd
 			std::make_unique<CompactGauge>(3, SimVarDef  { "AUTOPILOT AIRSPEED HOLD VAR", "knots" })
 		}}, 0);
 		panel.Add(SwitchGauge  { L"VS", "AUTOPILOT VERTICAL HOLD", dotRight });
-		panel.Add(CompactGauge { 5, DisplayVar { L"", { "AUTOPILOT VERTICAL HOLD VAR", "ft/min", RequestType::SignedInt }, L"" }}, 0);
+		panel.Add(CompactGauge { 5, DisplayVar { L"", { "AUTOPILOT VERTICAL HOLD VAR", "ft/min", RequestType::SignedInt }, SignUsage::PrependPlus, L"" }}, 0);
  
 		// 3rd row
 		panel.Add(SwitchGauge  { L"HDG", "AUTOPILOT HEADING LOCK",	dotRight });
@@ -263,7 +265,7 @@ namespace FSMfd
 		if (IsJet())
 		{
 			engVars.insert(engVars.end(), {
-				{ L"REVR ",	{ "TURB ENG REVERSE NOZZLE PERCENT:",	"percent",		RequestType::Real }},
+				{ L"REVR ",	{ "TURB ENG REVERSE NOZZLE PERCENT:",	"percent",		RequestType::Real }, 1 },
 				{ L"EGT ",	{ "ENG EXHAUST GAS TEMPERATURE:",		"celsius"		}},
 				{ L"N1 ",	{ "TURB ENG N1:",						"percent",		RequestType::Real }, 1 },
 				{ L"N2 ",	{ "TURB ENG N2:",						"percent",		RequestType::Real }, 1 },
@@ -274,9 +276,9 @@ namespace FSMfd
 		{
 			engVars.insert(engVars.end(), {
 				{ L"EGT ",	 { "ENG EXHAUST GAS TEMPERATURE:",		"celsius"		}},
-				{ L"Prop",	 { "PROP BETA:",						"degrees",		RequestType::SignedInt }},
+				{ L"Prop ",	 { "PROP BETA:",						"degrees",		RequestType::SignedInt }},
 				{ L"PrpRPM", { "PROP RPM:",							"RPM"			}},
-				{ L"EngRPM", { "GENERAL ENG RPM:",					"RPM"			}},
+				{ L"TRPM",	 { "GENERAL ENG RPM:",					"RPM"			}},
 			});
 		}
 		if (IsTurboprop())
@@ -293,7 +295,7 @@ namespace FSMfd
 			engVars.insert(engVars.end(), {
 				{ L"Mix ",	{ "RECIP MIXTURE RATIO:",				"percent",		RequestType::Real }},
 				{ L"MAP ",	{ "RECIP ENG MANIFOLD PRESSURE:",		"inHg",			RequestType::Real }, L"inH" },
-				{ L"Cowl ",	{ "RECIP ENG COWL FLAP POSITION:",			"percent"		}},
+				{ L"Cowl ",	{ "RECIP ENG COWL FLAP POSITION:",		"percent"		}},
 				{ L"Carb",	{ "RECIP CARBURETOR TEMPERATURE:",		"celsius",		RequestType::SignedInt }},
 				{ L"Cyl ",	{ "RECIP ENG CYLINDER HEAD TEMPERATURE:", "celsius",		RequestType::SignedInt }},
 			});
@@ -306,7 +308,7 @@ namespace FSMfd
 		// common for multi-engine
 		engVars.insert(engVars.end(), {
 			{ L"FF ",	fuelFlow },
-			{ L"OIL ",	{ "ENG OIL PRESSURE:",					"psi",				  RequestType::Real }, 1 },
+			{ L"OIL",	{ "ENG OIL PRESSURE:",					"psi",				  RequestType::Real }, 1 },
 			{ L"OIL ",	{ "ENG OIL TEMPERATURE:",				"celsius",			  RequestType::Real }, 1 },
 		//	{ L"OIL%",	{ "ENG OIL QUANTITY:",					"percent",			  RequestType::Real }, 1 },	// always 100%
 		});

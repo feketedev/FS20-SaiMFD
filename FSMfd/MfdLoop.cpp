@@ -197,12 +197,11 @@ namespace FSMfd
 		if (list.Pages().empty())
 			return;
 
-		auto it = list.Pages().begin();
-		SimPage& first = **it++;
-		device.AddPage(first, /*activate:*/ true);
-
-		for (; it != list.Pages().end(); ++it)
-			device.AddPage(**it, false);
+		for (const auto& pgPtr : list.Pages())
+		{
+			SimPage& pg = *pgPtr;
+			device.AddPage(pg, &pg == &list.InitialActive());
+		}
 	}
 
 

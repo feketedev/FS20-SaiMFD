@@ -11,13 +11,15 @@ namespace FSMfd::Pages
 	class FSPageList {
 		const SimPage::Dependencies				dependencies;
 
+		uint32_t								initialActive = 0;
 		uint32_t								nextId;
 		std::vector<std::unique_ptr<SimPage>>	pages;
 
 	public:
-		const auto& Pages() const				{ return pages; }
+		const auto&		Pages()			const	{ return pages; }
+		const SimPage&	InitialActive() const	{ return *pages[initialActive]; }
 
-		
+
 		FSPageList(const SimPage::Dependencies& deps, uint32_t firstId = 1) :
 			dependencies { deps },
 			nextId		 { firstId }
@@ -33,6 +35,13 @@ namespace FSMfd::Pages
 				std::make_unique<P>(id, dependencies, std::forward<Args>(args)...)
 			);
 			return static_cast<P&>(*pages.back());
+		}
+
+		
+		void SetInitialActive(unsigned i)
+		{
+			if (i < pages.size())
+				initialActive = i;
 		}
 	};
 

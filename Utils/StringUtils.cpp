@@ -282,7 +282,7 @@ namespace Utils::String
 			return false;
 		};
 
-		const wchar_t* format = NonDefault(sign & SignUsage::PrependPlus)
+		const wchar_t* format = NonDefault(sign & SignUsage::PrependPlus) && value != 0
 			? L"%+d" 
 			: L"%d";
 
@@ -312,10 +312,9 @@ namespace Utils::String
 		if (target.Length < wholePart)
 			return false;
 
-		const bool letFraction = hasPoint 
-			&& target.Length > wholePart + (preferDecimals ? 2 : 1 + aln.pad);
-
-		const size_t limit  = target.Length - (!preferDecimals * aln.pad);
+		const size_t padReqd     = !preferDecimals * aln.pad;
+		const bool   letFraction = hasPoint && target.Length >= wholePart + 2 + padReqd;
+		const size_t limit  = target.Length - padReqd;
 		const size_t cpyLen = letFraction
 			? std::min(num.length(), limit)		// cut fraction to maintain preferred padding / target length
 			: wholePart;						// must fit, that we established
@@ -345,7 +344,7 @@ namespace Utils::String
 			~RoundModeGuard()  { std::fesetround(origMode);	   }
 		} modeGuard;
 
-		const wchar_t* format = NonDefault(opts.sign & SignUsage::PrependPlus) 
+		const wchar_t* format = NonDefault(opts.sign & SignUsage::PrependPlus)
 			? L"%+.*f" 
 			: L"%.*f";
 

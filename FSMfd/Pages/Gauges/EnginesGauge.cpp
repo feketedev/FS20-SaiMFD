@@ -158,7 +158,7 @@ namespace FSMfd::Pages
 		if (display.size > 1)
 		{
 			unsigned midLen = DisplayLen - 2 * TopRowInset;
-			for (wchar_t& c : display[0].SubSection(TopRowInset, midLen - 1))
+			for (wchar_t& c : display[0].SubSection(TopRowInset, midLen))
 				if (c == L' ')
 					c = L'¨';
 		}

@@ -343,6 +343,28 @@ namespace FSMfdTests
 			// Left...
 			Assert::IsTrue(PlaceNumber(1.046875, 6, trg, Align::Left));
 			Assert::AreEqual(L"1.046875  ", buff.data());
+
+			// With decimals preferred over padding
+			Assert::IsTrue(PlaceNumber(1.046875, DecimalUsage { 4, /*preferDecimals:*/ true }, trg, { Align::Right, 8, }));
+			Assert::AreEqual(L"1.0468    ", buff.data());
+			Assert::IsTrue(PlaceNumber(1.046875, DecimalUsage { 4, /*preferDecimals:*/ true }, trg, { Align::Right, 2 }));
+			Assert::AreEqual(L"  1.0468  ", buff.data());
+
+			buff.assign(9, L' ');
+			StringSection shortTrg = trg.SubSection(0, 3);
+			
+			Assert::IsTrue(PlaceNumber(1.04687,  DecimalUsage { 4, /*preferDecimals:*/ true }, shortTrg, { Align::Right, 1, }));
+			Assert::AreEqual(L"1.0      ", buff.data());
+			Assert::IsTrue(PlaceNumber(12.04687, DecimalUsage { 4, /*preferDecimals:*/ true }, shortTrg, { Align::Right, 1, }));
+			Assert::AreEqual(L"12       ", buff.data());
+			Assert::IsTrue(PlaceNumber(123.0468, DecimalUsage { 4, /*preferDecimals:*/ true }, shortTrg, { Align::Right, 1, }));
+			Assert::AreEqual(L"123      ", buff.data());
+			Assert::IsTrue(PlaceNumber(1.04687, DecimalUsage { 4, /*preferDecimals:*/ true }, shortTrg, Align::Right));
+			Assert::AreEqual(L"1.0      ", buff.data());
+			Assert::IsTrue(PlaceNumber(12.04687, DecimalUsage { 4, /*preferDecimals:*/ true }, shortTrg, Align::Right));
+			Assert::AreEqual(L" 12      ", buff.data());
+			Assert::IsTrue(PlaceNumber(123.0468, DecimalUsage { 4, /*preferDecimals:*/ true }, shortTrg, Align::Right));
+			Assert::AreEqual(L"123      ", buff.data());
 		}
 
 
