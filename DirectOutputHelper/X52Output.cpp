@@ -501,7 +501,8 @@ namespace DOHelper
 	{
 		const size_t count = pages.size();
 
-		size_t origo = count;
+		size_t origo  = count;
+		size_t modulo = count + 1;		// traverse all when had no active!
 		if (activePage != nullptr)
 		{
 			origo = 0;
@@ -509,14 +510,15 @@ namespace DOHelper
 				++origo;
 
 			DBG_ASSERT (origo < count);
+			modulo = count;
 		}
 
-		for (size_t i = 0; i + 1 < count; i++)
+		for (size_t i = 0; i + 1 < modulo; i++)
 		{
 			size_t dist = i / 2 + 1;
 			int		dir = (i % 2) ? -1 : +1;
 
-			Page* pg = pages[(origo + dir * dist + count) % count];
+			Page* pg = pages[(origo + dir * dist + modulo) % modulo];
 			if (pg->ProbeActive())
 				return pg;
 		}
