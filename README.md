@@ -12,7 +12,7 @@ In their current state the **MFD pages** are output-only, and not tailored for e
 The applicable pages appear in the following order:
 * Generic info (G-force, airspeed, altitude etc.)
 * Aerodynamic configuration (flaps, spoilers, trim)
-* Engine instruments (1..4 engines)
+* Engine instruments (1..4 engines) &emsp;&emsp;&emsp;&emsp;&emsp;&#129144; Default at startup
 * Autopilot parameters
 * Radio frequencies
 * Radionavigation (VOR/ADF output)
@@ -71,12 +71,12 @@ Autothrust state
 Simply download the latest executable to your preferred location and run it. 
 (Visual C++ redistributable is assumed to be already present, given that MSFS 2020 is installed.)
 
-Once the joystick is plugged in, you should be presented with a little bar animation on the MFD waiting for connection to MSFS and then for a flight to load. (Empty gauges on the MFD may flicker a few times due to some false notifications during the game's loading process.)
+Once the joystick is plugged in, you should be presented with a little bar animation on the MFD waiting for connection to MSFS and then for a flight to load. (Idling gauges may show up a few times during the game's loading process.)
 
 For Saitek's DirectOutput service to work properly on current Windows versions (on 11 certainly) the latest, signed version of the X52 Pro driver should be installed from Logitech's website.
 (I experimented a bit with older versions for their resizeable profile editor... with no luck.)
 
-Should you be in doubt whether DirectOutput is working, check out its provided Test app located by default at "C:\Program Files\Logitech\DirectOutput\SDK\Examples\Test\Test.exe".
+Should you be in doubt whether DirectOutput is working, you can check its provided Test app located by default at "C:\Program Files\Logitech\DirectOutput\SDK\Examples\Test\Test.exe".
 
 
 ## Customization
@@ -84,7 +84,7 @@ Should you be in doubt whether DirectOutput is working, check out its provided T
 Currently the only way of customization is by code - but it's aimed to be mostly readable and easily extensible with new simulation variables. 
 The whole configuration of Page contents and LED effets is contained within the single file [FSMfd/Configurator.cpp](FSMfd/Configurator.cpp). 
 I think it's manageable with very minimal experience in any kind of programming just by following existing patterns -  
-albiet the text alignments on MFD are not fully straitforward; and the process requires recompiling this plugin.
+albiet the text alignments on MFD are not fully straitforward; also the process requires recompiling this plugin.
 
 To do so you'll need to install the MSFS SDK, accessible from the dev menu in the game.
 After that, either re-import their build properties
@@ -97,10 +97,18 @@ DirectOutput headers are included in the source-tree, so the driver just needs t
 
 ## Known issues
 
-I experience some serious bouncing with the MFD's scroll wheels, which is mostly mitigated by code for the custom (right) scroll wheel - currently used only to scroll within page -, but not for the paging wheel (left), which has a more entangled handling in the driver (behind the API).
+1. I experienced serious bouncing with the MFD's scroll wheels, even leading to inconsistent DirectOutput events about page changes - however:
+	* The cause seem to be some hardware or driver issue related to my current PC.  
+	  Lately I've tested DirectOutput on the previous one (using the same updated Logitech driver) and that isn't affected.
+	* Since v0.86 these potential problems are largely mitigated by code too.  
+	  In the worst case (a page activation event is omitted) the MFD can pause blank, but any further scroll/press should recover it.
 
-These ambiguous input events cause errors during paging, which currently trigger a simple restart mechanism in this plugin.  
-(This can be a problem in my hardware/driver since even the Saitek example app behaves unstable.)
+2. Some LEDs tend to flash (reveal their default colors for a moment) while turning Pages.
+	* As a partial workaround it is suggested to addjust their default colors in USB Game Controller settings to resemble the usual  
+	   (i.e. warning-less) in-game colors or simply to Off (which is less annoying for the eyes as "flash" color).
+
+3. If started while FS is in the main menu, the plugin shows idling gauges instead of the wait animation.
+	* This is a limitation of available events from the game.
 
 #### About the code
 It was kind of a back-to-programming project - so yes, it does contain some unnecessary extra and exploratory parts, but I think it tends to be structured. :)
